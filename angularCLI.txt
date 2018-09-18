@@ -1,0 +1,55 @@
+INFO
+	CLI - Command Line Interface
+	npm install -g @angular/cli  =>to install cli globally
+	ng new MyFirstApp [--dry-run][--skip-install][--skip-tests][--inline-style][--inline-template][--routing]  =>new for creating a new application. MyFirstApp is the name of your angular application. To generate a routing module use --routing 
+	ng serve --open  => starts server and run the project in the browser in live mode. 
+	ctrl+C  => stops the live server
+	ng test  => run all the unit tests
+	ng e2e  => run all the end-to-end tests
+	ng generate component [<folderPath/>]<componentName> [--flat][--dry-run][--inline-style][--inline-template][--spec=false]
+		flat => wont' create a new directory
+		spec => wont' create spec.ts file
+	ng generate service serviceName [--module=app.module][--spec=false][--dry-run][--flat=false]
+		module  => generates employee service and also registers our service with the AppModule
+		flat  => creates folder of it's own for a service
+	ng generate module moduleName [--module=app.module][--spec=true][--flat=true][--dry-run]
+		spec  => By default a spec file is not generated. If you also want a spec file to be generated
+		module  => command not only generates students module, it also imports it into the root module (AppModule)
+		flat  => If you do not want a dedicated folder for the module you are generating
+		
+LINTING
+	linting tool checks our TypeScript code for programmatic and stylistic errors as well as non-adherence to coding standards and conventions. 
+	tslint.json is the configuration file for linting
+	ng lint --type-check  => to lint the code
+	common linting rules 
+		1. quotemark rule specifies whether you want single or double quotes
+		2. no-trailing-whitespace rule disallows trailing whitespace at the end of a line
+		3. semicolon rule specifies that a line should be terminated with a semicolon
+		4. comment-format rule specifies that all single-line comments must begin with a space
+		5. component-class-suffix rule enforces that a component class should end with the suffix Component
+		6. use-life-cycle-interface rule enforces that you add the implements keyword for every lifecycle hook you use
+	ng lint --fix  => Some of the linting errors support automatic fix. 
+	Visual Studio Code can display these linting errors so we can fix them as we are writing code. To achieve this install Visual Studio Code extension - TSLint.
+	
+COMPILE
+	ng build or ng build --dev  => produce a development build
+	ng build --prod  => produce a production build
+	A production build implements all the performance optimization techniques like Ahead-of-time (AOT) compilation, minification, uglification and treeshaking
+	Minification - The process of removing excess whitespace, comments, and optional tokens like curly brackets and semicolons. 
+	Uglification - The process of transforming code to use short variable and function names.
+	Tree Shaking - The process of removing any code that we are not actually using in our application from the final bundle.
+	dev build vs prod build	
+		file sizes in the production build are significantly less than the file sizes in the development build. 
+		With the production build, by default, we do not get the source map files because we usually do not need them on a production server. 
+		Production build extracts css from global styles into a css file instead of js ones.
+	Source Map - To improve the performance, the application's JavaScript and CSS files are combined and compressed. It is extremely difficult to debug those compressed files. A source map holds information about the original files and can be used to map the code within a compressed file back to it’s original position in a source file
+	
+JIT VS AOT
+	JIT - Just-in-Time Compilation : JIT compilation as the name implies, compiles the application Just-in-Time in the browser at runtime.
+	AOT - Ahead-of-Time Compilation : AOT compilation compiles the application at build time.
+	when we build our angular application, the following JavaScript bundles are generated.
+		Inline - is a webpack loader. A tiny file with Webpack utilities that are needed when loading other files.
+		Main - developer code
+		Polyfills - for cross platform compatibility
+		Styles - CSS file bundled in js
+		Vendor - The vendor bundle contains the compiler along with the angular framework. The compiler code is roughly half of the Angular framework.	

@@ -1,0 +1,539 @@
+INTRO
+	The controller responds to URL request, gets data from model and hands it over to the view.
+	Unobtrusive JavaScript - JavaScript file is separated from HTML code
+	Ideally validation logic should be inside model section
+	view engine
+		aspx - server script is wrapped in <%: ... %>
+		razor - server script starts with @
+		custom view engine like Spark, sharpDOM
+	code and html
+		to switch to code inside html use "@"
+		code block "@{...}"
+		to switch to html inside c# code "@:"
+		to comment "@* ... *@"
+		Use @ symbol to escape @
+		razor is smart enough to recognize the format of Internet email address and not to treat the @ symbol as a code delimiter.
+	Global.aspx configures data by executing BundleConfig.cs, FilterConfig.cs, RouteConfig.cs(which are contained in App_Data folder) 
+	MVC search for view in following order
+		~/Views/Employee/Index.aspx
+		~/Views/Employee/Index.ascx
+		~/Views/Shared/Index.aspx
+		~/Views/Shared/Index.ascx
+		~/Views/Employee/Index.cshtml
+		~/Views/Employee/Index.vbhtml
+		~/Views/Shared/Index.cshtml
+		~/Views/Shared/Index.vbhtml
+	ways to pass data from a controller to a view
+		ViewBag or ViewData
+		Dynamic type (@Model dynamic)
+		Strongly typed view
+	Url.Content(<relative_path>) - convert relative path into full path
+	HTML encoding
+		HTML encoding is the process of replacing ASCII characters with their 'HTML Entity' equivalents.('>' -> '&gt;)
+		To avoid cross site scripting attacks, all output is automatically html encoded in mvc
+		ways to avoid encoding 
+			@Html.Raw("YourHTMLString")
+			Strings of type IHtmlString are not encoded
+	cross site scripting attack(XSS attack)
+		XSS allows hackers to inject client-side script into Web pages, and later, if that web page is viewed by others, the stored script gets executed
+		The consequences of XSS may range from a petty nuisance like displaying an alert() box to a significant security risk, like stealing session cookies.
+		by default, IIS prevent XSS. 
+		To allow XSS attack -
+			add [ValidateInput(false)] annotation on controller's action 
+			use @Html.Raw(property_name) in view  
+	Detect errors in views at compile time
+		Open MVC project file (.csproj) using a notepad.
+		Search for MvcBuildViews under PropertyGroup. MvcBuildViews is false by default. Turn this to true (<MvcBuildViews>true</MvcBuildViews>)
+	T4 templates
+		T4 stands for Text Template Transformation Toolkit
+		are used by visual studio to generate code when you add a view or a controller.
+		present at - C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\ItemTemplates\CSharp\Web\MVC 4\CodeTemplates
+		extension - .tt
+
+CONTROLLER
+	ways to pass variable in URL
+		{controller}/{action}/{id} - use id in Action method
+		?id=10&name=xyz - use id and name in Action method
+	ways to retrieved passed parameter from URL
+		Request.QueryString["name"]
+		using parameter in Action method
+	different types of ActionResult
+		ViewResult
+		PartialViewResult
+		JsonResult
+		RedirectResult etc..
+	return View(["fullPath or ViewWithNoExtension",] modelObject) - This render view without executing the corresponding controller's action code
+	RedirectToAction(action,controller) - redirect to specified action
+	
+VIEW
+	use @ when using CSharp code in .cshtml file
+	ViewData and ViewBag - a mechanism to pass data from controller to model
+		ViewBag.Countries - dynamic view data dictionary. Here type is set at runtime
+		ViewData["Countries"] - it is of type ViewDataDictionary. This means you have to type cast it.
+	Use strongly typed view models over ViewBag/ViewData to pass data from controller to view, as it provide compile time error check
+	@model - provides the ability to pass strongly typed model objects to a view template. This keyword basically defines object type and provide all its properties in IntelliSense
+	@Model - It's a variable passed into view by controller of type @model
+	@using <namespace_of_models>; - to use Models classes in razor file
+
+HTML HELPER (USED TO RENDER HTML CONTENT IN A VIEW)
+	To set HTML attributes, use overloaded version. Some of the html attributes, are reserved keywords. Examples include class, readonly etc. To use these attributes, use "@" symbol
+	@Html.ActionLink(linkText,actionName,controllerName,routeValues) - returns an anchor element
+	@Html.DropDownList(name,IEnumerable<SelectListItem> selectList,optionLabel) - return drop down control
+	@Html.BeginForm(actionName,controllerName,object routeValues) - the form uses the POST method, and the request is processed by the action method for the view
+	@Html.TextBox("firstname", "John", new { @class = "redtextbox", @readonly="true" })
+	@Html.Password("Password")
+	@Html.Hidden("id")
+	difference between Html.TextBox and Html.TextBoxFor ( or Html.DropDownList and Html.DropDownListFor)
+		Html.TextBox and Html.DropDownList are not strongly typed and hence they doesn't require a strongly typed view. This means that we can hard-code whatever name we want. 
+		On the other hand, Html.TextBoxFor and Html.DropDownListFor are strongly typed and requires a strongly typed view, and the name is inferred from the lambda expression.
+		Strongly typed HTML helpers also provide compile time checking.
+		Since, in real time, we mostly use strongly typed views, prefer to use Html.TextBoxFor and Html.DropDownListFor over their counterparts. 
+		Whether, we use Html.TextBox OR Html.TextBoxFor, the end result is the same, that is they produce the same HTML.
+		@Html.TextBoxFor(m => m.CompanyName)
+		@Html.TextBox("CompanyName", (string)ViewBag.CompanyName)
+		@Html.DropDownListFor(m => m.Departments, new SelectList(Model.Departments, "Id", "Name"), "Select Department")
+		@Html.DropDownList("Departments", "Select Department")
+	display
+		@Html.Display("EmployeeData") - Used with a view that is not strongly typed. For example, if you have stored data in ViewData
+		@Html.DisplayFor(model => model.property) - Used with strongly typed views. If your model has properties that return complex objects, then this template helper is very useful.
+		@Html.DisplayForModel() - Used with strongly typed views. Walks through each property, in the model to display the object. 
+	editor
+		@Html.Editor("EmployeeData")
+		@Html.EditorFor(model => model)
+		@Html.EditorForModel()
+	
+DISPLAY AND EDITOR HTML HELPER DEFAULT TEMPLATE CAN BE CUSTOMIZED BY FOLLOWING BELOW STEPS 
+	The customized display templates must be in a sub-folder that is named - DisplayTemplates. Editor templates must be in a sub-folder that is named - EditorTemplates.
+	These sub-folders can live in "Shared" folder(this template available for all views), or a specific views folder.
+	The name of the template must match the name of the type. 
+		For example, to customize DateTime template, the name of the template in this case has to be DateTime.cshtml.
+			@model DateTime?
+			@Html.TextBox("", (Model.HasValue ? Model.Value.ToString("dd/MM/yyyy") : string.Empty), new { @class = "date" })
+	model metadata is accessible in template view - use "ViewData.TemplateInfo"
+		ViewData.TemplateInfo.FormattedModelValue - get formatted value (@Html.TextBox("", Model.HasValue ? ViewData.TemplateInfo.FormattedModelValue : "", new { @class = "date" }))
+		@ViewData.ModelMetadata.DisplayFormatString - to access the DisplayFormatString, 
+		@ViewData.ModelMetadata.ContainerType.ToString() - to get the name of the container class
+	
+CUSTOM HTML HELPER
+	add following code in CustomHtmlHelpers.cs to build image html helper 
+		public static IHtmlString Image(this HtmlHelper helper, string src, string alt)
+		{
+			// Build <img> tag
+			TagBuilder tb = new TagBuilder("img");
+			// Add "src" attribute
+			tb.Attributes.Add("src", VirtualPathUtility.ToAbsolute(src));  //VirtualPathUtility convert relative path to full path
+			// Add "alt" attribute
+			tb.Attributes.Add("alt", alt);
+			// return MvcHtmlString.
+			return new MvcHtmlString(tb.ToString(TagRenderMode.SelfClosing));  //MvcHtmlString render the text instead of just printing it
+		}
+	add "MVCDemo.CustomHtmlHelpers" namespace in web.config. This eliminates the need to include the namespace(@using MVCDemo.CustomHtmlHelpers), in every view.
+	
+DATA ACCESS USING ENTITY FRAMEWORK (CODE FIRST)
+	1. Add EmployeeContext.cs class file to the Models folder
+		public class EmployeeContext : DbContext
+		{
+			public DbSet<Employee> Employees {get; set;} // this property will retrieve data from tblEmployee table
+		}
+	2. Add a connection string, to the web.config file, in the root directory. Name should be same as the class name
+		<connectionStrings>
+		  <add name="EmployeeContext" connectionString="server=.; database=Sample; integrated security=SSPI" providerName="System.Data.SqlClient"/>
+		</connectionStrings>
+	3. Map "Employee" model class to the database table, tblEmployee using "Table" attribute as shown below.
+		[Table("tblEmployee")]
+		public class Employee
+		{
+			public int EmployeeId { get; set; }
+			public string Name { get; set; }
+			public string Gender { get; set; }
+			public string City { get; set; }
+		}
+	4. Make the changes to "Details()" action method in "EmployeeController" as shown below.
+		public ActionResult Details(int id)
+		{
+			EmployeeContext employeeContext = new EmployeeContext();
+			Employee employee = employeeContext.Employees.Single(x => x.EmployeeId == id);
+			return View(employee);
+		}
+	5. Finally, copy and paste the following code in Application_Start() function, in Global.aspx file. Existing databases do not need database initializer so it can be turned off.
+		Database.SetInitializer<MVCDemo.Models.EmployeeContext>(null);
+		
+ATTRIBUTES	
+	controller action Attribute
+		HtmlGet - controller will only respond when method is GET. ie when called initially
+		HtmlPost - controller will only respond when method is POST ie data being posted to server
+		ActionName(alias_action_name) - program will try to match Action method name given in attribute and not actual method name
+		NonAction - used to restrict access to public methods in a controller.  If you navigate to decorated URL, you will get an error - The resource cannot be found.
+	Model class Attribute
+		MetadataType(typeOf(metaDatClassName))
+			specify the metadata class name to associate with model class. 
+			Used when working with Entity Framework as you don't want to modify automatically generated partial class.
+			create another empty decorated partial class and put restriction/format on properties.		
+			example - Department.cs
+				[MetadataType(typeof(DepartmentMetaData))]
+				public partial class Department
+				{
+				}
+				public class DepartmentMetaData
+				{
+					[Display(Name="Department Name")]
+					public string Name { get; set; }
+				}
+		[DisplayColumn("property-name")] - useful when a class has a property of complex type, and you want to pick one property of this complex object for display purpose
+	Model properties Attribute
+		Display(Name="",Description="")
+		DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm:ss}") - To get time in 24 hour notation
+		DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode=true) -  for formatting to be applied in Edit mode.
+		DisplayFormat(NullDisplayText = "Gender not specified") - If gender is NULL, "Gender not specified" text will be displayed.
+		ScaffoldColumn(false) - If you don't want to display a column use ScaffoldColumn attribute. This works when @Html.DisplayForModel() helper is used
+		DataType(DataType.EmailAddress), DataType(DataType.Currency), DataType(DataType.Url)
+		DataType(DataType.Time) - Display only time part
+		[UIHint("OpenInNewWindow") - specify the name of the template to use to display the data field. If not specified, MVC uses the default one.
+		HiddenInput(DisplayValue = false) - useful when you want to render a property using input type=hidden. Useful when using with @Html.EditorForModel()
+		ReadOnly(true) - 
+			used to make a property readonly. 
+			will be able to change the property value on the view, but once we post the form the model binder will not move the value to the property
+			You can also, make property of a class readonly simply, by removing the SET accessor.
+		
+CUSTOM TEMPLATE FOR DATATYPE
+	If you want the page to open in a new window on using DataType(DataType.Url),
+		1. Right click on "Views" folder, and add "Shared" folder. 
+		2. Right click on "Shared" folder, and add "DisplayTemplates" sub-folder. This template will be available to all views.
+		3. Right click on DisplayTemplates folder, and add a view. Set "Url" as the name and use Razor view engine.
+		4. Copy and paste the following code in Url.cshtml view
+			<a href="@ViewData.Model" target="_blank">@ViewData.Model</a>
+	If you want a particular property - having dataType set as URl - to have that template, then change the template file name and decorate that property with UIHint.
+	
+FORM 
+	 @using (@Html.BeginForm("Index", "Home", FormMethod.Get)){......}
+	use HtmlGet and HtmlPost attribute on controller's Action method.
+	Retrieving form data
+		FormCollection type as parameter - used to get all dictionary data posted by the view page
+		Action method must have parameter names that match with the names of the form control. form control's name is mapped to the parameter
+		using an object as the parameter which has same properties as that posted by the form
+		using UpdateModel inside Action method. Pass an object whose properties are same as form control's name
+	ModelState - 
+		Gets the model state dictionary object that contains key as control's name and value as the entered text and any validation errors.
+		ModelState.IsValid - Gets a value that indicates whether this instance of the model-state dictionary is valid.
+		AddModelError(modelProperty,errorMessage) - Adds the specified error message to the errors collection that is associated with the specified key i.e. control's name.
+	UpdateModel(object) - 
+		it inspects all the HttpRequest inputs such as posted Form data, QueryString, Cookies and Server variables and populate the passed object.
+		If you want to limit on what can be bound, explicitly invoking model binding can be very useful.
+		UpdateModel throws exception on validation failure whereas TryUpdateModel don't
+	prevent unintended updates by using -  
+		UpdateModel(model-object, string[] includeProperties) - This will only update those properties which are specified in includeProperties array
+		UpdateModel(model-object, string prefix, string[] includeProperties, string[] excludeProperties)
+		Action_Name([Bind(Exclude="", Include="")] model-object) - this makes ModelState as IsValid if required field is not binded
+	
+USING DATA TRANSFER OBJECT AS THE MODEL
+	Let's say the business requirement is such that, we want to display total number of employees by department. 
+	At the moment, either the Employee or Department class does not have Total property. This is one example, where a Data Transfer Object can be used as a model.
+	Right click on the "Models" folder and add a class with name="DepartmentTotals.cs".
+		public class DepartmentTotals
+		{ 
+			public string Name { get; set; } 
+			public int Total { get; set; }
+		}
+	Now add the following "EmployeesByDepartment" controller action method to EmployeeController class.
+	public ActionResult EmployeesByDepartment()
+	{ 
+		var departmentTotals = db.Employees.Include("Department") 
+							   .GroupBy(x => x.Department.Name) 
+							   .Select(y => new DepartmentTotals 
+							   { 
+									Name = y.Key, 
+									Total = y.Count() 
+							   })ToList().OrderByDescending(y => y.Total); 
+		return View(departmentTotals);
+	}
+	The strongly type view model can now be used - @model IEnumerable<MVCDemo>Models.DepartmentTotals>
+	
+DYNAMIC LIST
+	DropDownList
+		pass list of Departments from the controller, store them in "ViewBag". "1" specify that by fault first value of DropDownList is selected
+			public ActionResult Index()
+			{
+				SampleDBContext db = new SampleDBContext(); 
+				ViewBag.Departments = new SelectList(db.Departments, "Id", "Name", "1"); 
+				return View();
+			}		
+		Now in the "Index" view, access Departments list from "ViewBag"
+			@Html.DropDownList("Departments", "Select Department")
+	RadioButtonList
+		controller
+			[HttpPost]
+			public string Index(Company company)
+			{
+				if (string.IsNullOrEmpty(company.SelectedDepartment))
+					return "You did not select any department";
+				else
+					return "You selected department with ID = " + company.SelectedDepartment;
+			}
+		view
+			foreach (var department in Model.Departments)
+			{
+				@Html.RadioButtonFor(m => m.SelectedDepartment, department.Id) @department.Name
+			}
+	CheckBoxList 
+	ListBox - multiple select in dropDown
+		
+PARTIAL VIEW
+	used to encapsulate re-usable view logic
+	name convention : _PartialViewName
+	ways to use partial view in other view
+		@Html.Partial("_PartialViewName"[, model-object])
+		{Html.RenderPartial("PartialViewName"[, model-object]);}
+	RenderPartial() returns void and the output will be written directly to the output stream
+	Partial() method returns MvcHtmlString, which can be assigned to a variable and manipulate it if required
+	From a performance perspective, rendering directly to the output stream is better. 
+	
+LAYOUT VIEW
+	provide the advantage of maintaining consistent look and feel across all the views in an MVC application
+	use @ViewBag to share data between Layout and other view
+	in layout view
+		<title>@ViewBag.Title</title>
+		View specific content will be plugged-in at the location, where "@RenderBody()" function is called
+	in other view
+		@{
+			ViewBag.Title = "Employee List Page";
+			Layout = "~/Views/Shared/_Layout.cshtml";
+		}
+	places where layout can be declared
+		in view page - this layout will override the layout in _ViewStart.cshtml
+		in controller's action method - return View("Create", "_DifferentLayout"); - this layout has the highest priority
+		_ViewStart.cshtml - layout present in this file has lower priority than the layout present in the view file
+	_ViewStart.cshtml file(present under VIEWS folder)
+		to associate a view with a layout file, we have to set Layout property on each and every view. This violates DRY (Don't Repeat Yourself) 
+		ASP.NET MVC 3, has introduced _ViewStart.cshtml. Specify the Layout property in this file and place it in the Views folder
+		dynamic layout path can be provided
+			@{
+				Layout = Request.Browser.IsBrowser("Chrome") ? "~/Views/Shared/_Layout.cshtml" : "~/Views/Shared/_DifferentLayout.cshtml" ;
+			}
+	Named section
+		in other view
+			@section Menu{ ... }
+		in layout view
+			@if(@IsSectionDefined("Menu"))
+			{
+				@RenderSection("Menu", false)
+				@*false value is use to specify that "Menu" section definition on other view is not mandatory*@
+			}
+			@else
+			{
+				@*declare default value if "Menu" section not defined in other view*@
+			}
+
+IMPLEMENTING SEARCH FUNCTIONALITY
+	http://csharp-video-tutorials.blogspot.in/2013/07/part-62-implementing-search.html
+	
+IMPLEMENT PAGING
+	http://csharp-video-tutorials.blogspot.in/2013/07/part-63-implement-paging-in-aspnet-mvc.html
+	
+IMPLEMENT SORTING
+	http://csharp-video-tutorials.blogspot.in/2013/07/part-64-implement-sorting-in-aspnet-mvc.html
+	
+DELETE MULTIPLE ROWS
+	http://csharp-video-tutorials.blogspot.in/2013/07/part-65-deleting-multiple-rows-in-mvc.html
+	
+CHECK/UNCHECK ALL CHECKBOXEX
+	http://csharp-video-tutorials.blogspot.in/2013/07/part-66-check-uncheck-all-checkboxes.html
+	
+ACTION FILTER
+	action filters are attributes that can be applied either on a controller action method or on a controller. 
+	when applied at the controller level, they are applicable for all actions within that controller. 
+	action filters allow us to add, pre and post processing logic to an action method. This means, they allow us to modify the way in which an action is executed. 
+	custom action filter can be created
+	some of the action filter are - ActionName, Authorize, ChildActionOnly, HandleError, OutputCache, RequireHttps, ValidateInput, ValidateAntiForgeryToken 	
+	Authorize and AllowAnonymous action filter
+		by default, all the controller action methods are accessible to both anonymous and authenticated users
+		Authorize attribute - make sure action is available only for authenticated and authorized users
+		AllowAnonymous attribute - allow action to be accessible by anonymous(any) user
+		Authorize attribute at the controller level can be overridden by decorating action with AllowAnonymous attribute	
+	ChildActionOnly action filter
+		Any action method that is decorated with [ChildActionOnly] attribute is a child action method.
+		when decorated with ChildActionOnly attribute, action can't be accessible using URL. It can be only called from action or view.
+		you can't access action method decorated with NonAction from view like @Html.Action("Countries", new { countryData = new List<string>() { "US", "UK", "India" } })
+		Child actions are typically associated with partial views, although this is not compulsory.
+		using child action methods, it is possible to cache portions of a view. This is the main advantage of child action methods.
+	HandleError action filter
+		HandleErrorAttribute is used to display friendly error pages to end user when there is an unhandled exception
+		2 ways to handle error
+			HandleErrorAttribute
+			HandleErrorAttribute is added to the GlobalFilters collection in global.asax. By default it's disabled. To enable it, add below code in web.config
+				<system.web>
+					<customErrors mode="On">  //By default content of "~/Shared/Error" is loaded
+					</customErrors>
+				</system.web>
+		To display friendly error page for 404 code, add below line inside <customErrors>
+			<error statusCode="404" redirect="~/Shared/NotFound"/> //Error is controller name and NotFound is action method
+	OutputCache action filter
+		used to cache the content returned by a controller action method, so that, the same content does not generate each time the same controller action is invoked
+		to cache content of a action method for 10 seconds - [OutputCache(Duration = 10)]
+		we can cache specific portion of a view using ChildActionOnly attribute
+		outputCacheProfiles - used to specify a name to a OutputCache action filter. outputCacheProfiles are declared inside web.config
+			<system.web>
+				<caching>
+					<outputCacheSettings>
+						<outputCacheProfiles>
+							<clear/>
+							<add name="1MinuteCache" duration="60" varyByParam="none"/>            
+						</outputCacheProfiles>
+					</outputCacheSettings>
+				</caching>
+			</system.web>
+			You can decorate the action by [OutputCache(CacheProfile = "1MinuteCache")]		
+	RequireHttps action filter
+		used to forces an unsecured HTTP request to be re-sent over HTTPS. 
+		when a user request over http protocol, server re-direct the user to request over https protocol
+	ValidateInput action filter
+		This attribute is used to enable or disable request validation. By default, request validation is enabled in asp.net mvc
+		It does not allow you to submit any HTML content, to prevent XSS (Cross site scripting attacks).
+		to turn off validation - ValidateInput(false)
+	
+CUSTOM ACTION FILTERS
+	There are 4 types of filters in asp.net mvc.
+		Authorization filters - Implements IAuthorizationFilter (onAuthorization). Examples - AuthorizeAttribute and RequireHttpsAttribute. These filters run before any other filter.
+		Action filters - Implement IActionFilter(onActionExecuting, onActionExecuted). Examples - OutputCacheAttribute. 
+		Result filters - Implement IResultFilter(onResultExecuting, onResultExecuted). Examples - OutputCacheAttribute. 
+		Exception filters - Implement IExceptionFilter(onExeception). Examples - HandleErrorAttribute.
+	creating a custom attribute which will log data
+		public class TrackExecutionTime : ActionFilterAttribute, IExceptionFilter
+		{
+			public override void OnActionExecuting(ActionExecutingContext filterContext)
+			{
+				string message = "\n" + filterContext.ActionDescriptor.ControllerDescriptor.ControllerName + 
+					" -> " + filterContext.ActionDescriptor.ActionName + " -> OnActionExecuting \t- " + 
+					DateTime.Now.ToString() + "\n";
+				LogExecutionTime(message);
+			}
+
+			public override void OnActionExecuted(ActionExecutedContext filterContext)
+			{
+				string message = "\n" + filterContext.ActionDescriptor.ControllerDescriptor.ControllerName + 
+					" -> " + filterContext.ActionDescriptor.ActionName + " -> OnActionExecuted \t- " + 
+					DateTime.Now.ToString() + "\n";
+				LogExecutionTime(message);
+			}
+
+			public override void OnResultExecuting(ResultExecutingContext filterContext)
+			{
+				string message = filterContext.RouteData.Values["controller"].ToString() + 
+					" -> " + filterContext.RouteData.Values["action"].ToString() + 
+					" -> OnResultExecuting \t- " + DateTime.Now.ToString() + "\n";
+				LogExecutionTime(message);
+			}
+
+			public override void OnResultExecuted(ResultExecutedContext filterContext)
+			{
+				string message = filterContext.RouteData.Values["controller"].ToString() + 
+					" -> " + filterContext.RouteData.Values["action"].ToString() + 
+					" -> OnResultExecuted \t- " + DateTime.Now.ToString() + "\n";
+				LogExecutionTime(message);
+				LogExecutionTime("---------------------------------------------------------\n");
+			}
+
+			public void OnException(ExceptionContext filterContext)
+			{
+				string message = filterContext.RouteData.Values["controller"].ToString() + " -> " +
+				   filterContext.RouteData.Values["action"].ToString() + " -> " +
+				   filterContext.Exception.Message + " \t- " + DateTime.Now.ToString() + "\n";
+				LogExecutionTime(message);
+				LogExecutionTime("---------------------------------------------------------\n");
+			}
+
+			private void LogExecutionTime(string message)
+			{
+				File.AppendAllText(HttpContext.Current.Server.MapPath("~/Data/Data.txt"), message);
+			}
+		}
+	to use custom attribute on controller/action method
+		[TrackExecutionTime]
+	
+AREAS
+	The structure of a complex asp.net mvc application can be very easily maintained using areas
+	areas were introduced in asp.net mvc 2,
+	areas can have their own set of Models, Views, Controllers, Routes
+	add default namespaces to route in route registry
+		namespaces: new [] { "MVCDemo.Controllers" }
+	to call action, add extra parameter
+		@Html.ActionLink("Employee Area Home Page", "Index", "Home", new { area = "Employee" }, null)
+	
+MODEL VALIDATION ATTRIBUTE (ENFORCE CLIENT AS WELL AS SERVER SIDE VALIDATION)
+	Required
+	StringLength - used to enforce minimum and maximum length of characters that are allowed in a data field. Does not enforce that the property is REQUIRED
+	Range - checks if the value of a data field is within a specified range of values.
+		Range(1, 100)
+		Range(typeof(DateTime), "01/01/2000", "01/01/2010")
+	RegularExpression - Pass @ as we don't want escape sequences to be processed
+		RegularExpression(@"^(([A-za-z]+[\s]{1}[A-za-z]+)|([A-Za-z]+))$"). 
+		RegularExpression(@"^[\w-\._\+%]+@(?:[\w-]+\.)+[\w]{2,6}$", ErrorMessage = "Please enter a valid email address")
+	Compare - Pass name of the property as the argument. 
+		Compare("Email")
+		
+CUSTOM VALIDATION MODEL ATTRIBUTE
+	custom validation attribute can be designed by deriving it from build-in validation attribute
+	example
+		public class DateRangeAttribute : RangeAttribute
+		{
+			public DateRangeAttribute(string minimumValue) : base(typeof(DateTime), minimumValue, DateTime.Now.ToShortDateString())
+			{
+			}
+		}
+		Use this on properties as - [DateRange("01/01/2000")]
+	example
+		public class CurrentDateAttribute : ValidationAttribute
+		{
+			public override bool IsValid(object value)
+			{
+				DateTime dateTime = Convert.ToDateTime(value);
+				return dateTime <= DateTime.Now;
+			}
+		}
+		Use this on properties as - [CurrentDate]
+		validation error message can be customized using named parameter "ErrorMessage"  - [CurrentDate(ErrorMessage = "Hire Date must be less than or equal to Today's Date")]
+		
+VALIDATIONSUMMARY 
+	when validation fails, some classes are added/removed from element
+		field-validation-error
+		input.input-validation-error
+		validation-summary-errors
+	To display all errors at one place, use ValidationSummary() HTML helper. 
+		@Html.ValidationSummary(false, "Please fix the following errors and then submit the form") - first parameter is to exclude individual property error message
+	To display an asterisk, next to the field that has failed validation, use ValidationMessageFor() HTML helper
+		@Html.ValidationMessageFor(model => model.Name, "*")
+		
+REMOTE VALIDATION
+	Sometimes, to check if a field value is valid, we may need to make a database call before the form's submitted. RemoteAttribute is useful in situations like this. 
+	[Remote("IsUserNameAvailable", "Home", ErrorMessage="UserName already in use.")]
+		IsUserNameAvailable - action method which will be called by AJAX request to perform remote validation
+		Home - controller where action method resides
+	action method
+		public JsonResult IsUserNameAvailable(string UserName) // The parameter name (UserName) must match the field name on the view.
+		{
+			return Json(!db.Users.Any(x => x.UserName == UserName), JsonRequestBehavior.AllowGet);
+		}
+	If action method returns true, validation succeeds, else validation fails and the form is prevented from being submitted
+	jQuery, jquery.validate and jquery.validate.unobtrusive script files are required for remote validation to work.
+	to make server side validation work, when JavaScript is disabled, there are 2 ways
+		Add model validation error dynamically in the controller action method
+		Create a custom remote attribute and override IsValid() of RemoteAttribute class.(http://csharp-video-tutorials.blogspot.in/2013/09/part-91-create-custom-remote-attribute.html)
+		
+AJAX
+	asynchronous partial page updates make web application more responsive and hence improves user experience
+	@Ajax.ActionLink("DisplayText", "PartialViewResult_Action", new AjaxOptions 
+	{
+		HttpMethod = "GET", // HttpMethod to use, GET or POST
+		UpdateTargetId = "divStudents", // ID of the HTML element to update
+		InsertionMode = InsertionMode.Replace // Replace the existing contents
+	})
+	when requesting using AJAX, always call partial view with action returning PartialViewResult
+	we can provide visual feedback while page is loading AJAX content using LoadingElementId AjaxOption
+	LoadingElementDuration property is used to control the animation duration of LoadingElement. By default, the LoadingElement fades in and fades out.
+	other AjaxOptions
+		OnBegin - The associated JavaScript function is called before the action method is invoked
+		OnComplete - The associated JavaScript function is invoked after the response data has been instantiated but before the page is updated.
+		OnSuccess - The associated JavaScript function is invoked after the page is updated.
+		OnFailure - The associated JavaScript function is invoked if the page update fails.
+		
+IMPLEMENT AUTOCOMPLETE TEXTBOX FUNCTIONALITY USING AJAX
+	http://csharp-video-tutorials.blogspot.in/2013/09/part-97-implement-autocomplete-textbox.html
