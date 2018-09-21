@@ -141,7 +141,7 @@ COMPONENT DECORATOR
 	template?: string - Specifies an inline template within back-tick,quote or double quote for an Angular component. Only one of templateUrl or template can be defined per Component.
 	styleUrls?: string[] - Specifies style-sheet URLs for an Angular component.
 	styles?: string[] - Specifies inline style-sheets for an Angular component.
-	selector?: string - The CSS selector that triggers the instantiation of a directive. 
+	selector?: string - A CSS selector that tells Angular to create and insert an instance of this component wherever it finds the corresponding tag in template HTML
 	
 INTERPOLATION
 	Interpolation is all about one way data-binding - From Component to View Template
