@@ -23,6 +23,7 @@ INTRO
 		Attributes initialize DOM properties. Once the initialization complete, the attributes job is done.
 		Property values can change, where as attribute values can't.
 		Angular data-binding recommends binding to DOM object properties and not HTML element attributes.
+		ex of HTML attribute - colspan
 	Data-binding can be broadly classified into 3 categories
 		One way data-binding - From Component to View Template(Interpolation, Property Binding, Attribute Binding, Class Binding, Style Binding)
 		One way data-binding - From View Template to Component(Event Binding)
