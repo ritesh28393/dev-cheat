@@ -114,11 +114,13 @@ APPMODULE
 	AppModule is the root module which bootstraps and launches the angular application. 
 	It imports 2 system modules - BrowserModule and NgModule 
 		BrowserModule - Every application that runs in a browser needs this module. NgIf and NgFor directives along with others are provided by this module.
-	@Component decorator adds meta data to an angular component class, similarly a class become angular module class when decorated by @NgModule.
+	@Component decorator adds meta data to an angular component class, similarly any class become angular module class when decorated by @NgModule.
 	Properties of the NgModule decorator
-		imports - Imports the BrowserModule required for an angular application to run in a web browser
-		declarations - Contains the components registered with this module.
-		bootstrap - Contains the root component that Angular creates and inserts into the index.html host web page
+		providers - The set of injectable objects that are available in the injector of this module.
+		declarations - The set of components, directives, and pipes (declarables) that belong to this module.
+		imports - The set of NgModules which are available to templates in this module.
+		exports - The set of components, directives, and pipes that can be used in the template of other ngModule's declared component.
+		bootstrap - The set of components that are bootstrapped nad loaded in web page when this module is bootstrapped. 
 			
 COMPONENT
 	basic building blocks of an Angular application. 
