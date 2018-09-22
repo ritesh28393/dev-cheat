@@ -471,8 +471,8 @@ DEPENDENCY INJECTION
 	for Angular injector to create instance of service, we first register the same service with the Injector using the providers property of @Component or @NgModule.
 	if we are registering a service in @Component decorator(registering at component level) then the service is available to that component and all of it's children. 
 	on the other hand if we register the service with @NgModule decorator -
-		then we are registering the service with an angular injector at the module level which is the root injector.
-		the service registered with the root injector is then available to all the component across the entire application.
+		then we are registering the service with an angular injector at the module level.
+		the service registered with the root injector is available to all the component across the entire application.
 	what is dependency injection
 		It's a coding pattern in which a class receives its dependencies from an external source rather than creating them itself.  
 		When an instance of the component is created, the angular injector creates an instance of the service class and provides/injects it to component constructor.
