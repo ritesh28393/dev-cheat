@@ -1,6 +1,7 @@
 INTRODUCTION
 	OOPS concept - AIEP(Abstraction, Inheritance, Encapsulation, Polymorphism)
 	Namespace - Collection of classes, interfaces, delegates, enum, etc
+	Strongly typed means to convert type you need casting. Only explicit conversion is allowed
 	object initializer - 
 		<T> obj = new <T>{ propertyName1 = value1, propertyName2 = value2 };
 		equivalent to -
@@ -24,9 +25,25 @@ INTRODUCTION
 		referenceName is className - returns true if referenceName refer to instance of className or it's childClass. Also if referenceName points to null, expression returns false. 
 		referenceName as className - returns refer object casted to the className if both are compatible or else returns null.
 	interpolated string - $"{name} is {age:D3} year{(age == 1 ? "" : "s")} old." => Harry is 034 years old.
+	Method overloading
+		parameters need to be different (in dataType or number of parameters or type of parameter(just out,ref and not params)) to support method overloading
+		return type of method don't matter. Method with same parameter but different return-type returns compile error
 	comparison of objects and sorting
 		IComparable<T>  - int CompareTo(T object); - use when you own the class
 		IComparer<T> - int Compare(T x, T y); - use when you don't own class
+	namespace
+		namespace alias - using n = namespaceA;
+		hierarchy is delimited by dot operator - parent.child.grandchild
+	access modifier
+		private - available only within containing type(default for type member)
+		public - available everywhere
+		protected - available within containing type and types inheriting the containing type
+		internal - available within the containing assembly(default for type)
+		protected internal - available within the containing assembly and derived class in other assembly
+		assembly(.exe or .dll) is the application. .exe is generated for window application while .dll is generated for class library and web application
+		type members may have any of all 5 access-modifier while type can have either public or internal
+		for types, access-modifier is internal, by default
+		for type members, access-modifier is private, by default
 
 BUILT-IN TYPE
 	bool is the keyword alias to Boolean structure
@@ -56,23 +73,26 @@ DATATYPE CONVERSION
 		bool <T>.TryParse(string, out <value>);
 		
 ENUM
-	enum is strongly typed collection of constants. Strongly typed means to convert type you need casting. only explicit conversion is allowed
+	enum is strongly typed collection of constants.
 	if your program has a set of integral values, consider it replacing with enum
-	using enum makes your code manageable and readable
-	enum is declared and initialized outside class (public enum Gender{Unknown, Male, Female} )
+	enum is declared and initialized outside class ( public enum Gender{Unknown, Male, Female} )
 	by default, the underlying dataType of the enum is int. 0 represent the first constant, 1 represent the second constant and so on
 	only integral dataType is permitted like byte,short,int,long
-	Enum(with capital E) is a class providing string[] getNames(Type enumType), Array getValues(Type enumType), etc
-	specify underlying dataType of enum - public enum enumName : dataType {constants}
+	Enum(with capital E) is a class providing 
+		string[] getNames(typeof(Gender)) - Retrieves an array of the names of the constants in a specified enumeration,
+		<T>[] getValues(typeof(Gender)) - Retrieves an array of the values of the constants in a specified enumeration, etc
+	specify underlying dataType of enum - public enum Gender: byte {Unknown, Male, Female}
 	customize values of the constantName - public enum enumName {Unknown=1, Male=23, Female} (female will have value of 24(=value of Male plus 1))
-	casting(explicit conversion required) - public enum Gender{Unknown, Male, Female} public enum Season{Winter, Spring, Summer}
+	casting(explicit conversion required) - 
+		public enum Gender{Unknown, Male, Female} 
+		public enum Season{Winter, Spring, Summer}
 		Gender g = (Gender)2; // g = Female
 		Gender g1 = (Gender)5; // g1 = 5
 		Gender g2 = (Gender)Season.Spring; // g2 = Male
         int num = (int)Gender.Male; // num = 1
 		
 	
-Comments
+COMMENTS
 	// - single line comment
 	/**/ - multi line comment
     XML documentations comment
@@ -95,12 +115,8 @@ Comments
         // Exceptions:
 		//   T:System.FormatException:
         //     format is invalid or not supported.
-	Snippet - tools->code snippet manager
-		insert snippet
-		surround with
-		XML comment
 		
-control statement
+CONTROL STATEMENT
 	if
 	if else
 	difference between && and & - if any condition is false, && don't bother to evaluate other condition
@@ -115,53 +131,61 @@ control statement
 	break
 	continue
 	
-method
-	method signature - parameters + method-name
-		[attributes]
-		access-modifier return-type method-name(parameters){
-			//method functionality/logic
-		}
-	static method - ought to be called using class name when calling from outside class and without the class name when calling within class. It's property of class and not object.
-	instance method - has to be called using object/instance name even within the class.
-	
-parameters
-	pass by value - struct, enum, int, bool
-	pass by reference - interface, class, delegate, array, string
+PARAMETERS
+	A value-type variable contains its data directly as opposed to a reference-type variable, which contains a reference to its data.
+	A variable of a reference type does not contain its data directly; it contains a reference to its data. 
+	When a reference-type parameter is passed by value, it is possible to change the data belonging to the referenced object, such as object property's value. 
+	However, you cannot change the value of the reference itself; for example, you cannot use the same reference to allocate memory for a new class.
+	value-type variable - struct, enum, int, bool
+	reference-type variable - interface, class, delegate, array, string
 	parameter keyword -
 		ref - value is passed by reference
 		out - to get modified value by the calling function. out parameter need to be defined beforehand
 		params - need to be last parameter. Either array or series of values can be passed at one time. params keyword convert series into array and uses it.
+	Passing Value Types by Value - Passing a value-type variable to a method by value means passing a copy of the variable to the method
+	Passing Value Types by Reference - Here not the value of variable is passed; rather, a reference (by using ref keyword) to that variable is passed.
+	Passing Reference Types by Value - void Change(int[] pArray){...}
+		As the parameter is a reference to a array, it is possible to change the values of the array elements. 
+		However, attempt to reassign the parameter to a different memory location only works inside the method and does not affect the original array.
+	Passing Reference Types by Reference - Here the original array can be reallocated using the new operator.
 		
-optional parameter
+OPTIONAL PARAMETER
 	ways to make parameter optional
 		using parameter array(params keyword)
 		method overloading
-		specifying parameter defaults(funcName(int a,int b=2,int c=5){...}//default parameter should be declared at last. Named parameter usage - funcName(10,c:20);)
-		using System.Runtime.InteropServices.OptionalAttribute(funcName(int a,int b,[OptionalAttribute]int c){...} //word 'Attribute' is optional in word 'OptionalAttribute')
-		
-Method overloading
-	parameters need to be different (in dataType or number of parameters or type of parameter(just out,ref and not params)) to support method overloading
-	return type of method don't matter. Method with same parameter but different return-type returns compile error
-
-namespace
-	namespace alias - using n = namespaceA;
-	hierarchy is delimited by dot operator - parent.child.grandchild
+		specifying parameter defaults(funcName(int a,int b=2,int c=5){...}//default parameter should be declared at last.
+		using System.Runtime.InteropServices.OptionalAttribute(funcName(int a,int b,[OptionalAttribute]int c){...} 
 	
-properties
+PROPERTIES
 	access-modifier <T> PropertyName{set{...this._memberName=value;} get{...return this._memberName;}}
 	properties is the used as alternate for get and set methods
 	value - value keyword need to be used to get value passed to the property
 	property can be made as read-only by omitting set accessor and just keeping get accessor
 	If you don't have logic for get and set method, just use access-modifier <T> PropertyName{set;get;}
 	
-indexer
+INDEXER
 	indexer allow the instance of the class to be used as indexed array
-	indexer is implemented using this keyword
-	accessModifier returnType this[int index]{set{employeeList.FirstOrDefault(emp=>emp.ID==index).Name=value} get{return employeeList.FirstOrDefault(emp=>emp.ID==index).Name}}
-	calling indexer - employee e=new employee(); Console.WriteLine(e[2]);//print employee name having id as 3 e[3]="mark";//set mark as name for employee with id of 3
+	indexer is implemented using 'this' keyword
+	usage
+		accessModifier returnType this[int index]
+		{
+			set
+				{
+					employeeList.FirstOrDefault(emp=>emp.ID==index).Name=value
+				} 
+			get
+				{	
+					return employeeList.FirstOrDefault(emp=>emp.ID==index).Name}
+				}
+		}
+		calling indexer - 
+			employee e=new employee(); 
+			Console.WriteLine(e[3]);//print employee name having id as 3 
+			e[3]="mark";//set mark as name for employee with id of 3
 	indexer can be overloaded - indexer can be overloaded using different type or no of parameter. returnType do not matter, like overloaded method
 	
-struct
+STRUCT
+	like class, struct can have methods, fileds, indexers, properties, operator methods, events.
 	default constructor is still can be used even if custom constructor with some parameter is implemented, unlike class.
 	struct is a value-type while class is reference-type
 	struct is stored in stack while class is stored in heap
@@ -170,28 +194,27 @@ struct
 	struct can't have explicitly parameter-less constructor
 	example - System.Int32, System.Float
 	
-class
+CLASS
 	constructor - called during creation of a instance
 	Constructor can call other overloaded constructor using <: this()> operator - public Employee(): this("firstName", "lastName"){...}
 	destructor - ~className() Called to release resource. Called by garbage collector
-	this
 	
-static and instance class member
+STATIC AND INSTANCE CLASS MEMBER
 	static method can't have either non-static member or this
 	static constructor - no access-modifier. Used to initialize static variable member. Called only once.
 	
-extension method
-	special kind of static method but called as if the where instance method of the extended type.
+EXTENSION METHOD
+	called as an instance method of the extended type.
 	extension method are static methods implemented inside static class
 	public static returnType methodName(this <T> parameter){...}
 	method calling
 		TVariable.methodName();
-		staticClassName.methodName(TVariable); //it's a wrapper for above method
+		wrapper for above method - staticClassName.methodName(TVariable);
 	
-partial
+PARTIAL
 	partial class allow to split class declaration into 2 or more files. All files are compiled into a single class
 	if one className is declared partial, other classes with same className should also be declared partial
-	the the parts of the partial class should have same access modifier
+	parts of the partial class should have same access modifier
 	if any part is declared abstract(or sealed), then the entire type is considered abstract(or sealed)
 	if any part inherit from a base class, then entire type inherit from this base class
 	C# don't support multiple inheritance. so different parts of the class should not specify different base class
@@ -202,85 +225,72 @@ partial
 	partial method has two parts
 		method declaration(mandatory)
 		method implementation(optional. If not present, complier don't throw error but instead skip the partial method call)
-	partial method don't have explicit access modifier, not even private. they are private, by default
+	partial method don't have explicit access modifier. They are private, by default
 	partial method return-type is void. Providing other return-type leads compiler error
 	
-inheritance
+INHERITANCE
 	ChildClass : ParentClass - ChildClass inheriting members of ParentClass
-	A class can have only one parent class.
-	multilevel inheritance is allowed
+	a class can have only one parent class.
 	allow multiple interface inheritance
-	instance of parent class is created before the instance of derived class. i.e. derived class constructor first call parent class construction and then executes it's code.
+	instance of parent class is created before the instance of derived class. i.e. derived class constructor first call parent class construction
 	to call specific constructor form parent class, use <:base()> operator
 	base - base keyword is the alias name of the parent class
 	ParentClass can refer to child object as child object can fulfill all functionality of parentClass but not vis-a-versa.
 	sealed - sealed keyword is used with a className when you don't want it to be inherited by other class.
 	
-static polymorphism (method hiding and method overloading)
-	new - use the 'new' keyword if you intent to hide the parent class method
+STATIC POLYMORPHISM (METHOD HIDING AND METHOD OVERLOADING)
+	new - use the 'new' keyword in child class if you intent to hide the parent class method
 	ways to call parent class method even when child class hides it -
 		use base keyword
 		use casting - ((<parentClass>)childClassInstance).method();
 		by making parent class reference to point to instance of child class - <parentClass> parentClassRefer = new childClass();
 
-dynamic polymorphism (method overriding)
+DYNAMIC POLYMORPHISM (METHOD OVERRIDING)
 	polymorphism can be achieved using combination of virtual(in parentClass) and override(in childClass) keyword
 	virtual - virtual keyword specifies that the method can be overridden
 	override - override keyword overrides the virtual method in parentClass
 	enables to invoke derived class method through parent reference variable at runtime
 	during runtime, childClass object checks for any overridden method. If present, it executes it and if not present, it executes the parentClass's method	
 	
-interface
+INTERFACE
 	only declaration and no implementation/definition
 	no explicit access-modifier. All members are public by default
 	only methods declaration and no field
 	class inheriting interface need to implement all methods present in interface. Method should match signature and return type and should be public access-modifier
 	interface can inherit from another interface
 	instance of a interface can't be created but a reference of instance can point to derived class instance
-	no static in interface or method implementing interface's methods
+	no static in interface or method implementing interface's methods	
+	explicit interface
+		useful when a class is implementing 2 or more interface and more than one interface has a same method's name.
+		implementation of the method - returnType interfaceName.methodName(){...} note: access-modifier should not be present
+		while calling implementation of interface method - ((interfaceName)classInstance).methodName(); or interfaceReference.method();
+		default implementation - Even after explicit implementation, we can still implement that method normally and call it using className object.
 	
-explicit interface
-	useful when a class is implementing 2 or more interface and more than one interface has a same method's name.
-	implementation of the method - returnType interfaceName.methodName(){...} note: access-modifier should not be present
-	while calling implementation of interface method - ((interfaceName)classInstance).methodName(); or interfaceReference.method();
-	default implementation - Even after explicit implementation, we can still implement that method normally and call it using className object.
-	
-abstract class
+ABSTRACT CLASS
 	abstract class can have both normal method and abstract method(with no implementation)
 	can only be used as base class. Can't have sealed keyword
 	can't be instantiated as it is incomplete. we can't create object of abstract class.
 	the class inheriting abstract class has to implement it's abstract method or if the class is not implementing, then mark it too as abstract
 	use override keyword when implementing or else complier error occurs.
 	
-interface vs abstract
+INTERFACE VS ABSTRACT
 	abstract class can have method implementation while interface can't
 	abstract method are private by default while interface method are public by default
 	abstract can have member field while interface can't
 	interface allow multiple class inheritance
 	interface can't have explicit access-modifier
 	
-access modifier
-	private - available only within containing type(default for type member)
-	public - available everywhere
-	protected - available within containing type and types inheriting the containing type
-	internal - available within the containing assembly(default for type)
-	protected internal - available within the containing assembly and derived class in other assembly
-	assembly(.exe or .dll) is the application. .exe is generated for window application while .dll is generated for class library and web application
-	type members may have any of all 5 access-modifier while type can have either public or internal
-	for types, access-modifier is internal, by default
-	for type members, access-modifier is private, by default
-	
 override object dataType's method
 	methods - Equals, GetHashCode, ToString
 	above methods are available to all dataType because of being derived class of Object. So we need proper functionality of those methods
 	default value of toString() (and Convert.ToString()) - namespaceName.className
-	Convert.ToString() handles null while ToString() doesn't, it throw null reference exception
+	Convert.ToString() handles null while toString() doesn't, it throw null reference exception
 	override default methods - 
 		public override string ToString(){...//return base.ToString();}
 		public override int GetHashCode(){...//return base.GetHashCode();}
 		public override bool Equals(object obj){ className cn=obj as className; if(cn==null) return false; else{...}}
 
-delegate
+DELEGATE
 	delegate is the type safe function pointer. Type safe signifies that return type of function should match return type of delegate
 	delegate is declared outside class
 	declaration - public delegate returnType delegateName(parameter); - this delegate can point to any function having same returnType and parameter(s)
@@ -288,7 +298,7 @@ delegate
 	calling pointed function - delObj(parameter);
 	delegate can make your class a lot flexible. You can write function without hard-code. Delegate allow you to pass function(pointer) to another function.
 	
-multicast delegate
+MULTICAST DELEGATE
 	multicast delegate is a delegate having reference to more than one function.
 	to create multicast delegate	
 		+ or +=  to register a function to the delegate
@@ -296,14 +306,14 @@ multicast delegate
 	If the delegate has a return type other than void, then the return value of the invoked multicast delegate is value returned by last method on the delegate list
 	If the delegate has out parameter, then the value of the out parameter is the value assigned by the last method
 	
-anonymous method
+ANONYMOUS METHOD
 	it is a method without a namespace
 	way of creating delegate instances without having to write a separate method.
 	example - 
 		listEmployees.Find(delegate(Employee Emp) { return Emp.ID == 102; });
 		Button1.Click += delegate{ MessageBox.Show("Button Clicked");};
 	
-lambda expression
+LAMBDA EXPRESSION
 	=> is called lambda operator and read as GOES TO.
 	In most of the cases Lambda expressions supersedes anonymous methods
 	Anonymous methods allow the parameter list to be omitted entirely when it's not used within the body, where as with lambda expressions this is not the case.
@@ -311,7 +321,7 @@ lambda expression
 		listEmployees.Find(Emp => Emp.ID == 102);
 		Button1.Click += (eventSender, eventAgrs) => { MessageBox.Show("Button Clicked");};
 		
-Func delegate
+FUNC DELEGATE
 	it is a generic delegate ( such as Func<T,TResult>)
 	Func delegate has 17 overloaded version
 		Func<int, int, string> represents a function that expects 2 int input parameters and returns a string.		
@@ -322,19 +332,19 @@ Func delegate
         string result = funcDelegate(10, 20);  // result = 30
 	Func delegate VS lambda expression - They're the same, just two different ways to write the same thing. The lambda syntax is newer, more concise and easy to write.
 	
-Predicate delegate
+PREDICATE DELEGATE
 	delegate bool Predicate<in T>(T obj);
 	it is a generic delegate which accepts an object as parameter and returns a boolean value
 	Represents the method that defines a set of criteria and determines whether the specified object meets those criteria.
 	
-exception handling
+EXCEPTION HANDLING
 	exception - unforeseen errors
 	try-catch-finally 
-	throw - throw keyword is used to throw an intentional exception (throw new Exception();)
+	throw - throw an intentional exception (throw new Exception();)(in catch you should just write 'throw' if you intend to have same exception)
 	properties of System.Exception class - Message, StackTrace, InnerException, GetType().Name, 
 	inner exception - inner exception is the original exception which caused the current exception. inner exception is passed as parameter to the current exception constructor
 	
-custom exception
+CUSTOM EXCEPTION
 	provide custom exception class by using Exception class as base class (public class MyException : Exception)
 	implement following constructors by calling base class constructors 
 		public MyException() : base() { } //invoke - throw new MyException();
@@ -344,19 +354,16 @@ custom exception
 	Serialization is used to serialize data which can be shared among applications.
 	use 'Serializable' attribute if you want to implement serialization in the class. 
 	SerializationInfo - store all data needed to serialize or deserialize object 
-	StreamingContext - specifies the source and destination of the serialized stream
 
-attributes
+ATTRIBUTES
 	it allow you to add declarative information to your programs. 
 	This information can then be queried at runtime using reflection.
 	pre-defined attributes with in the .NET framework.
 		Obsolete - Marks types and type members outdated
 		Serializable - Indicates that a class can be serialized
 		
-reflection
+REFLECTION
 	reflection is the ability of inspecting an assembly's meta-data at runtime. meta-data includes information about the type, properties, methods, and events of an object
-	reflection api is designed to work on meta-data (Type of Classes, Name and Signature of Methods, ...) but not on the data level (IL-stream (Intermediate Language)).
-	You can emit (but not read) IL with System.Reflection.Emit. Through MethodInfo.GetMethodBody() you can get the binary IL-stream for the implementation of a method.
 	reflection can be used for type discovery (i.e finding methods, properties, events, fields, constructors etc) and late binding.
 	we can use reflection to
 		dynamically create an instance of a type
@@ -390,8 +397,8 @@ reflection
 			Console.WriteLine(constructor.ToString());
 		}
 
-early and late binding
-	early binding is done at compile time where as late binding's at compile time
+EARLY AND LATE BINDING
+	early binding is done at compile time where as late binding's at run time
 	class declaration inside "Demo" name-space
 		public class Customer
 		{
@@ -413,19 +420,18 @@ early and late binding
 		string fullName = (string)getFullName.Invoke(customerInstance, methodParameters);
 		Console.WriteLine($"Full Name = {fullName}");
 	
-generic
+GENERIC
 	'object' dataType should not be used because if you are passing or assigning primitive dataType, an additional boxing and unboxing overhead operation is taking place
 	boxing and unboxing do not provide strongly typed environment
 	making a method generic means making that method independently operatable on any dataType.
 	implementing generic method - returnType methodName<T>(T param1, T param2){...}
-	note : perform operation on generic parameter as object because T can be any dataType and object is the parent of all dataType
 	calling generic method - methodName<int>(3, 4); methodName<string>("A", "DD"); methodName<object>(4, "4");
 	implementing generic class - class className<S,T>{...returnType methodName(S param1, T param2){...}...}
 	note : to make all methods generic, make class generic
 	calling method in generic class - className<string,int>.methodName("A", 4);
 	delegate, interface, can also be generic
 		
-dictionary
+DICTIONARY
 	System.Collections.Generic.Dictionary<TKey, TValue>
 	foreach(KeyValuePair<TKey, TValue> pair in dictionaryName){Console.WriteLine(pair.Key); Console.WriteLine(pair.Value);}
 	key in the dictionary should be unique
@@ -447,7 +453,7 @@ dictionary
 		arrayName.ToDictionary(ele=>ele.id, ele=>ele);
 		listName.ToDictionary(ele=>ele.id); equivalent to listName.ToDictionary(ele=>ele.id, ele=>ele);
 		
-list
+LIST
 	System.Collections.Generic.List<T>
 	member variables -
 		T this[int index] { get; set; }
@@ -488,7 +494,7 @@ list
 	convert array into list -
 		arrayName.ToList();
 
-generic queue collection class
+GENERIC QUEUE COLLECTION CLASS
 	First In First Out
 	Queue<Customer> queueCustomers = new Queue<Customer>();
 	Enqueue() - to add element at the end of the queue
@@ -496,7 +502,7 @@ generic queue collection class
 	Peek() - to return the element from the start of the queue
 	Contains() - to check if an element is the part of the queue
 	
-generic stack collection class
+GENERIC STACK COLLECTION CLASS
 	Last In First Out
 	Stack<Customer> stackCustomers = new Stack<Customer>();
 	Push() - to add element at the top of the stack
@@ -504,7 +510,7 @@ generic stack collection class
 	Peek() - to return the element from the top of the stack
 	Contains() - to check if an element is the part of the stack
 	
-sort a list of complex type
+SORT A LIST OF COMPLEX TYPE
 	implement IComparable<T> - use when you own the class
 		public class Customer : IComparable<Customer>
 		{
@@ -533,12 +539,12 @@ sort a list of complex type
 				}
 			}
 		pass the instance to sort()
-			listCutomers.Sort(new SortByName();
+			listCutomers.Sort(new SortByName());
 	use overloaded function which require comparison<T> delegate - this is the easiest way to perform sorting
 		listCutomers.Sort(delegate(Customer c1, Customer c2) { return (c1.ID.CompareTo(c2.ID)); }); //Using delegate keyword  OR
 		listCutomers.Sort((x, y) => x.ID.CompareTo(y.ID)); //Using Lambda expression
 		
-multi-threading
+MULTI-THREADING
 	Process - It is what the OS uses to facilitate the execution of a program by providing the resources required. Each process has a unique process Id associated with it.
 	Thread - 
 		Thread is a light weight process. 
@@ -562,89 +568,23 @@ multi-threading
 		Since the operating system switches between the threads so fast, it just gives us the illusion that the threads run in parallel. 
 		On a single core/processor machine multiple threads can affect performance negatively as there is overhead involved with context-switching.
 		
-thread
+THREAD
 	all threads require an entry point to start execution. 
 	Any thread you create will need an explicitly defined entry point i.e. a pointer to the function where they should begin execution. So threads always require a delegate.
 	ways to pass delegate
 		//void PrintNumbers(){...}
-		//void PrintNumber(object number){ int.tryParse(number.ToString(), out result);...}
 		Thread T1 = new Thread(PrintNumbers); // framework is creating ThreadStart delegate automatically 
 		Thread T1 = new Thread(new ThreadStart(PrintNumbers));
 		Thread T1 = new Thread(delegate() { PrintNumbers(); }); // using delegate keyword
-		Thread T1 = new Thread(() => PrintNumbers()); //using Lambda expression
-		Thread T2 = new Thread(PrintNumber); // framework is creating ParameterizedThreadStart delegate automatically 
-		Thread T2 = new Thread(new ParameterizedThreadStart(PrintNumber));
-		Thread T2 = new Thread(delegate() { PrintNumber(object); }); // using delegate keyword
-		Thread T2 = new Thread((object) => PrintNumbers(object)); //using Lambda expression		
-		to start thread - T1.Start(); T2.Start(56);
-		ParameterizedThreadStart delegate is not type safe as it is accepting object type
-		To pass data in a type safe manner, encapsulate the thread function and the data it needs in a helper class and use the ThreadStart delegate to execute the thread function
-	retrieve data from the thread
-		pass main thread's delegate to the child thread, along with it's start-point-delegate, which will consume data supplied by the child thread 
+		Thread T1 = new Thread(() => PrintNumbers()); //using Lambda expression	
+		to start thread - T1.Start();
 	Thread.Join
 		Join blocks the current thread and makes it wait until the thread on which Join method is invoked completes.
 		Join method also has a overload where we can specify the time-out(in milliseconds). This method returns boolean. Returns true if the thread has terminated otherwise false. 
 		Join is particularly useful when we need to wait and collect result from a thread execution or if we need to do some clean-up after the thread has completed.
 	Thread.IsAlive returns boolean. True if the thread is still executing otherwise false. 
-		
-protecting shared resources from concurrent access in multi-threading		
-	If shared resources is not atomic, the output or behaviour of the program can become inconsistent.
-		static int Total = 0;
-		public static void Main()
-		{
-			Thread thread1 = new Thread(Program.AddOneMillion);
-			Thread thread2 = new Thread(Program.AddOneMillion);
-			Thread thread3 = new Thread(Program.AddOneMillion);
-			thread1.Start(); thread2.Start(); thread3.Start();
-			thread1.Join(); thread2.Join(); thread3.Join();
-			Console.WriteLine("Total = " + Total);
-		}
-		public static void AddOneMillion()
-		{
-			for (int i = 1; i <= 1000000; i++)
-			{
-				Total++;
-			}
-		}
-	To make increment operator thread safe (make the operation atomic), 
-		Using Interlocked.Increment() method
-			Interlocked.Increment(ref Total);
-		Using lock keyword
-			lock (_lock){ Total++; }
-	The Interlocked class can be used with addition/subtraction (increment, decrement, add, etc.) on and int or long field
-	From a performance perspective using Interlocked class is better over using locking
-		
-lock keyword VS Monitor class
-	Monitor class and lock provides a mechanism that synchronizes access to objects. 
-	lock is the short-cut for Monitor.Enter with try and finally. 
-		 for (int i = 1; i <= 1000000; i++)
-		{
-			// Acquires the exclusive lock
-			Monitor.Enter(_lock);
-			try
-			{
-				Total++;
-			}
-			finally
-			{
-				// Releases the exclusive lock
-				Monitor.Exit(_lock);
-			}
-		}
-	If you need more control to implement advanced multi-threading solutions then the Monitor class is your option. This class provide many methods
-		IsEntered(object) -  Determines whether the current thread holds the lock on the specified object.
-		Pulse(object) - Notifies a thread in the waiting queue of a change in the locked object's state.
-		TryEnter(object) - Attempts to acquire an exclusive lock on the specified object. Returns true if thread successfully acquires object
-		Wait(object) - Releases the lock on an object and blocks the current thread until it reacquires the lock
-
-deadlock
-	deadlock is a situation when threadA has locked resourceA and waiting to acquire resourceB while threadB who has resourceB waiting for resourceA
-	there are several techniques to avoid and resolve deadlocks. For example
-		Acquiring locks in a specific defined order such as to acquire resourceB, first you have to lock resourceA 
-		Mutex(mutual exclusive) class
-		Monitor.TryEnter() method 
 	
-async and await keyword
+ASYNC AND AWAIT KEYWORD
 	async and await keywords are used to create asynchronous methods.
 	async keyword specifies that a method is an asynchronous method and the await keyword specifies a suspension point. 
 	await operator signals that the async method can't continue past that point until the awaited asynchronous process is complete.
@@ -662,47 +602,3 @@ async and await keyword
 			lblCount.Text = count.ToString() + " characters in file";
 		}
 	this asynchronousness can also be achieved using threads. But when using threads, we have to write more lines of code
-
-c# wait for thread to finish without blocking
-	the below code is not responsive as in this case the worker thread block the execution of the main UI thread
-		private void btnProcessFile_Click(object sender, EventArgs e)
-		{
-			int count = 0;
-			Thread thread = new Thread(() => { count = CountCharacters(); });
-			thread.Start();
-
-			lblCount.Text = "Processing file. Please wait...";
-			// Join() blocks the Main thread (UI Thread)
-			thread.Join();
-			lblCount.Text = count.ToString() + " characters in file";
-		}
-	below code works but it's blind luck. This is dangerous because, the thread that has created the control must modify the control. 
-	In our case the Main thread (i.e UI Thread) is the thread that has created the label control so only the Main thread should set it's Text property and not the worker thread. 
-	If you run the application it may or may not work as expected.
-		private void btnProcessFile_Click(object sender, EventArgs e)
-		{
-			int count = 0;
-			Thread thread = new Thread(() =>
-			{
-				count = CountCharacters();
-				// This is dangerous
-				lblCount.Text = count.ToString() + " characters in file";
-			});
-			thread.Start();
-
-			lblCount.Text = "Processing file. Please wait...";
-		}
-	The right way to achieve this is by using BeginInvoke() method as shown below. 
-	BeginInvoke() method asks the UI thread to set the Text property of the label control in a type safe manner.
-		private void btnProcessFile_Click(object sender, EventArgs e)
-		{
-			int count = 0;
-			Thread thread = new Thread(() =>
-			{
-				count = CountCharacters();
-				this.BeginInvoke(delegate{lblCount.Text = count.ToString() + " characters in file";});
-			});
-			thread.Start();
-
-			lblCount.Text = "Processing file. Please wait...";
-		}
