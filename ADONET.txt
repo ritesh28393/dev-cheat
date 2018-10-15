@@ -1,55 +1,36 @@
-intro
+INTRO
 	ADO.NET is a set of classes (Framework) that can be used to interact with data sources like Databases and XML files. 
-	This data can, then be consumed in any .NET application like
-		ASP.NET Web Applications
-		Windows Applications
-		Console Applications
 	ADO stands for Microsoft ActiveX Data Objects. 
 	steps to interact with data
-		1. create database connection - <provider>Connection
-		2a. prepare an SQL command - <provider>Command
-		2b. open database connection - connectObject.Open()
-		2c. execute the Command and read incoming data, if any - <provider>DataReader (Provides a way of reading a forward-only stream of rows from database)
-		2d. close database connection - connectObject.Close()
-		2. manipulate data(alternate to 2nd step) - <provider>DataAdapter (Represents a set of data commands like update,delete and also fills System.Data.DataSet to work off-line)
+		1. create database connection
+		2. prepare an SQL command
+		3a. open database connection
+		3b. execute the Command and read incoming data, if any - <provider>DataReader (Provides a way of reading a forward-only stream of rows from database)
+		3c. close database connection - connectObject.Close()
+		3. manipulate data(alternate to 3rd step) - <provider>DataAdapter (Represents a set of data commands like update,delete and also fills System.Data.DataSet to work off-line)
 	System.Data.SqlClient - data provider for SQL Server
 	System.Data.OracleClient - data provider for Oracle Server
 	System.Data.Odbc - Open Database Connectivity. Provides access only to relational databases
 	System.Data.OleDb - Object Linking and Embedding Database. Provide access to all data regardless of its format or location. Full access to ODBC data sources and ODBC drivers
 	System.Data.DataSet - Represents an in-memory cache of data store, that can store tables, just like a database. DataSet is the collection of the DataTables
 	System.Data.DataTable - Represents a table of in-memory data. this has rows and columns
-	The DataSet/DataTable object has no knowledge of the underlying Data Source. It is the SqlDataAdapter object that retrieves data from the data-source. 
-	sql server profiler - logs all sql command entering server
 	ADO.NET offers two data access modes
 		Connection oriented data access - SqlDataReader provide connected data access
 		Disconnected data access - SqlDataAdapter and DataSet objects together provide disconnected data access.
-	
-SqlConnection 
-	connection string - string of key/value pair
-		data source=.\SQLEXPRESS;initial catalog=SampleDB;integrated security=SSPI  - connection object with windows authentication
-		data source=.\SQLEXPRESS; initial catalog=SampleDB; user id=MyUserName; password=MyPassword  - connection object with SQL Server authentication
-	open connection as late as possible and close it as soon as possible
-	2 ways to close connection
-		put connectObj.Close(); in the finally block
-		using(connectObj){ .....connectObj.Open();....}
-	storing connection string in the config files
-		store the connection in the configuration file. This way we have only one place to change, and we don't have to re-build and re-deploy our application.
-		storing connection string in config file
-			<connectionStrings>
-				<add name="DatabaseConnectionString" 
-					connectionString="data source=.; database=Sample_Test_DB; Integrated Security=SSPI" 
-					providerName="System.Data.SqlClient" />
-			</connectionStrings> 
-		retrieving connection string from config file
-			string cs = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
-		
-SqlCommand 
 	common methods of SqlCommand
 		SqlDataReader ExecuteReader - Use when the T-SQL statement returns more than a single value. For example, if the query returns rows of data.
 		int ExecuteNonQuery - Use when you want to perform an Insert, Update or Delete operation. This returns number of rows affected
 		object ExecuteScalar - Use when the query returns a single(scalar) value like no-of-rows. Returns first column of the first row in the result set of the query
+	
+SQLCONNECTION 
+	connection string - string of key/value pair
+		data source=.\SQLEXPRESS;initial catalog=SampleDB;integrated security=SSPI  - connection object with windows authentication
+		data source=.\SQLEXPRESS; initial catalog=SampleDB; user id=MyUserName; password=MyPassword  - connection object with SQL Server authentication
+	2 ways to close connection
+		put connectObj.Close(); in the finally block
+		using(connectObj){ .....connectObj.Open();....}
 		
-Sql injection attack
+SQL INJECTION ATTACK
 	attack example
 		text = "phone'; Delete from tblProductInventory --";  //-- is used from in-line commenting
 		command = "Select * from tblProductInventory where ProductName like '" + text + "%'";
@@ -84,7 +65,7 @@ Sql injection attack
 					GridView1.DataBind();
 				}
 
-stored procedure with output parameter
+STORED PROCEDURE WITH OUTPUT PARAMETER
 	stored procedure
 		Create Procedure spAddEmployee  
 		@Name nvarchar(50),  
