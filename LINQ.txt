@@ -1,6 +1,6 @@
-intro
+INTRO
 	Language Integrated Query
-	enables to query any data store(XML,SQL,objects) without happen to know the syntax and underneath technology. IT also provide compile time error
+	enables to query any data store(XML,SQL,objects) without happen to know the syntax and underneath technology. Also provide compile time error
 	types implementing IEnumerable<T> or IQueryable<T> interface are available to be queried using LINQ
 	LINQ can be queried using
 		LAMDA expression/extended method
@@ -11,12 +11,10 @@ intro
 			select student;
 	LINQ returns IEnumerable<T>
 	Selector is a transform function to apply to each element
-	resultSelector is a transform function to apply to each element of the intermediate sequence
-	keySelector is a function to extract a key from an element
 	predicate is a function to test each element for condition
 	Distinct() - returns distinct values from IEnumerable<T>
 	
-aggregate function 
+AGGREGATE FUNCTION 
 	numberArray.Min(selector); //get the minimum numberArray.
 	numberArray.Max(selector); //get the maximum numberArray. 
 	numberArray.Sum(selector); //get the total sum of all numbers in  numberArray
@@ -24,11 +22,11 @@ aggregate function
 	numberArray.Count(predicate); //get the no of numbers in  numberArray
 	numberArray.Aggregate(seed,(a,b)=>a+", "+b); // apply aggregate function on each element. If seed is present, then a=seed else a=first element of numberArray for first accumulation
 	
-restriction operation
+RESTRICTION OPERATION
 	Where(Func<element, BoolResult> predicate)
 	Where(Func<element, indexOfElement, BoolResult> predicate)
 	
-projection operation
+PROJECTION OPERATION
 	Select(Func<element, TResult> selector)
 	Select(Func<element, indexOfElement, TResult> selector) //numberArray.Select((ele,index)=>new{Element=ele,Index=index});
 	SelectMany(Func<element, IEnumerable<TResult>> selector)
@@ -36,34 +34,18 @@ projection operation
 	SelectMany(Func<element, IEnumerable<TResult>> selector, Func<element, sequenceItem, TResult> resultSelector)
 	SelectMany(Func<element, indexOfElement, IEnumerable<TResult>> selector, Func<element, sequenceItem, TResult> resultSelector)
 	SelectMany(selector) - selector is the sequence. SelectMany flattens the resulting sequences into one sequence
-		LAMDA expression
-			studentList.SelectMany(student=>student.Subjects);
-		SQL like query
-			from student in studentList
-			from subject in student.Subjects
-			select subject
 	SelectMany(selector,resultSelector) - flattens the resulting sequences into one sequence, and invokes a result selector function on each element therein.
-		LAMDA expression
-			studentList.SelectMany(student=>student.Subjects, (student,subject)=>new{Name=student.Name,Subject=subject});
-		SQL like query
-			from student in studentList
-			from subject in student.Subjects
-			select new{Name=student.Name,Subject=subject}
+		studentList.SelectMany(student=>student.Subjects, (student,subject)=>new{Name=student.Name,Subject=subject});
 
-ordering operation
+ORDERING OPERATION
 	OrderBy(Func<element, TKey> keySelector)
-	OrderBy(Func<element, TKey> keySelector, IComparer<TKey> comparer)
 	OrderByDescending(Func<element, TKey> keySelector)
-	OrderByDescending(Func<element, TKey> keySelector, IComparer<TKey> comparer)
 	if you provide multiple OrderBy(), the resulting IEnumerable is ordered by the last OrderBy key. To overcome this, use ThenBy()
 	ThenBy(Func<element, TKey> keySelector)
-	ThenBy(Func<element, TKey> keySelector, IComparer<TKey> comparer)
 	ThenByDescending(Func<element, TKey> keySelector)
-	ThenByDescending(Func<element, TKey> keySelector, IComparer<TKey> comparer)
-	SQL like query - orderby <any number of keys separated by comma> ascending(by default)/descending
 	Reverse()
 	
-partitioning operator
+PARTITIONING OPERATOR
 	Take(count)
 	TakeWhile(Func<element, bool> predicate)
 	TakeWhile(Func<element, index, bool> predicate)
@@ -71,104 +53,50 @@ partitioning operator
 	SkipWhile(Func<element, bool> predicate)
 	SkipWhile(Func<element, index, bool> predicate)
 	
-grouping operation
+GROUPING OPERATION
 	Each group contains a key( or a key object if grouping is on multiple column) and sequence of elements 
-	GroupBy(Func<element, TKey> keySelector) //forEach(var group in employees.GroupBy(emp=>emp.Dept)){Console.WriteLine(group.Key+" - "+group.Count(emp=>emp.Gender=="Male"));}
+	GroupBy(Func<element, TKey> keySelector)
+		forEach(var group in employees.GroupBy(emp=>emp.Dept))
+		{
+			Console.WriteLine(group.Key+" - "+group.Count(emp=>emp.Gender=="Male"));
+		}
 	GroupBy(Func<element, TKey> keySelector, Func<TKey, groupSequence, TResult> resultSelector);
 	group by department and order by department and employee's name
-		LAMDA expression
-			employeeList.GroupBy(emp=>emp.Dept, (key,empGroup)=>new{Key = key, Employees = empGroup.OrderBy(emp=>emp.Name)});
-		SQL like query
-			from employee in employeeList
-			group employee by employee.Dept in DGroup
-			orderby DGroup.Key
-			select new
-			{
-				Key = DGroup.Key,
-				Employees = DGroup.OrderBy(emp=>emp.Name)
-			};
+		employeeList.GroupBy(emp=>emp.Dept, (key,empGroup)=>new{Key = key, Employees = empGroup.OrderBy(emp=>emp.Name)});
 	group by department,gender and order by department, gender and employee's name
-		LAMDA expression
-			employeeList.GroupBy(emp=>new{emp.Dept,emp.Gender})
-			.OrderBy(g=>g.Key.Dept).ThenBy(g=>g.Key.Gender)
-			.Select(g=>new
-			{
-				Dept = g.Key.Dept,
-				Gender = g.Key.Gender,
-				Employees = g.OrderBy(emp=>emp.Name)
-			});
-		SQL like query
-			from employee in employeeList
-			group employee by new{employee.Dept,employee.Gender} in DGGroup
-			orderby DGGroup.Key.Dept,DGGroup.Key.Gender
-			select new
-			{
-				Dept = DGGroup.Key.Dept,
-				Gender = DGGroup.Key.Gender,
-				Employees = DGGroup.OrderBy(emp=>emp.Name)
-			};
+		employeeList.GroupBy(emp=>new{emp.Dept,emp.Gender})
+		.OrderBy(g=>g.Key.Dept).ThenBy(g=>g.Key.Gender)
+		.Select(g=>new
+		{
+			Dept = g.Key.Dept,
+			Gender = g.Key.Gender,
+			Employees = g.OrderBy(emp=>emp.Name)
+		});
 			
-element operator
+ELEMENT OPERATOR
 	retrieve a single element from the sequence using element index or based on a condition
 	predicate - it's optional
 	First(predicate)/FirstOrDefault(predicate)
 	Last(predicate)/LastOrDefault(predicate)
 	ElementAt(index)/ElementAtOrDefault(index)
 	Single(predicate)/SingleOrDefault(predicate) - Both extension throw exception if sequence(modified sequence if predicate present) has more than one element
-	DefaultIfEmpty(DefaultValue) - DefaultValue is optional. If sequence is empty, default value is returned or else sequence is returned
 
-joins
+JOINS
 	group join - GroupJoin(innerSequence, outerKeySelector, innerKeySelector, Func<Outer, InnerSequence, TResult> resultSelector)
-		LAMDA expression
-			departmentList.GroupJoin(employeeList,d=>d.id,e=>e.deptId,(dept,emps)=>new{Department=dept,Employees=emps});
-		SQL like query
-			from d in departmentList
-			join e in employeeList
-			on d.id equals e.deptId into Group
-			select new
-			{
-				Department=d,
-				Employees=Group
-			};
+		departmentList.GroupJoin(employeeList,d=>d.id,e=>e.deptId,(dept,emps)=>new{Department=dept,Employees=emps});
 	inner join - Join(innerSequence, outerKeySelector, innerKeySelector, Func<Outer, Inner, TResult> resultSelector)
-		LAMDA expression
-			departmentList.Join(employeeList,d=>d.id,e=>e.deptId,(dept,emp)=>new{Department=dept,Employee=emp});
-		SQL like query
-			from d in departmentList
-			join e in employeeList
-			on d.id equals e.deptId
-			select new
-			{
-				Department=d,
-				Employee=e
-			};
+		departmentList.Join(employeeList,d=>d.id,e=>e.deptId,(dept,emp)=>new{Department=dept,Employee=emp});
 	left outer join
-		LAMDA expression
-			EmployeeList.GroupJoin(DepartmentList,e => e.DepartmentID,d => d.ID,(emp, depts) => new { emp, depts }).SelectMany(z => z.depts.DefaultIfEmpty(),(a, b) => new
-			{
-				EmployeeName = a.emp.Name,
-				DepartmentName = b == null ? "No Department" : b.Name
-			});
-		SQL like query
-			from e in EmployeeList
-			join d in DepartmentList
-			on e.DepartmentID equals d.ID into eGroup
-			from d in eGroup.DefaultIfEmpty()
-			select new
-			{
-				EmployeeName = e.Name,
-				DepartmentName = d == null ? "No Department" : d.Name
-			};
+		EmployeeList.GroupJoin(DepartmentList,e => e.DepartmentID,d => d.ID,(emp, depts) => new { emp, depts }).SelectMany(z => z.depts.DefaultIfEmpty(),(a, b) => new
+		{
+			EmployeeName = a.emp.Name,
+			DepartmentName = b == null ? "No Department" : b.Name
+		});
 	cross join
-		LAMDA expression
-			EmployeeList.SelectMany(e => DepartmentList, (e,d) => new {e,d}); OR
-			EmployeeList.Join(DepartmentList,e => true,d => true, (e,d) => new {e,d});
-		SQL like query
-			from e in EmployeeList
-			join d in DepartmentList
-			select new {e,d};
+		EmployeeList.SelectMany(e => DepartmentList, (e,d) => new {e,d}); OR
+		EmployeeList.Join(DepartmentList,e => true,d => true, (e,d) => new {e,d});
 			
-set operator
+SET OPERATOR
 	Distinct
 		EmployeeList.Distinct();
 		EmployeeList.Distinct(IEqualityComparer<Employee>);
@@ -179,20 +107,19 @@ set operator
 	Intersect
 	Except
 	all set operator remove duplicates value
-	in case of complex object you may get duplicates in result, In that case EmployeeListA.Select(x => new {x.ID,x.Name}).Union.EmployeeListB.Select(x => new {x.ID,x.Name});
-	
-concat operator
-	unlike union operator, concat operator preserve duplicate values. Concat operator simply returns the items from the first sequence followed by the items from the second sequence. 
-	like union operator, concat operator merge 2 sequence into one
+	in case of complex object you may get duplicates in result, In that case EmployeeListA.Select(x => new {x.ID,x.Name}).Union.EmployeeListB.Select(x => new {x.ID,x.Name});	
+	concat operator
+		unlike union operator, concat operator preserve duplicate values. 
+		Concat operator simply returns the items from the first sequence followed by the items from the second sequence.
 
-generation operator
+GENERATION OPERATOR
 	Range(startValue, count) -  generates a sequence of integers within a specified range
 	Repeat(Value, count) - generate a sequence that contains one repeated value.
 	Empty<T>() - returns an empty IEnumerable<T>. When you loop over null object, it throws error. So to avoid error, use substitute null for Empty IEnumerable<T>
 		IEnumerable<int> result = GetIntegerSequence() ?? Enumerable.Empty<int>();
-	Use these operator as Enumerable.range(1,10), Enumerable.Repeat("Hello", 5), Enumerable.Empty<int>()
+	Use these operator as Enumerable.Range(1,10), Enumerable.Repeat("Hello", 5), Enumerable.Empty<int>()
 	
-sequenceEqual operator
+SEQUENCEEQUAL OPERATOR
 	returns true if the sequences are equal otherwise false
 	if the order of element in the sequence is different, SequenceEqual operator will return false. To overcome this problem, we can use SequenceEqual along with orderBy operator
 	when comparing complex types, the default comparer will only check if the object references are equal. To check property's value, there are 3 ways
@@ -200,7 +127,7 @@ sequenceEqual operator
 		override Equal and getHashCode methods of the complex type
 		use anonymous type as they override Equal and getHashCode methods
 	
-quantifier
+QUANTIFIER
 	return true or false depending on whether if some or all of the elements in a sequence satisfy a condition.
 	All - returns true if all the elements in a sequence satisfy a given condition, otherwise false.
 		numbers.All(x => x < 10) - return true if each and every element is less than 10.
@@ -211,66 +138,16 @@ quantifier
 		numbers.Contains(3) - return true if 3 is a member of the sequence
 		countries.Contains("india", StringComparer.OrdinalIgnoreCase) - return true if sequence contains "india", given letter's case don't matter
 	
-LINQ query operators behaviour
+LINQ QUERY OPERATORS BEHAVIOUR
 	categories based on the behaviour of query execution
 		Deferred or Lazy Operators -  These query operators use deferred execution. Examples - select, where, Take, Skip etc
 		Immediate or Greedy Operators - These query operators use immediate execution. Examples - count, average, min, max, ToList etc
-	below LINQ Query is only defined and is not executed at this point. It's executed only when looping through each item in the sequence
-		IEnumerable<Student> result = from student in listStudents
-									  where student.TotalMarks == 800
-									  select student;
 	to force the execution of the query, use ToList( as ToList is an immediate operator)
 	
-conversion operator
+CONVERSION OPERATOR
 	ToList - extracts all of the items from the source sequence and returns a new List<T>. This operator causes the query to be executed immediately
 	ToArray - operator extracts all of the items from the source sequence and returns a new Array. This operator causes the query to be executed immediately.
 	ToDictionary - operator extracts all of the items from the source sequence and returns a new Dictionary. This operator causes the query to be executed immediately
 		Dictionary<int, string> result = listStudents.ToDictionary(x => x.StudentID, x => x.Name);
 		Dictionary<int, Student> result = listStudents.ToDictionary(x => x.StudentID);
 	ToLookup - Just like a dictionary, a Lookup is a collection of key/value pairs. A dictionary cannot contain keys with identical values, where as a Lookup can.
-	Cast
-		attempts to convert all of the items within an existing collection to another type and return them in a new collection. 
-		If an item fails conversion InvalidCastException will be thrown. 
-		This method uses deferred execution.
-		example - IEnumerable<int> result = arrayList.Cast<int>();
-	OfType
-		return only elements of the specified type. The other type elements are simply ignored and excluded from the result set.
-		if we want to filter the elements and return only the ones of the specified type, then we would use OfType. 
-		This method uses deferred execution.
-	AsEnumerable 
-		AsEnumerable operator breaks the query into 2 parts
-			The "inside part" that is the query before AsEnumerable operator is executed as Linq-to-SQL
-			The "outside part" that is the query after AsEnumerable operator is executed as Linq-to-Objects
-	AsQueryable - mainly used in unit testing to mock a queryable data source using an in-memory data source.
-	
-	
-			
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-		
