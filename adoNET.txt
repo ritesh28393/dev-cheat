@@ -100,7 +100,7 @@ STORED PROCEDURE WITH OUTPUT PARAMETER
 			lblMessage.Text = "Employee Id = " + EmployeeId;
 		}
 		
-SqlDataReader
+SQLDATAREADER
 	SqlDataReader is read-only and forward only, meaning once you read a record and go to the next record, there is no way to go back to the previous record.
 	it is connection oriented i.e. it requires an active and open connection to the data source
 	cannot create an instance of SqlDataReader using the new operator. SqlDataReader has no constructor
@@ -112,7 +112,7 @@ SqlDataReader
 		Read() - returns boolean. Advances the read pointer to the next record/row
 		NextResult() - returns boolean. Advances the pointer to the next result set. Useful when executing multiple command as one ("select * from tbl1; select * from tbl2;")
 		
-SqlDataAdapter
+SQLDATAADAPTER
 	SqlDataAdapter and DataSet provides us with disconnected data access model.
 	Fill() method 
 		this method does most of the work. 
@@ -147,11 +147,11 @@ SqlDataAdapter
 		SqlCommand deleteCommand = new SqlCommand("Delete from tblStudents where Id = @Id", connection);
 		deleteCommand.Parameters.Add("@Id", SqlDbType.Int, 0, "Id");
 		dataAdapter.DeleteCommand = deleteCommand;
-		// Update the underlying database table
-		dataAdapter.Update(<DS>, "Students");
+		// Update the underlying database table - Students
+		dataAdapter.Update(<DataSet>, "Students");
 		lblStatus.Text = "Database table updated";
 
-SqlCommandBuilder
+SQLCOMMANDBUILDER
 	SqlCommandBuilder automatically generates INSERT, UPDATE and DELETE sql statements based on the SELECT statement passed to DataAdapter
 	steps to update database
 		 dataAdapter.SelectCommand = new SqlCommand("select * from table1", con); //set the SelectCommand of the DataAdapter
@@ -165,10 +165,9 @@ SqlCommandBuilder
 		SqlCommandBuilder object not associated with SqlDataAdapter object
 		The SelectCommand that is associated with SqlDataAdapter, does not return at-least one primary key or unique column
 		
-DataSet
+DATASET
 	when more than one table is passed in DataSet, you can use a desired table as
 		GridViewProducts.DataSource = dataset.Tables[0]; or GridViewProducts.DataSource = dataset.Tables["Table"];
-		GridViewProducts.DataSource = dataset.Tables[1]; or GridViewProducts.DataSource = dataset.Tables["Table1"];
 	we can change the name of the table
 		dataset.Tables[0].TableName = "Products";
 	ADO.NET manages rows in tables using row states and versions. Row state indicates the status of a row; row versions maintain the values stored in a row as it is modified
@@ -177,18 +176,9 @@ DataSet
 		Added - The row has been added to the table, but AcceptChanges has not been called.
 		Modified - Some element of the row has been changed.
 		Deleted - The row has been deleted from a table, and AcceptChanges has not been called.
-		Detached - 
-			The row is not part of any DataRowCollection. 
-			The RowState of a newly created row is set to Detached. After the new DataRow is added to the DataRowCollection by calling Add(), RowState property is set to Added.
-			Detached is also set for a row that has been removed from a DataRowCollection using the Remove method, or by the Delete method followed by the AcceptChanges method.
 	DataRowVersion
 		Current - The current values for the row. This row version does not exist for rows with a RowState of Deleted.
-		Default - 
-			The default row version for an Added, Modified, or Unchanged row is Current
-			The default row version for a Deleted row is Original. 
-			The default row version for a Detached row is Proposed.
 		Original - The original values for the row. This row version does not exist for rows with a RowState of Added.
-		Proposed - The proposed values for the row. This row version exists during an edit operation on a row, or for a row that is not part of a DataRowCollection.
 	When AcceptChanges() is invoked RowState property of each DataRow changes. Added and Modified rows become Unchanged, and Deleted rows are removed
 	If we invoke DataAdapter.Update(), based on the RowState, respective INSERT, UPDATE and DELETE commands are executed on database table and AcceptChanges() is called automatically. 
 	When RejectChanges() is invoked RowState property of each DataRow changes. Added rows are removed. Modified and Deleted rows becomes Unchanged.
@@ -196,20 +186,8 @@ DataSet
 		At the DataTable level - When invoked at the DataTable level, they get called automatically on each DataRow within each DataTable.
 		At the DataSet level - When invoked at the DataSet level, they get called automatically on each DataTable with in the DataSet, and on each DataRow within each DataTable.
 		At the DataRow level - Gets called only for the row, on which it is invoked
-		
-strongly typed dataset
-	Strongly Typed Dataset is generated based on the Database Schema. 
-	Strongly Typed Dataset derive form DataSet
-	In a strongly typed dataset the database table columns become properties and the type associated with each column is known at design time
-	to generate a typed dataset using visual studio - add DataSet as new item. This should add a file with .XSD extension. Drag and drop the concern table
-	example
-		StudentDataSetTableAdapters.StudentsTableAdapter studentsTableAdapter = new StudentDataSetTableAdapters.StudentsTableAdapter();
-		StudentDataSet.StudentsDataTable studentsDataTable = new StudentDataSet.StudentsDataTable();
-		studentsTableAdapter.Fill(studentsDataTable);
-		GridView1.DataContext = from student in studentsDataTable 
-								select new { student.ID, student.Name, student.Gender, student.TotalMarks };
 								
-sqlbulkcopy
+SQLBULKCOPY
 	SqlBulkCopy class is used to bulk copy data from different data sources(which can be loaded to DataTable instance or read with IDataReader instance) to SQL Server database
 	loading xml data into sql server table using sqlbulkcopy (using DataTable instance)
 		DataSet ds = new DataSet();
@@ -224,25 +202,11 @@ sqlbulkcopy
 			bc.ColumnMappings.Add("Location", "Location");
 			bc.WriteToServer(dtDept);
 		}
-	coping data to different table (using IDataReader instance)
-		using (SqlDataReader rdr = cmd.ExecuteReader())
-		{
-			using (SqlConnection destinationCon = new SqlConnection(destinationCS))
-			{
-				using (SqlBulkCopy bc = new SqlBulkCopy(destinationCon))
-				{
-					bc.DestinationTableName = "Departments";
-					destinationCon.Open();
-					//As the column names in the source and destination tables are the same column mappings are not required. 
-					bc.WriteToServer(rdr);
-				}
-			}
-		}
 	BatchSize property - specifies the number of rows in a batch that will be copied to the destination table. By default batch size is one row
 	NotifyAfter property - defines the number of rows to be processed before raising SqlRowsCopied event.
 	SqlRowsCopied event - raised every time the number of rows specified by NotifyAfter property are processed. This event is useful for reporting the progress of the data transfer.
 	
-transaction
+TRANSACTION
 	A Transaction ensures that either all of the database operations succeed or all of them fail. 
 	This means the job is never half done, either all of it is done or nothing is done. 
 	example
