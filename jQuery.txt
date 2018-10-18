@@ -1,0 +1,39 @@
+intro
+	Basic syntax is: $(selector).action()
+		A $ sign to define/access jQuery
+		A (selector) to "query (or find)" HTML elements
+		A jQuery action() to be performed on the element(s)
+	on() Method - The on() method attaches one or more event handlers for the selected elements.
+		$("p").on("click", function(){ $(this).hide(); });
+		$("p").on({
+			mouseenter: function(){ $(this).css("background-color", "lightgray"); }, 
+			mouseleave: function(){ $(this).css("background-color", "lightblue"); }, 
+			click: function(){ $(this).css("background-color", "yellow"); } 
+		});
+	$(selector).animate({params},speed,callback);
+		The required params parameter defines the CSS properties to be animated.
+		It is also possible to define relative values (the value is then relative to the element's current value). This is done by putting += or -= in front of the value
+		Pre-defined Values - can even specify a property's animation value as "show", "hide", or "toggle":
+		
+Traversing
+	Ancestors
+		parent() - returns the direct parent element of the selected element.
+		parents() - returns all ancestor elements of the selected element, all the way up to the document's root element (<html>)
+		parentsUntil() - returns all ancestor elements between two given arguments.
+		closest() - returns the first ancestor of the selected element
+	Descendants
+		children() - returns all direct children of the selected element.
+		find() - returns descendant elements of the selected element, all the way down to the last descendant
+	Siblings
+		siblings() - returns all sibling elements of the selected element.
+		next() - returns the next sibling element of the selected element.
+		nextAll() - returns all next sibling elements of the selected element.
+		nextUntil() - returns all next sibling elements between two given arguments
+		prev(), prevAll() & prevUntil()
+	Filtering
+		first() - returns the first element of the specified elements.
+		last() - returns the last element of the specified elements.
+		eq() - returns an element with a specific index number of the selected elements.
+		filter() - lets you specify a criteria. Elements that do not match the criteria are removed from the selection, and those that match will be returned
+		not() - returns all elements that do not match the criteria. not() method is the opposite of filter().
+	each() - specifies a function to run for each matched element.   $(selector).each(function(index,element))
