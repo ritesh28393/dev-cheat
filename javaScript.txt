@@ -1,0 +1,224 @@
+intro
+	In JavaScript, the first character must be a letter, or an underscore (_), or a dollar sign ($).
+	Subsequent characters may be letters, digits, underscores, or dollar signs.
+	Adding two numbers, will return the sum, but adding a number and a string will return a string:
+	unlike + operator, other operators first tries to convert string to integer value and return number after performing operation
+	typeof - Returns the type of a variable
+		typeof NaN                    // Returns "number"
+		typeof false                  // Returns "boolean"
+		typeof [1,2,3,4]              // Returns "object"
+		typeof new Date()             // Returns "object"
+		typeof function () {}         // Returns "function"
+		typeof myCar                  // Returns "undefined"
+		typeof undefined              // Returns "undefined"
+		typeof null                   // Returns "object"
+	instanceof - Returns true if an object is an instance of an object type
+	The constructor property returns the constructor function for all JavaScript variables.
+		"John".constructor                // Returns function String()  {[native code]}
+		(3.14).constructor                // Returns function Number()  {[native code]}
+		false.constructor                 // Returns function Boolean() {[native code]}
+		[1,2,3,4].constructor             // Returns function Array()   {[native code]}
+		{name:'John',age:34}.constructor  // Returns function Object()  {[native code]}
+		new Date().constructor            // Returns function Date()    {[native code]}
+		function () {}.constructor        // Returns function Function(){[native code]}
+	You cannot use typeof to determine if a JavaScript object is an array (or a date). To check if the object is an Array function
+		function isArray(myArray) {
+			return myArray.constructor === Array;
+		}
+	JavaScript variables can be converted to a new variable and another data type:
+		By the use of a JavaScript function
+		Automatically by JavaScript itself
+	Bit operators work on 32 bits numbers. - &(AND), |(OR), ~(NOT), ^(XOR), <<(Zero fill left shift)
+	in - Property in Object like ("PI" in Math)
+	JavaScript evaluates expressions from left to right. Different sequences can produce different results:	
+		16 + 4 + "Volvo" => 20Volvo
+		"Volvo" + 16 + 4 => Volvo164
+	Undefined and null are equal in value but different in type
+	Accessing a function without () will return the function definition instead of the function result
+	===
+		var x = "John";             
+		var y = new String("John");
+		var z = new String("John");
+		// (x === y) is false because x and y have different types (string and object)
+		// (y === z) is false because x and y are different objects. Comparing two JavaScript objects will always return false
+	In JavaScript, arrays use numbered indexes and objects use named indexes.
+	Everything With a "Value" is True and vis a versa
+	When comparing two strings, "2" will be greater than "12", because (alphabetically) 1 is less than 2.
+	Redeclaring
+		Redeclaring a JavaScript variable with var is allowed anywhere in a program:
+		Redeclaring a var variable with let, in the same scope, or in the same block, is not allowed:
+		Redeclaring a let variable with let, in the same scope, or in the same block, is not allowed:
+		Redeclaring a let variable with var, in the same scope, or in the same block, is not allowed:
+		Redeclaring a variable with let, in another scope, or in another block, is allowed:
+	methods
+		https://www.w3schools.com/js/js_string_methods.asp
+		https://www.w3schools.com/jsref/jsref_obj_string.asp
+		https://www.w3schools.com/jsref/jsref_obj_number.asp
+		https://www.w3schools.com/jsref/jsref_obj_array.asp
+		https://www.w3schools.com/jsref/jsref_obj_regexp.asp
+	
+this Keyword
+	The JavaScript this keyword refers to the object it belongs to.
+	This has different values depending on where it is used.
+		In a method, this refers to the owner object.
+			var person = {
+				firstName: "John",
+				lastName : "Doe",
+				id       : 5566,
+				fullName : function() {
+					return this.firstName + " " + this.lastName;
+				}
+			};
+			In the example above, this is the person object that "owns" the fullName function.
+			In other words, this.firstName means the firstName property of this object.
+		Alone, this refers to the global object.
+		In a function, this refers to the global object.
+		In a function, in strict mode, this is undefined.
+		In an event, this refers to the element that received the event.
+		Methods like call(), and apply() can refer this to any object.
+	
+Errors 
+	The try statement lets you test a block of code for errors.
+	The catch statement lets you handle the error.
+	The throw statement lets you create custom errors.
+		throw "Too big";    // throw a text
+		throw 500;          // throw a number
+	The finally statement lets you execute code, after try and catch, regardless of the result
+	example 
+		try {
+			eval("alert('Hello)");   // Missing ' will produce an error
+		}
+		catch(err) {
+			document.getElementById("demo").innerHTML = err.name + ' ' + err.message;
+		}
+		
+Scope
+	types - 
+		Global scope
+			Variables declared Globally (outside any function) have Global Scope.
+			Global variables can be accessed from anywhere in a JavaScript program.
+		function scope
+			Variables declared Locally (inside a function) have Function Scope.
+			Local variables can only be accessed from inside the function where they are declared.
+		Block scope
+			Variables declared with the var keyword can not have Block Scope. They can be accessed from outside the block.
+			let and const variables declared inside a block {} can not be accessed from outside the block
+	Scope determines the accessibility (visibility) of these variables.
+	Variables defined inside a function are not accessible (visible) from outside the function. 
+	Local variables are created when a function starts, and deleted when the function is completed.
+	If you assign a value to a variable that has not been declared, it will automatically become a GLOBAL variable.
+		myFunction();
+		// code here can use carName 
+		function myFunction() {
+			carName = "Volvo";
+		}
+	let and const keywords provide Block Scope variables (and constants) in JavaScript
+	Global variables defined with the let keyword do not belong to the window object:
+		
+Hoisting
+	Hoisting is JavaScript's default behavior of moving declarations to the top of the current scope (to the top of the current script or the current function).
+	JavaScript only hoists declarations, not initializations.
+	This means a variable can be used before it has been declared
+	Variables and constants declared with let or const are not hoisted!
+	
+Use Strict
+	"use strict"; Defines that JavaScript code should be executed in "strict mode".
+	Strict mode changes previously accepted "bad syntax" into real errors.
+	JavaScript in strict mode does not allow variables to be used if they are not declared.
+	mistyping a variable name creates a new global variable. In strict mode, this will throw an error, making it impossible to accidentally create a global variable.
+	
+const
+	JavaScript const variables must be assigned a value when they are declared:
+	It does NOT define a constant value. It defines a constant reference to a value.
+	Because of this, we cannot change constant primitive values, but we can change the properties of constant objects.
+
+Object
+	Objects are mutable: They are addressed by reference, not by value.
+		var person = {firstName:"John", lastName:"Doe", age:50, eyeColor:"blue"}
+		var x = person;
+		x.age = 10;  // This will change both x.age and person.age
+	Accessors (Getters and Setters)
+		var person = {
+			firstName: "John",
+			lastName : "Doe",
+			language : "en",
+			get lang() {
+				return this.language;
+			}
+			set lang(lang) {
+				this.language = lang;
+			}
+		};
+		// Display data from the object using a getter:
+		document.getElementById("demo").innerHTML = person.lang;
+		// Set an object property using a setter:
+		person.lang = "en";
+		// Display data from the object:
+		document.getElementById("demo").innerHTML = person.language;
+	The Object.defineProperty(object, property, descriptor) method can also be used to add Getters and Setters:
+		// Define a getter
+		Object.defineProperty(person, "fullName", {
+			get : function () {return this.firstName + " " + this.lastName;}
+		});
+	Changing Meta Data
+		ES5 allows the following property meta data to be changed:
+		writable : true      // Property value can be changed
+		enumerable : true    // Property can be enumerated
+		configurable : true  // Property can be reconfigured
+	Constructors
+		A constructor invocation creates a new object. The new object inherits the properties and methods from its constructor.
+		function Person(first, last, age, eyecolor) {
+			this.firstName = first;
+			this.lastName = last;
+			this.age = age;
+			this.eyeColor = eyecolor;
+			this.nationality = "English";
+		}
+		var myFather = new Person("John", "Doe", 50, "blue");
+		var myMother = new Person("Sally", "Rally", 48, "green");
+	All JavaScript objects inherit properties and methods from a prototype.
+	
+function
+	Parameter Defaults
+		If a function is called with missing arguments (less than declared), the missing values are set to: undefined
+		ECMAScript 2015 allows default parameters in the function call:
+			function (a=1, b=1) { // function code }
+	The Arguments Object
+		JavaScript functions have a built-in object called the arguments object.
+		example
+			function findMax() {
+				var i;
+				var max = -Infinity;
+				for (i = 0; i < arguments.length; i++) {
+					if (arguments[i] > max) {
+						max = arguments[i];
+					}
+				}
+				return max;
+			}
+	Objects are Passed by Reference. Changes to object properties are visible (reflected) outside the function.
+	call()
+		It can be used to invoke (call) a method with an owner object as an argument (parameter).
+		var person = {
+			fullName: function(city, country) {
+				return this.firstName + " " + this.lastName + "," + city + "," + country;
+			}
+		}
+		var person1 = { firstName:"John", lastName: "Doe" };
+		person.fullName.call(person1, "Oslo", "Norway");   // will return John Doe,Oslo,Norway
+	apply()
+		The call() method takes arguments separately. While the apply() method takes arguments as an array.
+	Closures
+		Global variables can be made local (private) with closures.
+		A closure is a function having access to the parent scope, even after the parent function has closed.
+		var add = (function () {
+			var counter = 0;
+			return function () {counter += 1; return counter}
+		})();
+		// The self-invoking function only runs once. It sets the counter to zero (0), and returns a function expression.
+		// This way add becomes a function. The "wonderful" part is that it can access the counter in the parent scope.
+		// This is called a JavaScript closure. It makes it possible for a function to have "private" variables.
+		add();
+		add();
+		add();
+		// the counter is now 3	
