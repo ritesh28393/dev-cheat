@@ -1,0 +1,56 @@
+intro
+	Chef is a configuration management technology to manage and automate infrastructure on physical or virtual machines.
+	Chef allows user to use infrastructure as a code ie managing infrastructure by writing code (Automating infrastructure) rather than using manual processes
+	when istalling applicvation, we tell Chef what to install intead of how to install
+	change congiguration = change setting = change state 
+	Architecture
+		Chef works on a three-tier client server model wherein the working units such as cookbooks are developed on the Chef workstation. 
+		From the command line utilities such as knife, they are uploaded to the Chef server and all the nodes which are present in the architecture are registered with the Chef server.
+		All configurations are tested and pushed on to the server. And nodes update themselves with the configurations present on the server
+		This is called Pull Configuration
+			we don’t need to execute even a single command on the Chef server to push the configuration on the nodes, 
+			nodes will automatically update themselves with the configurations present in the Server	
+		Chef Workstation
+			This is the location where all the configurations are developed. 
+			responsible for writing Cookbooks and Recipes that will later be pushed to the central Chef Server
+			responsible for managing Nodes on the central Chef Server
+		Chef Server
+			This works as a centralized working unit of Chef setup, where all the configuration files are uploaded post development.
+			The Chef Server stores Cookbooks, the policies that are applied to Nodes, and metadata that describes each registered Node that is being managed by the Chef-Client.
+		Chef Nodes
+			Chef client is the key component of all the nodes, which helps in setting up the communication between the Chef server and Chef node. 
+			The other components of Chef node is Ohai, which helps in getting the current state of any node at a given point of time.
+			It is responsible for interacting with the central Chef Server.
+			It manages the initial registration of the Node to the central Chef Server.
+			It pulls down Cookbooks, and applies them on the Node, to configure it.
+			Periodic polling of the central Chef Server to fetch new configuration items, if any.
+			eg. Physical Server, Virtual Machine, Instance of Cloud, Network Device, etc
+	Chef Client
+		An agent theat run locally on every node to bring it to the expected state
+		it communicate with the Chef server which host all the configuration which need to be applied on the nodes
+	Ohio
+		it is basically a collector
+		used to collect attributes of a node and thwen provide it to Chef Client at the start of every Chef-Client run 
+	Knife 
+		It is Chef’s command-line tool to interact with the Chef server. Run on the Chef workstation
+		One uses it for uploading cookbooks and managing other aspects of Chef. 
+		Adding, removing, changing configurations of Nodes in a central Chef Server will be carried out by using this Knife utility
+	Resource
+		Resource is anything you want to change/configure in the host like files and directories, users and groups, packages and services
+		basic block of the congiguration
+	Recipe
+		collection of resouces
+		resources are gathered in to a file which is called as recipe which ensure the system is in desired state
+		recipe is written in Domain Specific Language(DSL). DSL is a subset of Ruby
+	Cookbook 
+		collection of recipes
+		fundamental unit of congiguration and policy distribution
+		Each cookbook defines a scenario such as installing and configuring MySQL. 
+	Test Kitchen 
+		It is Chef’s integrated testing framework. 
+		It enables writing test recipes, which will run on the VMs once they are instantiated and converged using the cookbook. 
+		The test recipes run on that VM and can verify if everything works as expected.
+		ChefSpec is something which only simulates a Chef run. Test kitchen boots up real node and runs Chef on it.
+		
+commands
+	
