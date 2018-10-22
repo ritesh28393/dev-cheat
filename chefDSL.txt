@@ -1,0 +1,262 @@
+DSL
+	Most of the methods in the Recipe DSL are used to find a specific parameter and then tell the chef-client what action(s) to take, based on whether that parameter is present on a node.
+	
+Include Recipes
+	A recipe can include one (or more) recipes from cookbooks by using the include_recipe method. 
+	When a recipe is included, the resources found in that recipe will be inserted (in the same exact order) at the point where the include_recipe keyword is located.
+	The syntax for including a recipe is like this:
+		include_recipe 'recipe'
+	Multiple recipes can be included within a recipe. For example:
+		include_recipe 'cookbook::setup'
+		include_recipe 'cookbook::install'
+		include_recipe 'cookbook::configure'
+	If a specific recipe is included more than once with the include_recipe method or elsewhere in the run_list directly, only the first instance is processed and others are ignored.
+	
+Reload Attributes
+	Attributes sometimes depend on actions taken from within recipes, so it may be necessary to reload a given attribute from within a recipe. For example:
+		ruby_block 'some_code' do
+			block do
+				node.from_file(run_context.resolve_attribute('COOKBOOK_NAME', 'ATTR_FILE'))
+			end
+			action :nothing
+		end
+		
+Recipe DSL Methods
+	provide four helper methods that can be used to check for a node's platform from the recipe to ensure that specific actions are taken for specific platforms - 
+		platform?
+		platform_family?
+		value_for_platform
+		value_for_platform_family	
+	Also provides support for using attributes, data bags (and encrypted data), and search results in a recipe
+	attribute?
+		Use the attribute? method to ensure that certain actions only execute in the presence of a particular node attribute. 
+		The attribute? method will return true if one of the listed node attributes matches a node attribute that is detected by Ohai during every chef-client run.
+		syntax - attribute?('name_of_attribute')
+		For example:
+			if node.attribute?('ipaddress')
+				# the node has an ipaddress
+			end
+	cookbook_name
+		Use the cookbook_name method to return the name of a cookbook.
+		This method is often used as part of a log entry. For example:
+			Chef::Log.info('I am a message from the #{recipe_name} recipe in the #{cookbook_name} cookbook.')
+	recipe_name
+		Use the recipe_name method to return the name of a recipe.
+	data_bag
+		Data bags store global variables as JSON data. Data bags are indexed for searching and can be loaded by a cookbook or accessed during a search.
+		Use the data_bag(bag_name) method to get a list of the contents of a data bag.
+		Use the data_bag_item(bag_name, item, secret) method to get the contents of a data bag item.
+			secret is the secret used to load an encrypted data bag. 
+			If secret is not specified, the chef-client looks for a secret at the path specified by the encrypted_data_bag_secret setting in the client.rb file.
+		Iterate over the contents of the data bag to get the associated data_bag_item:
+			data_bag('users') #=> ['sandy', 'jill']
+			data_bag('users').each do |user| # The id for each data bag item will be returned as a string.
+				data_bag_item('users', user)
+			end
+	declare_resource
+		Use the declare_resource(:resource_type, 'resource_name', resource_attrs_block) to instantiate a resource and then add it to the resource collection.
+			:resource_type is the resource type, such as :file (for the file resource), :template (for the template resource), and so on.
+			resource_name the property that is the default name of the resource,
+			resource_attrs_block is a block in which properties of the instantiated resource are declared.
+		For example:
+			declare_resource(:file, '/x/y.txy', caller[0]) do
+				action :delete
+			end
+			#is equivalent to:
+			file '/x/y.txt' do
+				action :delete
+			end
+	delete_resource
+		Use the delete_resource(:resource_type, 'resource_name') to find a resource in the resource collection, and then delete it.
+		For example:
+			delete_resource(:template, '/x/y.erb')
+	delete_resource!
+		Use the delete_resource!(:resource_type, 'resource_name')! to find a resource in the resource collection, and then delete it. 
+		Unlike delete_resource, If the resource is not found, an exception is returned.
+	edit_resource
+		Use the edit_resource(:resource_type, 'resource_name', resource_attrs_block) method to:
+			Find a resource in the resource collection, and then edit it.
+			Define a resource block. A resource block will be updated or created given that it exists or not
+		resource_attrs_block - it is a block in which properties of the instantiated resource are declared.
+		example 1
+			edit_resource(:template, '/x/y.txy') do
+				cookbook 'cookbook_name'
+			end
+		example 2 (resource block)
+			edit_resource(:template, '/etc/aliases') do
+				source 'aliases.erb'
+				cookbook 'aliases'
+				variables({:aliases => {} })
+				notifies :run, 'execute[newaliases]'
+			end
+	edit_resource!
+		Use the edit_resource!(:resource_type, 'resource_name') method to:
+			Find a resource in the resource collection, and then edit it.
+			Define a resource block. If a resource with the same name exists, its properties will be updated with the contents of the resource block defined by the edit_resource method.
+		In both cases, if the resource is not found, an exception is returned.
+	find_resource
+		Use the find_resource(:resource_type, 'resource_name') method to:
+			Find a resource in the resource collection.
+			Define a resource block. 
+				If a resource block with the same name exists in the resource collection, it will be returned. 
+				If a resource block does not exist in the resource collection, it will be created.
+	find_resource!
+		Use the find_resource!(:resource_type, 'resource_name') method to find a resource in the resource collection. If the resource is not found, an exception is returned.
+	platform?
+		Use the platform? method to ensure that certain actions are run for specific platform. 
+		The platform? method will return true if one of the listed parameters matches the node['platform'] attribute that is detected by Ohai during every chef-client run.
+		Ohai collects platform information at the start of the chef-client run and stores that information in the node['platform'] attribute.
+		platform? method is typically used with an if, elseif, or case statement that contains Ruby code that is specific for the platform, if detected
+		syntax - platform?('parameter', 'parameter')
+			parameter is a comma-separated list, each specifying a platform(https://github.com/chef/chef-web-docs/blob/master/chef_master/source/dsl_recipe.rst#parameters)
+	platform_family?
+		Use the platform_family? method to ensure that certain actions are run for specific platform family. 
+		The platform_family? method will return true if one of the listed parameters matches the node['platform_family'] attribute that is detected by Ohai during every chef-client run.
+		syntax - platform_family?('parameter', 'parameter')
+		note - platform_family? will default to platform? when platform_family? is not explicitly defined.
+	reboot_pending?
+		Use the reboot_pending? method to test if a node needs a reboot, or is expected to reboot. reboot_pending? returns true when the node needs a reboot.
+		syntax - reboot_pending?
+	resources
+		Use the resources method to look up a resource in the resource collection. 
+		The resources method returns the value for the resource that it finds in the resource collection. 
+		syntax -
+			resources('resource_type[resource_name]'), or
+			resources(:resource_type => 'resource_name')
+		The resources method can be used to modify a resource later on in a recipe. For example -
+			file '/etc/hosts' do
+				content '127.0.0.1 localhost.localdomain localhost'
+			end
+			# and then later in the same recipe, or elsewhere:
+			f = resources('file[/etc/hosts]')
+			f.mode '0644
+			
+	search
+		Search indexes allow queries to be made for any type of data that is indexed by the Chef server, including data bags (and data bag items), environments, nodes, and roles. 
+		A defined query syntax is used to support search patterns like exact, wildcard, range, and fuzzy
+		Use the search(:index, 'query') method to perform a search query against the Chef server from within a recipe.
+			:index is of name of the index on the Chef server against which the search query will run: :client, :data_bag_name, :environment, :node, and :role
+			'query' is a valid search query against an object on the Chef server
+		For example, using the results of a search query within a variable:
+			webservers = search(:node, 'role:webserver')
+			# and then using the results of that query to populate a template:
+			template '/tmp/list_of_webservers' do
+				source 'list_of_webservers.erb'
+				variables(:webservers => webservers)
+			end
+		Use :filter_result as part of a search query to filter the search output based on the pattern specified by a Hash. Only attributes in the Hash will be returned.
+			search(:node, 'role:web',
+				:filter_result => { 'name' => [ 'name' ],
+								    'ip' => [ 'ipaddress' ],
+								    'kernel_version' => [ 'kernel', 'version' ]
+				}
+			).each do |result|
+				puts result['name']
+				puts result['ip']
+				puts result['kernel_version']
+			end
+		Query Syntax
+			A search query is comprised of two parts: the key and the search pattern. A search query has the syntax of "key:search_pattern"
+				key is a field name that is found in the JSON description of an indexable object on the Chef server (a role, node, client, environment, or data bag)
+				search_pattern defines what will be searched for, using one of the following search patterns: exact, wildcard, range, or fuzzy matching
+			Both key and search_pattern are case-sensitive
+			key has limited support for multiple character wildcard matching using an asterisk ("*") (and as long as it is not the first character).
+			Before JSON data is indexed on the Chef server, the nested fields are extracted into the top level, similar to - 
+				# "broadcast" => "192.168.0.255",
+				# "flags"     => ["UP", "BROADCAST", "SMART", "RUNNING", "SIMPLEX", "MULTICAST"]
+				# which allows searches like the following to find data that is present in this node:
+				node "broadcast:192.168.0.*", or
+				node "flags:UP"		
+			JSON is also flattened into various compound fields, which uses underscores to separate the levels of data, similar to - 
+				# "network_interfaces_en1_addresses_192.0.2.0_broadcast" => "192.168.0.255",
+				# "network_interfaces_en1_addresses"                     => ["fe80::fa1e:tldr","f8:1e:df:tldr","192.0.2.0"]
+				# which allows searches like the following to find data that is present in this node:
+				node "network_interfaces_en1_addresses:192.0.2.0"
+			In the following example, an asterisk (*) is used to show where the wildcard can exist when searching for a nested field:
+				"network_interfaces_*_flags"     => ["UP", "BROADCAST", "SMART", "SIMPLEX", "MULTICAST"]
+				"network_interfaces_*_addresses" => ["192.0.2.0", "f8:1e:df:d8:63:a2"]
+				"network_interfaces_en0_media_*" => ["autoselect", "none", "1000baseT", "10baseT/UTP", "100baseTX"]
+				"network_interfaces_en1_*"       => ["1", "UP", "BROADCAST", "SMART", "SIMPLEX", "MULTICAST", "f8:1e:df:d8:63:a2", "192.0.2.0", "1500"]
+			pattern
+				Exact Match
+				Wildcard Match
+					A question mark (?) can be used to replace exactly one character (as long as that character is not the first character in the search pattern)
+					An asterisk (*) can be used to replace any number of characters (including zero)
+				Range Match
+					Use square brackets ("[ ]") to denote inclusive boundaries and curly braces ("{ }") to denote exclusive boundaries
+					syntax - boundary TO boundary, where TO is required (and must be capitalized).
+				Fuzzy Match
+					it is used to search based on the proximity of two strings of characters
+					syntax - "search_query"~edit_distance, where edit_distance is the proximity
+			Operators - AND, OR, NOT
+			Special Characters
+				+  -  &&  ||  !  ( )  { }  [ ]  ^  "  ~  *  ?  :  \  /
+				each occurrence of a special character must be escaped with a backslash (\)
+	shell_out
+		The shell_out method can be used to run a command against the node, and then display the output to the console when the log level is set to debug.
+		syntax - shell_out(command_args), where command_args is the command that is run against the node.
+	shell_out!
+		The shell_out!(command_args) method can be used to run a command against the node, display the output to the console when the log level is set to debug
+		raises an error when the method returns false.
+		This method will return true or false
+	shell_out_with_systems_locale
+		The shell_out_with_systems_locale(command_args) can be used to run a command against the node (via the shell_out method), but using the LC_ALL environment variable.
+	tag, tagged?, untag
+		A tag is a custom description that is applied to a node. 
+		A tag, once applied, can be helpful when managing nodes using knife or when building recipes by providing alternate methods of grouping similar types of information.
+		Tags can be added and removed. Machines can be checked to see if they already have a specific tag
+		to add tag - tag('mytag')
+		to remove tag - untag('mytag')
+		to test if a machine is tagged - tagged?('mytag'). Returns true or false. tagged? can also use an array as an argument.
+		example - 
+			tag('machine')
+			if tagged?('machine')
+				Chef::Log.info("Hey I'm #{node[:tags]}")
+			end
+			untag('machine')
+			if not tagged?('machine')
+				Chef::Log.info('I has no tagz')
+			end
+			# Will return something like this:
+			[Thu, 22 Jul 2010 18:01:45 +0000] INFO: Hey I'm machine
+			[Thu, 22 Jul 2010 18:01:45 +0000] INFO: I has no tagz
+	value_for_platform
+		Use the value_for_platform method in a recipe to select a value based on the node['platform'] and node['platform_version'] attributes. 
+		These values are detected by Ohai during every chef-client run.
+		syntax - 
+			value_for_platform( ['platform', ...] => { 'version' => 'value' } ), or
+			value_for_platform(
+				'platform' => { 'version' => 'value' },
+				'platform' => { 'version' => 'value' },
+				'platform' => 'value'
+			)
+			platform - comma-separated list of platforms, such as Red Hat, openSUSE, or Fedora
+			version - version of that platform
+			Version constraints(>, <, >=, <=, ~>(approximately greater than)) may be used with version
+				an exception is raised if two version constraints match
+				an exact match will always take precedence over a match made from a version constraint
+			value - it will be used if the node's platform matches the value_for_platform method
+			'default' can be used for version and/or platform
+		The following example will set package to apache-couchdb for OpenBSD platforms, dev-db/couchdb for Gentoo platforms, and couchdb for all other platforms - 
+			package = value_for_platform(
+				'openbsd' => { 'default' => 'apache-couchdb' },
+				'gentoo' => { 'default' => 'dev-db/couchdb' },
+				'default' => 'couchdb'
+			)
+		The following example shows using version constraints to specify a value based on the version - 
+			value_for_platform('os1' => { 
+				'< 1.0' => 'less than 1.0',
+				'~> 2.0' => 'version 2.x',
+				'>= 3.0' => 'version 3.0',
+				'3.0.1' => '3.0.1 will always use this value' 
+			})
+	value_for_platform_family
+		Use the value_for_platform_family method in a recipe to select a value based on the node['platform_family'] attribute
+		syntax -
+			value_for_platform_family( 'platform_family' => 'value', 'platform_family' => 'value', 'platform_family' => 'value' ), or
+			value_for_platform_family(
+				['platform_family', 'platform_family', 'platform_family', 'platform_family' ] => 'value',
+				['platform_family', 'platform_family'] => 'value',
+				'default' => 'value'
+			)
+	with_run_context
