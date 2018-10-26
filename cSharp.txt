@@ -1,5 +1,5 @@
 INTRODUCTION
-	OOPS concept - AIEP(Abstraction, Inheritance, Encapsulation, Polymorphism)
+	OOPS concept - APIE(Abstraction, Polymorphism, Inheritance, Encapsulation)
 	Namespace - Collection of classes, interfaces, delegates, enum, etc
 	Strongly typed means to convert type you need casting. Only explicit conversion is allowed
 	object initializer - 
@@ -41,9 +41,6 @@ INTRODUCTION
 		internal - available within the containing assembly(default for type)
 		protected internal - available within the containing assembly and derived class in other assembly
 		assembly(.exe or .dll) is the application. .exe is generated for window application while .dll is generated for class library and web application
-		type members may have any of all 5 access-modifier while type can have either public or internal
-		for types, access-modifier is internal, by default
-		for type members, access-modifier is private, by default
 
 BUILT-IN TYPE
 	bool is the keyword alias to Boolean structure
