@@ -1,11 +1,7 @@
 INTRO
-	The controller responds to URL request, gets data from model and hands it over to the view.
+	MVC - The controller responds to URL request, gets data from model and hands it over to the view.
 	Unobtrusive JavaScript - JavaScript file is separated from HTML code
 	Ideally validation logic should be inside model section
-	view engine
-		aspx - server script is wrapped in <%: ... %>
-		razor - server script starts with @
-		custom view engine like Spark, sharpDOM
 	code and html
 		to switch to code inside html use "@"
 		code block "@{...}"
@@ -13,6 +9,10 @@ INTRO
 		to comment "@* ... *@"
 		Use @ symbol to escape @
 		razor is smart enough to recognize the format of Internet email address and not to treat the @ symbol as a code delimiter.
+	view engine
+		aspx - C# script is wrapped in <%: ... %>
+		razor - C# script starts with @
+		custom view engine like Spark, sharpDOM
 	Global.aspx configures data by executing BundleConfig.cs, FilterConfig.cs, RouteConfig.cs(which are contained in App_Data folder) 
 	MVC search for view in following order
 		~/Views/Employee/Index.aspx
@@ -26,7 +26,7 @@ INTRO
 	ways to pass data from a controller to a view
 		ViewBag or ViewData
 		Dynamic type (@Model dynamic)
-		Strongly typed view
+		Strongly typed view (@Model <Type>)
 	Url.Content(<relative_path>) - convert relative path into full path
 	HTML encoding
 		HTML encoding is the process of replacing ASCII characters with their 'HTML Entity' equivalents.('>' -> '&gt;)
