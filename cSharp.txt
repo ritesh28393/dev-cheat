@@ -13,7 +13,6 @@ INTRODUCTION
 	type members may have any of all 5 access-modifier while type (element declared in namespace) can have either public or internal
 	System.IO.StreamReader - reads the content of the file and return the stream(/channel)
 	System.IO.StreamWriter - create stream and writes the content to the file
-	assembly(.exe or .dll) is also called the application. .exe is generated for window application while .dll is generated for class library and web application
 	object obj1 = obj2; - now both obj1 and obj2 points to the same object. Pointed object can be modified using obj1 or obj2
 	comparison
 		== - compares object reference
@@ -40,7 +39,11 @@ INTRODUCTION
 		protected - available within containing type and types inheriting the containing type
 		internal - available within the containing assembly(default for type)
 		protected internal - available within the containing assembly and derived class in other assembly
-		assembly(.exe or .dll) is the application. .exe is generated for window application while .dll is generated for class library and web application
+	assembly(.exe or .dll) is the application. .exe is generated for window application while .dll is generated for class library and web application
+	serialization
+		Serialization is used to serialize data which can be shared among applications.
+		use 'Serializable' attribute if you want to implement serialization in the class. 
+		SerializationInfo - store all data needed to serialize or deserialize object 
 
 BUILT-IN TYPE
 	bool is the keyword alias to Boolean structure
@@ -130,7 +133,6 @@ CONTROL STATEMENT
 	
 PARAMETERS
 	A value-type variable contains its data directly as opposed to a reference-type variable, which contains a reference to its data.
-	A variable of a reference type does not contain its data directly; it contains a reference to its data. 
 	When a reference-type parameter is passed by value, it is possible to change the data belonging to the referenced object, such as object property's value. 
 	However, you cannot change the value of the reference itself; for example, you cannot use the same reference to allocate memory for a new class.
 	value-type variable - struct, enum, int, bool
@@ -211,7 +213,7 @@ EXTENSION METHOD
 PARTIAL
 	partial class allow to split class declaration into 2 or more files. All files are compiled into a single class
 	if one className is declared partial, other classes with same className should also be declared partial
-	parts of the partial class should have same access modifier
+	all parts of the partial class should have same access modifier
 	if any part is declared abstract(or sealed), then the entire type is considered abstract(or sealed)
 	if any part inherit from a base class, then entire type inherit from this base class
 	C# don't support multiple inheritance. so different parts of the class should not specify different base class
@@ -221,14 +223,14 @@ PARTIAL
 	partial method lies within partial class or partial struct
 	partial method has two parts
 		method declaration(mandatory)
-		method implementation(optional. If not present, complier don't throw error but instead skip the partial method call)
+		method implementation(optional). If not present, complier don't throw error but instead skip the partial method call
 	partial method don't have explicit access modifier. They are private, by default
 	partial method return-type is void. Providing other return-type leads compiler error
 	
 INHERITANCE
 	ChildClass : ParentClass - ChildClass inheriting members of ParentClass
 	a class can have only one parent class.
-	allow multiple interface inheritance
+	allows multiple interface inheritance
 	instance of parent class is created before the instance of derived class. i.e. derived class constructor first call parent class construction
 	to call specific constructor form parent class, use <:base()> operator
 	base - base keyword is the alias name of the parent class
@@ -247,16 +249,16 @@ DYNAMIC POLYMORPHISM (METHOD OVERRIDING)
 	virtual - virtual keyword specifies that the method can be overridden
 	override - override keyword overrides the virtual method in parentClass
 	enables to invoke derived class method through parent reference variable at runtime
-	during runtime, childClass object checks for any overridden method. If present, it executes it and if not present, it executes the parentClass's method	
+	during runtime, childClass object checks for any overridden method. If present, it executes it and if not present, it executes the parentClass's method
 	
 INTERFACE
 	only declaration and no implementation/definition
 	no explicit access-modifier. All members are public by default
-	only methods declaration and no field
-	class inheriting interface need to implement all methods present in interface. Method should match signature and return type and should be public access-modifier
+	class inheriting interface need to implement all methods present in interface. 
+	Method should match signature and return type and should be public access-modifier
 	interface can inherit from another interface
 	instance of a interface can't be created but a reference of instance can point to derived class instance
-	no static in interface or method implementing interface's methods	
+	no static in interface or method implementing interface's methods
 	explicit interface
 		useful when a class is implementing 2 or more interface and more than one interface has a same method's name.
 		implementation of the method - returnType interfaceName.methodName(){...} note: access-modifier should not be present
@@ -265,7 +267,7 @@ INTERFACE
 	
 ABSTRACT CLASS
 	abstract class can have both normal method and abstract method(with no implementation)
-	can only be used as base class. Can't have sealed keyword
+	Can't have sealed keyword
 	can't be instantiated as it is incomplete. we can't create object of abstract class.
 	the class inheriting abstract class has to implement it's abstract method or if the class is not implementing, then mark it too as abstract
 	use override keyword when implementing or else complier error occurs.
@@ -297,7 +299,7 @@ DELEGATE
 	
 MULTICAST DELEGATE
 	multicast delegate is a delegate having reference to more than one function.
-	to create multicast delegate	
+	to create multicast delegate
 		+ or +=  to register a function to the delegate
 		- or -=  to deregister a function from the delegate
 	If the delegate has a return type other than void, then the return value of the invoked multicast delegate is value returned by last method on the delegate list
@@ -308,7 +310,7 @@ ANONYMOUS METHOD
 	way of creating delegate instances without having to write a separate method.
 	example - 
 		listEmployees.Find(delegate(Employee Emp) { return Emp.ID == 102; });
-		Button1.Click += delegate{ MessageBox.Show("Button Clicked");};
+		Button1.Click += delegate{ MessageBox.Show("Button Clicked"); };
 	
 LAMBDA EXPRESSION
 	=> is called lambda operator and read as GOES TO.
@@ -339,7 +341,7 @@ EXCEPTION HANDLING
 	try-catch-finally 
 	throw - throw an intentional exception (throw new Exception();)(in catch you should just write 'throw' if you intend to have same exception)
 	properties of System.Exception class - Message, StackTrace, InnerException, GetType().Name, 
-	inner exception - inner exception is the original exception which caused the current exception. inner exception is passed as parameter to the current exception constructor
+	inner exception - it's original exception which caused the current exception. inner exception is passed as parameter to the current exception constructor
 	
 CUSTOM EXCEPTION
 	provide custom exception class by using Exception class as base class (public class MyException : Exception)
@@ -347,10 +349,6 @@ CUSTOM EXCEPTION
 		public MyException() : base() { } //invoke - throw new MyException();
 		public MyException(string message) : base(message) { } //invoke - throw new MyException("something not excepted");
 		public MyException(string message, Exception inner) : base(message, inner) { }
-		protected MyException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context){ }
-	Serialization is used to serialize data which can be shared among applications.
-	use 'Serializable' attribute if you want to implement serialization in the class. 
-	SerializationInfo - store all data needed to serialize or deserialize object 
 
 ATTRIBUTES
 	it allow you to add declarative information to your programs. 
