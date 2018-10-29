@@ -14,7 +14,7 @@ INTRO
 		razor - C# script starts with @
 		custom view engine like Spark, sharpDOM
 	Global.aspx configures data by executing BundleConfig.cs, FilterConfig.cs, RouteConfig.cs(which are contained in App_Data folder) 
-	MVC search for view in following order
+	MVC search for default view in following order
 		~/Views/Employee/Index.aspx
 		~/Views/Employee/Index.ascx
 		~/Views/Shared/Index.aspx
@@ -62,11 +62,10 @@ CONTROLLER
 		PartialViewResult
 		JsonResult
 		RedirectResult etc..
-	return View(["fullPath or ViewWithNoExtension",] modelObject) - This render view without executing the corresponding controller's action code
-	RedirectToAction(action,controller) - redirect to specified action
+	return View(["fullPath or ViewWithNoExtension"], modelObject) - This render view without executing the corresponding controller's action code
+	RedirectToAction(action, controller) - redirect to specified action
 	
 VIEW
-	use @ when using CSharp code in .cshtml file
 	ViewData and ViewBag - a mechanism to pass data from controller to model
 		ViewBag.Countries - dynamic view data dictionary. Here type is set at runtime
 		ViewData["Countries"] - it is of type ViewDataDictionary. This means you have to type cast it.
@@ -76,23 +75,21 @@ VIEW
 	@using <namespace_of_models>; - to use Models classes in razor file
 
 HTML HELPER (USED TO RENDER HTML CONTENT IN A VIEW)
-	To set HTML attributes, use overloaded version. Some of the html attributes, are reserved keywords. Examples include class, readonly etc. To use these attributes, use "@" symbol
+	To set HTML attributes, use overloaded version.
 	@Html.ActionLink(linkText,actionName,controllerName,routeValues) - returns an anchor element
 	@Html.DropDownList(name,IEnumerable<SelectListItem> selectList,optionLabel) - return drop down control
 	@Html.BeginForm(actionName,controllerName,object routeValues) - the form uses the POST method, and the request is processed by the action method for the view
-	@Html.TextBox("firstname", "John", new { @class = "redtextbox", @readonly="true" })
+	@Html.TextBox("firstname", "John", new { @class = "redtextbox", @readonly="true" }) -  Some of html attributes are reserved keywords. To use these attributes, use "@" symbol
 	@Html.Password("Password")
 	@Html.Hidden("id")
 	difference between Html.TextBox and Html.TextBoxFor ( or Html.DropDownList and Html.DropDownListFor)
-		Html.TextBox and Html.DropDownList are not strongly typed and hence they doesn't require a strongly typed view. This means that we can hard-code whatever name we want. 
-		On the other hand, Html.TextBoxFor and Html.DropDownListFor are strongly typed and requires a strongly typed view, and the name is inferred from the lambda expression.
+		Html.TextBox are not strongly typed and hence they doesn't require a strongly typed view. This means that we can hard-code whatever name we want. 
+		On the other hand, Html.TextBoxFor are strongly typed and requires a strongly typed view, and the name is inferred from the lambda expression.
 		Strongly typed HTML helpers also provide compile time checking.
-		Since, in real time, we mostly use strongly typed views, prefer to use Html.TextBoxFor and Html.DropDownListFor over their counterparts. 
+		Since, in real time, we mostly use strongly typed views, prefer to use Html.TextBoxFor over their counterparts. 
 		Whether, we use Html.TextBox OR Html.TextBoxFor, the end result is the same, that is they produce the same HTML.
 		@Html.TextBoxFor(m => m.CompanyName)
 		@Html.TextBox("CompanyName", (string)ViewBag.CompanyName)
-		@Html.DropDownListFor(m => m.Departments, new SelectList(Model.Departments, "Id", "Name"), "Select Department")
-		@Html.DropDownList("Departments", "Select Department")
 	display
 		@Html.Display("EmployeeData") - Used with a view that is not strongly typed. For example, if you have stored data in ViewData
 		@Html.DisplayFor(model => model.property) - Used with strongly typed views. If your model has properties that return complex objects, then this template helper is very useful.
@@ -113,6 +110,15 @@ DISPLAY AND EDITOR HTML HELPER DEFAULT TEMPLATE CAN BE CUSTOMIZED BY FOLLOWING B
 		ViewData.TemplateInfo.FormattedModelValue - get formatted value (@Html.TextBox("", Model.HasValue ? ViewData.TemplateInfo.FormattedModelValue : "", new { @class = "date" }))
 		@ViewData.ModelMetadata.DisplayFormatString - to access the DisplayFormatString, 
 		@ViewData.ModelMetadata.ContainerType.ToString() - to get the name of the container class
+	
+CUSTOM TEMPLATE FOR DATATYPE
+	If you want the page to open in a new window on using DataType(DataType.Url),
+		1. Right click on "Views" folder, and add "Shared" folder. 
+		2. Right click on "Shared" folder, and add "DisplayTemplates" sub-folder. This template will be available to all views.
+		3. Right click on DisplayTemplates folder, and add a view. Set "Url" as the name and use Razor view engine.
+		4. Copy and paste the following code in Url.cshtml view
+			<a href="@ViewData.Model" target="_blank">@ViewData.Model</a>
+	If you want a particular property - having dataType set as URl - to have that template, then change the template file name and decorate that property with UIHint.
 	
 CUSTOM HTML HELPER
 	add following code in CustomHtmlHelpers.cs to build image html helper 
@@ -163,7 +169,20 @@ ATTRIBUTES
 		HtmlGet - controller will only respond when method is GET. ie when called initially
 		HtmlPost - controller will only respond when method is POST ie data being posted to server
 		ActionName(alias_action_name) - program will try to match Action method name given in attribute and not actual method name
-		NonAction - used to restrict access to public methods in a controller.  If you navigate to decorated URL, you will get an error - The resource cannot be found.
+		NonAction - restrict access to methods in a controller.  If you navigate to decorated URL, you will get an error - The resource cannot be found.
+	Model properties Attribute
+		Display(Name="",Description="")
+		DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode=true) -  for formatting to be applied in Edit mode.
+		DisplayFormat(NullDisplayText = "Gender not specified") - If gender is NULL, "Gender not specified" text will be displayed.
+		ScaffoldColumn(false) - If you don't want to display a column use ScaffoldColumn attribute. This works when @Html.DisplayForModel() helper is used
+		DataType(DataType.EmailAddress), DataType(DataType.Currency), DataType(DataType.Url)
+		DataType(DataType.Time) - Display only time part
+		[UIHint("OpenInNewWindow") - specify the name of the template to use to display the data field. If not specified, MVC uses the default one.
+		HiddenInput(DisplayValue = false) - useful when you want to render a property using input type=hidden. Useful when using with @Html.EditorForModel()
+		ReadOnly(true) - 
+			used to make a property readonly. 
+			will be able to change the property value on the view, but once we post the form the model binder will not move the value to the property
+			You can also, make property of a class readonly simply, by removing the SET accessor.
 	Model class Attribute
 		MetadataType(typeOf(metaDatClassName))
 			specify the metadata class name to associate with model class. 
@@ -180,47 +199,24 @@ ATTRIBUTES
 					public string Name { get; set; }
 				}
 		[DisplayColumn("property-name")] - useful when a class has a property of complex type, and you want to pick one property of this complex object for display purpose
-	Model properties Attribute
-		Display(Name="",Description="")
-		DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm:ss}") - To get time in 24 hour notation
-		DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode=true) -  for formatting to be applied in Edit mode.
-		DisplayFormat(NullDisplayText = "Gender not specified") - If gender is NULL, "Gender not specified" text will be displayed.
-		ScaffoldColumn(false) - If you don't want to display a column use ScaffoldColumn attribute. This works when @Html.DisplayForModel() helper is used
-		DataType(DataType.EmailAddress), DataType(DataType.Currency), DataType(DataType.Url)
-		DataType(DataType.Time) - Display only time part
-		[UIHint("OpenInNewWindow") - specify the name of the template to use to display the data field. If not specified, MVC uses the default one.
-		HiddenInput(DisplayValue = false) - useful when you want to render a property using input type=hidden. Useful when using with @Html.EditorForModel()
-		ReadOnly(true) - 
-			used to make a property readonly. 
-			will be able to change the property value on the view, but once we post the form the model binder will not move the value to the property
-			You can also, make property of a class readonly simply, by removing the SET accessor.
-		
-CUSTOM TEMPLATE FOR DATATYPE
-	If you want the page to open in a new window on using DataType(DataType.Url),
-		1. Right click on "Views" folder, and add "Shared" folder. 
-		2. Right click on "Shared" folder, and add "DisplayTemplates" sub-folder. This template will be available to all views.
-		3. Right click on DisplayTemplates folder, and add a view. Set "Url" as the name and use Razor view engine.
-		4. Copy and paste the following code in Url.cshtml view
-			<a href="@ViewData.Model" target="_blank">@ViewData.Model</a>
-	If you want a particular property - having dataType set as URl - to have that template, then change the template file name and decorate that property with UIHint.
 	
 FORM 
-	 @using (@Html.BeginForm("Index", "Home", FormMethod.Get)){......}
+	@using (@Html.BeginForm("Index", "Home", FormMethod.Get)){......}
 	use HtmlGet and HtmlPost attribute on controller's Action method.
 	Retrieving form data
 		FormCollection type as parameter - used to get all dictionary data posted by the view page
 		Action method must have parameter names that match with the names of the form control. form control's name is mapped to the parameter
 		using an object as the parameter which has same properties as that posted by the form
 		using UpdateModel inside Action method. Pass an object whose properties are same as form control's name
-	ModelState - 
+	ModelState
 		Gets the model state dictionary object that contains key as control's name and value as the entered text and any validation errors.
 		ModelState.IsValid - Gets a value that indicates whether this instance of the model-state dictionary is valid.
 		AddModelError(modelProperty,errorMessage) - Adds the specified error message to the errors collection that is associated with the specified key i.e. control's name.
-	UpdateModel(object) - 
+	UpdateModel(object)
 		it inspects all the HttpRequest inputs such as posted Form data, QueryString, Cookies and Server variables and populate the passed object.
 		If you want to limit on what can be bound, explicitly invoking model binding can be very useful.
 		UpdateModel throws exception on validation failure whereas TryUpdateModel don't
-	prevent unintended updates by using -  
+	prevent unintended updates by using
 		UpdateModel(model-object, string[] includeProperties) - This will only update those properties which are specified in includeProperties array
 		UpdateModel(model-object, string prefix, string[] includeProperties, string[] excludeProperties)
 		Action_Name([Bind(Exclude="", Include="")] model-object) - this makes ModelState as IsValid if required field is not binded
