@@ -251,6 +251,22 @@ DYNAMIC POLYMORPHISM (METHOD OVERRIDING)
 	enables to invoke derived class method through parent reference variable at runtime
 	during runtime, childClass object checks for any overridden method. If present, it executes it and if not present, it executes the parentClass's method
 	
+OPERATOR OVERLOADING
+	can redefine or overload most of the built-in operators
+	similar to any other function, an overloaded operator has a return type and a parameter list
+	ex - 
+		public static Box operator+ (Box b, Box c) {
+			Box box = new Box();
+			box.length = b.length + c.length;
+			box.breadth = b.breadth + c.breadth;
+			box.height = b.height + c.height;
+			return box;
+		}
+		// Add two object as follows:
+		Box3 = Box1 + Box2;
+	The conditional logical operators cannot be overloaded directly - &&, ||
+	The assignment operators cannot be overloaded - +=, -=, *=, /=, %=
+	
 INTERFACE
 	only declaration and no implementation/definition
 	no explicit access-modifier. All members are public by default
