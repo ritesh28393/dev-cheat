@@ -1,12 +1,10 @@
-intro
+INTRO
 	Entity Framework is an ORM framework. ORM stands for Object Relational Mapping.
-	Object Relational Mapping framework automatically creates classes based on database tables, and the vice versa is also true.
-	it can also automatically generate necessary SQL to create database tables based on classes. 
 	edmx - entity data model. Classes are generated for entity model.
 	approach for entity framework
-		schema first - we create entities(tables) based on the database's table's meta-data
-		Model First - we first create the Entity Model. That is we create Entities, Relationships between them, inheritance etc. Base on this, database's tables are created
-		Code First - we first create our custom classes, DBContext derived class and based on those custom classes entity framework generates database's tables for us
+		Schema first - based on the database's table's meta-data, we create entities(tables) 
+		Model First - we first create edmx file. That is we create Entities, Relationships, inheritance etc. Base on this, database's tables are created
+		Code First - we first create custom entity classes, DBContext derived class and based on this database's tables are created
 	entity - name, scalar properties, navigation properties. Entity is a class defined
 	DBContext - consider this as the database. With same name, you have data-connection in config file
 	on creating edmx file, following classes are generated
@@ -15,52 +13,49 @@ intro
 			DbSet<Employee> Employees
 			DeleteEmployee(Nullable<int> iD) //ID is the primary key
 			InsertEmployee(string name, string gender, Nullable<int> salary)
-			UpdateEmployee(Nullable<int> iD, string name, string gender, Nullable<int> salary)
-	table mapping maps the properties of the entity to the column of a table (used excessively during entity splitting and table splitting)
+			UpdateEmployee(Nullable<int> iD, string name, string gender, Nullable<int> salary)	
+	stored procedure
+		by default context uses parameterized query to insert, update or delete rows from tables
+		to use stored procedure, click on table model and select "stored procedure mapping".
 	
-stored procedure
-	by default context uses parameterized query to insert, update or delete rows from tables
-	to use stored procedure, click on table model and select "stored procedure mapping".
-	
-entity splitting (entity is split among multiples tables)
+ENTITY SPLITTING (ENTITY IS SPLIT AMONG MULTIPLES TABLES)
 	Entity splitting refers to mapping an entity to two or more tables where the tables share a common key
 	common key column make sure data are modified(CRUD operation) correctly to both table in database
-	example - get all properties of Employee(EmployeeID, Name, Gender) entity and EmployeeContactDetail(EmployeeID, Email, Mobile) entity into one entity(Employee) 
+	ex - get all properties of Employee(EmployeeID, Name, Gender) entity and EmployeeContactDetail(EmployeeID, Email, Mobile) entity into one entity(Employee) 
 		Cut Email and Mobile properties from EmployeeContactDetail entity and paste them in Employee entity
 		Delete EmployeeContactDetail entity. On "Delete Unmapped Tables and Views" window click NO.
 		Right click on Employee entity and select "Table Mapping" option from the context menu. 
 		Map EmployeeId, Email, Mobile properties(now of Employee entity) to the respective columns of EmployeeContactDetails table. 
 
-table splitting (table is spit among multiples entities)
+TABLE SPLITTING (TABLE IS SPIT AMONG MULTIPLES ENTITIES)
 	Table Splitting is the opposite of Entity Splitting. 
-	Mapping multiple entities to a single table is called table splitting. 
 	Table Splitting is useful when you want to delay the loading of some properties with large data when using lazy loading. 
-	example - split Employee(EmployeeID, Name, Gender, Email, Mobile) entity into Employee(EmployeeID, Name, Gender) entity and EmployeeContactDetail(EmployeeID, Email, Mobile) entity 
-		Create another entity(EmployeeContactDetail) with EmployeeID as the key by right clicking on the entity designer and selecting "Add Entity" option from the context menu
+	ex - Employee(EmployeeID, Name, Gender, Email, Mobile) into Employee(EmployeeID, Name, Gender) and EmployeeContactDetail(EmployeeID, Email, Mobile) 
+		Create another entity(EmployeeContactDetail) with EmployeeID as the key by right clicking on "Add Entity" option from the context menu
 		Cut Email, Mobile and LandLine properties from Employee entity and paste them in EmployeeContactDetail entity
 		Right click on the entity designer and select "Add - Association" option from the context menu. Make one-one multiplicity association
-		Right click on the association and select "Properties". Add "Referential Constraint" property(EmployeeContactDetail.EmployeeID depends on Employee.EmployeeID). 
+		Right click on the association and add "Referential Constraint" property(EmployeeContactDetail.EmployeeID depends on Employee.EmployeeID). 
 		Right click on "EmployeeContactDetail" entity and select "Table Mapping" option from the context menu. 
 		Select "Employees" table and map EmployeeId, Email and Mobile properties of the entity to the respective columns of the table.
 		to get 
 			 List<Employee> employeesPartialInfo = employeeDBContext.Employees.ToList();
 			 List<Employee> employeesAllInfo = employeeDBContext.Employees.Include("EmployeeContactDetail").ToList();
 	
-conditional mapping
+CONDITIONAL MAPPING
 	where clause can be applied at two places
 		EmployeeDBContext.Employees.Where(...).ToList();
-		in the edmx file. This is the permanent filter on the entity. EmployeeDBContext.Employees will always have the where clause specified in the conditional mapping
+		in the edmx file. This is the permanent filter on the entity.
 	example - retrieve those Employee who are not terminated(IsTerminated = false)
 		Right click on the entity and select "Table Mapping" option from the context menu
 		Add the condition - When Is Terminated = false
 		table column cannot be mapped more than once. We have used IsTerminated column in conditional mapping, so delete it from Employee entity.
 
-Self referencing association
+SELF REFERENCING ASSOCIATION
 	table is self referencing when the foreign key is dependent on the primary key of the same table.
 		EmployeeID int primary key identity,
 		EmployeeName nvarchar(50),
 		ManagerID int foreign key references Employees(EmployeeID)
-	if you generate an ADO.NET entity data model based on this Employees table, 2 navigation properties (Employees1 & Employee1) are automatically created.  
+	if you generate edmx based on this Employees table, 2 navigation properties (Employees1 & Employee1) are automatically created.  
 		Employees1(Multiplicity is set to Many) -  this navigation property returns employees who are subordinates.  
 		Employee1(Multiplicity is set to Zero or One) - this navigation property returns the manager of an employee. 
 	Navigational properties name can be modified in the edmx file itself
@@ -70,7 +65,7 @@ Self referencing association
 			ManagerName = emp.Manager == null ? "Super Boss" : emp.Manager.EmployeeName //change name of the navigational property "Employee1" to "Manager"
 		}).ToList();
 		
-Table Per Hierarchy TPH inheritance 
+TABLE PER HIERARCHY (TPH) INHERITANCE 
 	In TPH inheritance one database table is used to store data for all of the entity types in the inheritance hierarchy
 	consider Employee table with ID, FirstName, LastName, Gender, AnuualSalary, HourlyPay, HoursWorked, Discriminator columns. This will create Employee entity but we want 3 entities
 		Employee - This should be an abstract class and should contain all the common properties of permanent and contract employees. ID, FirstName, LastName and Gender properties
@@ -87,7 +82,7 @@ Table Per Hierarchy TPH inheritance
 			map ContractEmployee entity to Employees table. 
 			also use Discriminator column in conditional mapping to determine when an Employee can be ContractEmployee
 		Since we are using Discriminator column in conditional mapping we cannot use it again with property mapping in Employee entity. So delete it from there.
-		Finally right click on Employee entity and select properties. In the properties window set Abstract=true. This should make Employee class an abstract class. 
+		Finally right click on Employee entity and select properties and set Abstract=true. This should make Employee class an abstract class. 
 	to get different types of employees
 		var permanentEmployees = employeeDBContext.Employees.OfType<PermanentEmployee>().ToList();
 		var contractEmployees = employeeDBContext.Employees.OfType<ContractEmployee>().ToList();
@@ -109,18 +104,18 @@ Table Per Hierarchy TPH inheritance
 			}
 		}).ToList();
 		
-Table Per Type (TPT) inheritance
+TABLE PER TYPE (TPT) INHERITANCE
 	We will be using the following 3 tables to implement Table Per Type (TPT) inheritance
 		Employees - EmployeeID, FirstName, LastName, Gender
 		PermanentEmployees -  EmployeeID int foreign key references Employees(EmployeeID) not null, AnnualSalary
 		ContractEmployees - EmployeeID int foreign key references Employees(EmployeeID) not null, HourlyPay, HoursWorked
-	on generating an ADO.NET entity data model based on the above 3 tables, entities are generated with an association instead of inheritance relation between the entities. 
+	on generating edmx based on the above 3 tables, entities are generated with an association instead of inheritance relation between the entities. 
 	to add inheritance
 		delete both association
 		Add inheritance for PermanentEmployee and ContractEmployee with Employee as base class
 		delete the EmployeeID property from both PermanentEmployee & ContractEmployee entities as EmployeeID property will be available from the base Employee entity
 		
-Many to many relationship
+MANY TO MANY RELATIONSHIP
 	There is a Many-to-Many relationship between Courses(CourseID, CourseName) and Students(StudentID, StudentName)
 		A student can enroll into many courses and a single course can have many students enrolled. 
 		The data is stored in the StudentCourses(StudentID, CourseID) bridge table 
@@ -145,7 +140,7 @@ Many to many relationship
 		employeeDBContext.Students.FirstOrDefault(x => x.StudentID == 2).Courses.Remove(SQLServerCourse);
 		employeeDBContext.SaveChanges();
 		
-Entity for BridgeTable in many to many relationship
+ENTITY FOR BRIDGETABLE IN MANY TO MANY RELATIONSHIP
 	An entity for the bridge table is NOT created when the bridge table has only the foreign keys. 
 	On the other if the bridge table has any other columns apart from the foreign key columns then a bridge table is created.
 	tables
@@ -157,19 +152,10 @@ Entity for BridgeTable in many to many relationship
 		from course in student.StudentCourses
 		select new
 		{
-			StudentName = student.StudentName,
-			CourseName = studentCourse.Course.CourseName,
+			StudentName = student.StudentName,  // or studentCourse.Student.StudentName
+			CourseName = studentCourse.Course.CourseName,  // or course.CourseName
 			EnrolledDate = studentCourse.EnrolledDate
-		}; 
-		//OR
-		from student in employeeDBContext.Courses
-		from course in student.StudentCourses
-		select new
-		{
-			StudentName = studentCourse.Student.StudentName,
-			CourseName = course.CourseName,
-			EnrolledDate = studentCourse.EnrolledDate
-		}; 
+		};
 	add operation
 		employeeDBContext.StudentCourses.AddObject(new StudentCourse { StudentID = 1, CourseID = 4, EnrolledDate = DateTime.Now });
 		employeeDBContext.SaveChanges();
