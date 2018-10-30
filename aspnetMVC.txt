@@ -295,8 +295,8 @@ LAYOUT VIEW
 			Layout = "~/Views/Shared/_Layout.cshtml";
 		}
 	places where layout can be declared
-		in view page - this layout will override the layout in _ViewStart.cshtml
 		in controller's action method - return View("Create", "_DifferentLayout"); - this layout has the highest priority
+		in view page - this layout will override the layout in _ViewStart.cshtml
 		_ViewStart.cshtml - layout present in this file has lower priority than the layout present in the view file
 	_ViewStart.cshtml file(present under VIEWS folder)
 		to associate a view with a layout file, we have to set Layout property on each and every view. This violates DRY (Don't Repeat Yourself) 
@@ -335,9 +335,9 @@ CHECK/UNCHECK ALL CHECKBOXEX
 	http://csharp-video-tutorials.blogspot.in/2013/07/part-66-check-uncheck-all-checkboxes.html
 	
 ACTION FILTER
-	action filters are attributes that can be applied either on a controller action method or on a controller. 
+	action filters are attributes that can be applied either on a controller action method or on a controller class. 
 	when applied at the controller level, they are applicable for all actions within that controller. 
-	action filters allow us to add, pre and post processing logic to an action method. This means, they allow us to modify the way in which an action is executed. 
+	action filters allow us to add pre and post processing logic to an action method. This means, they allow us to modify the way in which an action is executed. 
 	custom action filter can be created
 	some of the action filter are - ActionName, Authorize, ChildActionOnly, HandleError, OutputCache, RequireHttps, ValidateInput, ValidateAntiForgeryToken 	
 	Authorize and AllowAnonymous action filter
@@ -355,15 +355,15 @@ ACTION FILTER
 		HandleErrorAttribute is used to display friendly error pages to end user when there is an unhandled exception
 		2 ways to handle error
 			HandleErrorAttribute
-			HandleErrorAttribute is added to the GlobalFilters collection in global.asax. By default it's disabled. To enable it, add below code in web.config
-				<system.web>
-					<customErrors mode="On">  //By default content of "~/Shared/Error" is loaded
-					</customErrors>
-				</system.web>
-		To display friendly error page for 404 code, add below line inside <customErrors>
-			<error statusCode="404" redirect="~/Shared/NotFound"/> //Error is controller name and NotFound is action method
+				it is added to the GlobalFilters collection in global.asax. By default it's disabled. To enable it, add below code in web.config
+					<system.web>
+						<customErrors mode="On">  //By default content of "~/Shared/Error" is loaded
+						</customErrors>
+					</system.web>
+			To display friendly error page for 404 code, add below line inside <customErrors>
+			<error statusCode="404" redirect="~/Shared/NotFound"/> //NotFound is action method
 	OutputCache action filter
-		used to cache the content returned by a controller action method, so that, the same content does not generate each time the same controller action is invoked
+		used to cache the content returned by a action method, so that, the same content does not generate each time the same action is invoked
 		to cache content of a action method for 10 seconds - [OutputCache(Duration = 10)]
 		we can cache specific portion of a view using ChildActionOnly attribute
 		outputCacheProfiles - used to specify a name to a OutputCache action filter. outputCacheProfiles are declared inside web.config
@@ -388,7 +388,9 @@ ACTION FILTER
 	
 CUSTOM ACTION FILTERS
 	There are 4 types of filters in asp.net mvc.
-		Authorization filters - Implements IAuthorizationFilter (onAuthorization). Examples - AuthorizeAttribute and RequireHttpsAttribute. These filters run before any other filter.
+		Authorization filters - 
+			Implements IAuthorizationFilter (onAuthorization). Examples - AuthorizeAttribute and RequireHttpsAttribute. 
+			These filters run before any other filter.
 		Action filters - Implement IActionFilter(onActionExecuting, onActionExecuted). Examples - OutputCacheAttribute. 
 		Result filters - Implement IResultFilter(onResultExecuting, onResultExecuted). Examples - OutputCacheAttribute. 
 		Exception filters - Implement IExceptionFilter(onExeception). Examples - HandleErrorAttribute.
@@ -494,12 +496,12 @@ VALIDATIONSUMMARY
 		input.input-validation-error
 		validation-summary-errors
 	To display all errors at one place, use ValidationSummary() HTML helper. 
-		@Html.ValidationSummary(false, "Please fix the following errors and then submit the form") - first parameter is to exclude individual property error message
+		@Html.ValidationSummary(false, "Please fix the following errors") - first parameter is to exclude individual property error message
 	To display an asterisk, next to the field that has failed validation, use ValidationMessageFor() HTML helper
 		@Html.ValidationMessageFor(model => model.Name, "*")
 		
 REMOTE VALIDATION
-	Sometimes, to check if a field value is valid, we may need to make a database call before the form's submitted. RemoteAttribute is useful in situations like this. 
+	to check if a field value is valid, we may need to make a database call before the form's submitted. RemoteAttribute is useful in situations like this. 
 	[Remote("IsUserNameAvailable", "Home", ErrorMessage="UserName already in use.")]
 		IsUserNameAvailable - action method which will be called by AJAX request to perform remote validation
 		Home - controller where action method resides
