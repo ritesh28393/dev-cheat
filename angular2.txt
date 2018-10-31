@@ -1,21 +1,18 @@
 INTRO
 	component, directive, service, pipe, route
 	simple example - app.component.ts
-		// Component decorator is provided by the Angular core library, so we have to import it before using it. 
-		//The import keyword is similar to using keyword in C#. Any exported member can be imported using import keyword.
 		import { Component } from '@angular/core';
-		// The class is decorated with Component decorator which adds metadata to the class. We use the @ symbol to apply a decorator to the class
-		// Applying a decorator on a class is similar to applying an attribute to a class in C# or other programming languages. 
-		//Component is just one of the several built-in decorators provided by angular.
+		// The import keyword is similar to using keyword in C#. Any exported member can be imported using import keyword.
 		@Component({
+			// The class is decorated with Component decorator which adds metadata to the class. We use the @ symbol to apply a decorator to the class
 			// component has several properties. 
 			selector: 'my-app',
 			template: `<h1>Hello {{name}}</h1>`,
 		})
-		// export keyword allows this class to be exported, so other components in the application can import and use it if required
 		export class AppComponent {
-			// name is a property and the data type is string and has a default value "angular"
+			// export keyword allows this class to be exported, so other components in the application can import and use it if required
 			name: string = 'Angular';
+			// name is a property and the data type is string and has a default value "angular"
 		}
 	HTML attribute vs DOM property
 		When a browser loads a web page, the browser creates a Document Object Model of that page
@@ -31,7 +28,10 @@ INTRO
 	From security standpoint, data binding sanitizes malicious content before displaying it on the browser.
 	structural directive - The * prefix before a directive indicates a structural directive
 		*ngIf - The ngIf directive conditionally adds or removes content from the DOM based on whether or not an expression is true or false
-		*ngFor - THe ngFor is usually used to display an array of items. (*ngFor='let employee of employees'. Here 'employee' is an item of 'employees' and has a limited scope and only accessible within the intended element)
+		*ngFor - 
+			ngFor is usually used to display an array of items. 
+			example - *ngFor='let employee of employees'
+			'employee' is an item of 'employees' and has a limited scope and only accessible within the intended element
 		ngSwitch - 
 			 Switch case in angular is a combination of 3 directives 
 				ngSwitch directive
@@ -51,11 +51,6 @@ INTRO
 		If you frequently toggle the visibility of an element, it is better to use hidden property from a performance standpoint
 	ng-container - 
 		sometime there's need to apply more than one structured directive on one element. But angular allow only one structured directive on one element
-			//below code error - Can't have multiple template bindings on one element. Use only one attribute named 'template' or prefixed with *. 
-			<tr *ngFor="let employee of employees;" *ngIf="selectedEmployeeCountRadioButton=='All' || selectedEmployeeCountRadioButton==employee.gender">
-				<td>{{employee.name}}</td>
-                <td>{{employee.gender}}</td>
-			</tr>
 		ng-container is the work around
 			<ng-container *ngFor="let employee of employees;">
 				<tr *ngIf="selectedEmployeeCountRadioButton=='All' || selectedEmployeeCountRadioButton==employee.gender">
@@ -63,7 +58,7 @@ INTRO
 					<td>{{employee.gender}}</td>
 				</tr>
 			</ng-container>		
-	every time when a view is rendered, it instantiate the component class. To retain the values in a component, put them into service and instantiate it at root level.
+	every time when view is rendered, it instantiate the component class. To retain the values of component, use service and instantiate it at root level.
 	3 types of parameters -
 		Required parameters
 		Optional parameters
@@ -77,7 +72,7 @@ INTRO
 		Passing data from Component to Component (No parent child relation) 
 			Angular Service
 			Parameters - Required, Optional, Query
-	To see these navigation events in action, set enableTracing option to true. Enabling tracing logs all the router navigation events to the browser console.
+	To see navigation events in action, set enableTracing option to true. Enabling tracing logs all the router navigation events to the browser console.
 		RouterModule.forRoot(appRoutes, { enableTracing: true })
 		The following list shows some of the navigation events 
 			NavigationStart
