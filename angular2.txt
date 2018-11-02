@@ -59,6 +59,9 @@ INTRO
 				</tr>
 			</ng-container>		
 	every time when view is rendered, it instantiate the component class. To retain the values of component, use service and instantiate it at root level.
+	to use jquery inside .ts file, first declare $
+		declare var jquery: any;
+		declare var $: any;
 	3 types of parameters -
 		Required parameters
 		Optional parameters
@@ -115,28 +118,41 @@ APPMODULE
 		declarations - The set of components, directives, and pipes (declarables) that belong to this module.
 		imports - The set of NgModules which are available to templates in this module.
 		exports - The set of components, directives, and pipes that can be used in the template of other ngModule's declared component.
-		bootstrap - The set of components that are bootstrapped nad loaded in web page when this module is bootstrapped. 
+		bootstrap - The set of components that are bootstrapped and loaded in web page when this module is bootstrapped. 
+	example
+		import { BrowserModule } from '@angular/platform-browser';
+		import { NgModule } from '@angular/core';
+		import { FormsModule } from '@angular/forms';
+		import { HttpClientModule } from "@angular/common/http";
+		import { AppRoutingModule } from './app-routing.module';
+		import { AppComponent } from './app.component';
+		import { LoginComponent } from './login/login.component';
+		import { AppService } from './app.service';
+		@NgModule({
+			declarations: [AppComponent, LoginComponent],
+			imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
+			providers: [AppService],
+			bootstrap: [AppComponent]
+		})
+		export class AppModule { }
 			
 COMPONENT
 	basic building blocks of an Angular application. 
 	composed of these 3 things
 		Template - Defines the user interface. Contains the HTML, directives and bindings.
-		Class - 
-			Contains the code required for template. 
-			Class in angular can contain methods(logic for the view) and properties(data that we want to display in the view template)
-			We use TypeScript to create the class.
-		Decorator - 
-			We use the Component decorator provided by Angular to add meta data(like selector, template, etc) to the class. 
-			Applying decorator to a class is like applying attributes to the class in c#
-			A class becomes an Angular component, when it is decorated with the Component decorator.
-	Angular provide feature of nested components
-			
-COMPONENT DECORATOR
-	templateUrl?: string - Specifies a template URL for an Angular component. Path relative to index html. Only one of templateUrl or template can be defined per View
-	template?: string - Specifies an inline template within back-tick,quote or double quote for an Angular component. Only one of templateUrl or template can be defined per Component.
-	styleUrls?: string[] - Specifies style-sheet URLs for an Angular component.
-	styles?: string[] - Specifies inline style-sheets for an Angular component.
-	selector?: string - A CSS selector that tells Angular to create and insert an instance of this component wherever it finds the corresponding tag in template HTML
+		Class - Class in angular can contain methods(logic for the view) and properties(data that we want to display in the view template)
+		Decorator - We use the Component decorator provided by Angular to add meta data(like selector, template, etc) to the class. 
+	example
+		import { Component, OnInit } from '@angular/core';
+		@Component({
+			selector: 'app-dashboard',
+			template: `<p>dashboard works!</p>`,  // or templateUrl
+			styles: []  // or styleUrls
+		})
+		export class DashboardComponent implements OnInit {
+			constructor() { }
+			ngOnInit() { }
+		}
 	
 INTERPOLATION
 	Interpolation is all about one way data-binding - From Component to View Template
@@ -145,17 +161,14 @@ INTERPOLATION
 		{{firstName ? firstName : 'No name specified'}}
 		{{'Full Name = ' + getFullName()}}
 		<img src='{{imagePath}}'/>
+	interpolation return string value
 		
 PROPERTY BINDING
 	binding image's src property using interpolation - <img src='{{imagePath}}'/> 
 	binding image's src property using property binding - <img [src]='imagePath'/> 
 	We can also use the alternate syntax for property binding with bind- prefix. This is known as canonical form - <button bind-disabled='isDisabled'>Click me</button>
-	Interpolation is a special syntax that Angular converts into a property binding. Interpolation is just a convenient alternative to property binding.
 	In some cases like when we need to concatenate strings we have to use interpolation instead of property binding - <img src='http://www.pragimtech.com/{{imagePath}}' />
 	When setting an element property to a non-string data value, you must use property binding.
-	ways to use data binding-
-		[<property_name>]
-		bind-<property_name>  (canonical form)
 	
 ATTRIBUTE BINDING
 	In some situations we want to bind to HTML element attributes. For example, colspan attribute does not have corresponding DOM properties.
@@ -167,9 +180,8 @@ ATTRIBUTE BINDING
 CSS CLASS BINDING
 	<button class='colorClass' [class]='classesToApply'> (classesToApply: string = 'italicsClass boldClass';) - this binding syntax add classesToApply but removes colorClass
 	adding or removing single class -
-		To add or remove a single class, include the prefix 'class' in a pair of square brackets, followed by a DOT and then the name of the class that you want to add or remove.
-		It does not remove the existing class already added using the class attribute
 		<button class='colorClass' [class.boldClass]='!applyBoldClass'>My Button</button> (applyBoldClass: boolean = false;) - both classes are added to the button element
+		It does not remove the existing class already added using the class attribute
 	adding or removing multiple classes -
 		use ngClass directive
 		example
@@ -189,44 +201,39 @@ CSS CLASS BINDING
 STYLE BINDING
 	Setting inline styles with style binding is very similar to setting CSS classes with class binding.
 	style property name can be written in either dash-case or camelCase. For example, font-weight style can also be written using camel case - fontWeight. 
-	<button style='color:red' [style.font-weight]="isBold?'bold':'normal'">My Button</button>(isBold: boolean = true;) - button's text is bold and red in color
+	<button style='color:red' [style.font-weight]="isBold?'bold':'normal'">My Button</button> (isBold: boolean = true;) - button's text is bold and red in color
 	Some styles like font-size have a unit extension. To set font-size in pixels use - [style.font-size.px]="fontSize"(fontSize: number = 30)
-	set multiple inline styles -
-		use NgStyle directive
-		example
-			<button style='color:red' [ngStyle]="addStyles()">My Button</button>
-			export class AppComponent {
-				isBold: boolean = true;
-				fontSize: number = 30;
-				isItalic: boolean = true;
-				addStyles() {
-					let styles = {
-						'font-weight': this.isBold ? 'bold' : 'normal',
-						'font-style': this.isItalic ? 'italic' : 'normal',
-						'font-size.px': this.fontSize
-					};
-					return styles;
-				}
+	set multiple inline styles - use NgStyle directive
+		<button style='color:red' [ngStyle]="addStyles()">My Button</button>
+		export class AppComponent {
+			isBold: boolean = true;
+			fontSize: number = 30;
+			isItalic: boolean = true;
+			addStyles() {
+				let styles = {
+					'font-weight': this.isBold ? 'bold' : 'normal',
+					'font-style': this.isItalic ? 'italic' : 'normal',
+					'font-size.px': this.fontSize
+				};
+				return styles;
 			}
+		}
 			
 EVENT BINDING
 	we use [] for property binding. And () for event binding
 	syntax
 		<button (click)="onClick()">Click me</button>
-		<button on-click="onClick()">Click me</button> (canonical form(on- prefix))
+		<button on-click="onClick()">Click me</button> (canonical form (on- prefix))
 	
 2 WAY DATA BINDING
 	it's combination of property binding and event binding
 	first way
 		<input [value]='name' (input)='name = $event.target.value'><br/><p>You entered : {{name}}</p>
-			value]='name' : This property binding flows data from the component class to element property 
-			(input)='name = $event.target.value' : This event binding flows data in the opposite direction i.e from the element to component class property "name"
 			$event - Is exposed by angular event binding, and contains the event data. 
 	second way - using ngModel directive
 		ngModel is present in FormsModule module class. So add "import { FormsModule } from '@angular/forms';" in app.module.ts
 		<input [(ngModel)]='name'><br/><p>You entered : {{name}}</p>
-			The square brackets on the outside are for property binding 
-			The parentheses on the inside are for event binding
+			The square brackets on the outside are for property binding and the parentheses on the inside are for event binding
 			To easily remember this syntax, compare it to a banana in a box [()]
 			
 *ngFor DIRECTIVE
@@ -239,43 +246,27 @@ EVENT BINDING
 		}
 	To get the index of an item in a collection - 
 		<tr *ngFor='let employee of employees; let i=index'><td>{{i}}</td></tr>
-		we are using the index property of the ngFor directive to store the index in a template input variable "i". We used the let keyword to create the template input variable "i".
-		note - if we use 'index' directly in <td>, it will yield nothing. First assign 'index' to a local variable inside ngFor directive, and then use the local variable
-	Identifying the first and the last element in a collection -
-		<tr *ngFor='let employee of employees; let isFirst = first; let isLast = last'><td>{{isFirst}}</td><td>{{isLast}}</td></tr>
-		Use the first and last properties of the ngFor directive to find if an element is the first or last element respectively. 
-	Identifying even and odd element in a collection -
-		<tr *ngFor='let employee of employees; let isEven = even; let isOdd = odd'><td>{{isEven}}</td><td>{{isOdd}}</td></tr>
-		This is similar to identifying first and last element in a collection. Instead of using first and last properties, use even and odd properties. 
+		we are using the index property of the ngFor directive to store the index in a template input variable "i".
+		if we use 'index' directly in <td>, it will yield nothing. First assign 'index' to a local variable inside ngFor directive, and then use the local variable
 	properties and methods of *ngFor
 		trackBy(index,item)
-		index
-		first
-		last
-		even
-		odd
+		index : int
+		first : boolean
+		last : boolean
+		even : boolean
+		odd : boolean
 		
 PIPES
 	Transform data before display
-	Built in pipes 
-		decimal - number_expression | number[:digitInfo[:locale]]
-		percentage - number_expression | percent[:digitInfo[:locale]]
-		currency - number_expression | currency[:currencyCode[:display[:digitInfo[:locale]]]]
-		lowercase - value | lowercase
-		uppercase - value | uppercase
-		titlecase - value | titlecase
-		json - expression | json  (Converts value into JSON string)
-		slice - array_or_string_expression | slice:start[:end]  (Creates a new List or String containing a subset (slice) of the elements.)
-		date - date_expression | date[:format[:timezone[:locale]]]
-		async - observable_or_promise_expression | async - 
-			The async pipe subscribes to an Observable or Promise and returns the latest value it has emitted. 
-			When a new value is emitted, the async pipe marks the component to be checked for changes. 
-			When the component gets destroyed, the async pipe unsubscribes automatically to avoid potential memory leaks.
-	We can also chain pipes - (<td>{{employee.dateOfBirth | date:'fullDate' | uppercase }}</td>)
+	Built in pipes - decimal, percentage, currency, date, lowercase, uppercase, titlecase, json, slice, async
+	async - 
+		The async pipe subscribes to an Observable or Promise and returns the latest value it has emitted. 
+		When a new value is emitted, the async pipe marks the component to be checked for changes. 
+		When the component gets destroyed, the async pipe unsubscribes automatically to avoid potential memory leaks.
 	Pass parameters to pipe using colon " : "
 		<td>{{employee.annualSalary | currency:'USD':true:'1.3-3'}}</td>
-		<td>{{employee.dateOfBirth | date:'fullDate'}}</td>
 		<td>{{employee.dateOfBirth | date:'dd/MM/y'}}</td>
+	We can also chain pipes - (<td>{{employee.dateOfBirth | date:'fullDate' | uppercase }}</td>)
 
 CUSTOM PIPE
 	adding Mr./Miss. to the employee.name
@@ -307,15 +298,15 @@ CUSTOM PIPE
 			<tr *ngFor='let employee of employees | employeeListFilter:"male"'>...</tr>
 			
 PURE AND IMPURE PIPE
-	Angular team recommends not to use pipes to filter and sort data because this pipe can significantly impact the performance of the application if not implemented carefully
-	When you create a new pipe, it is pure by default. To make a pipe impure, set it's pure flag to false. Impure pipes can significantly affect the performance of the application.
+	recommended not to use pipes to filter and sort objects array because this pipe can significantly impact the performance of the application if not implemented carefully
+	When you create a new pipe, it is pure by default. To make a pipe impure, set it's pure flag to false.
+	Impure pipes can significantly impact the performance of the application as they run on every change detection cycle. 
 	Pure pipe
 		Angular executes a pure pipe only when it detects a pure change to the input value
 		A pure change is either a change to a primitive input value (String, Number, Boolean) or a changed object reference (Array, Date, Object)
 		A pure pipe is not executed if the input to the pipe is an object and only the property values of the object change but not the reference
 		Is fast because checking if an object reference has changed is much faster than checking if each of the object individual property values have changed.
-	Using pure pipe for filtering data is not a good idea because, the filtering may not work as expected if the source data is updated without a change to the object reference. 
-	One way to make this work is by making the pipe impure. Impure pipes can significantly impact the performance of the application as they run on every change detection cycle. 
+	Using pure pipe for filtering data is not a good idea because, the filtering may not work as expected if the source data is updated without a change to the object reference
 			
 CONTAINER AND NESTED COMPONENT
 	container is the parent component and the component residing in it is called nested/child component
@@ -337,9 +328,9 @@ CONTAINER AND NESTED COMPONENT
 	pass data from the nested component to the container component using output properties -
 		Steps
 			Import Output and EventEmitter - import { Component, Input, Output, EventEmitter } from '@angular/core';
-			mark the property @Output in the nested component. The type of the output property should be EventEmitter. Here string-type value will be getting emitted
+			mark the property @Output in the nested component. The type of the output property should be EventEmitter.
 				@Output()
-				countRadioButtonSelectionChanged: EventEmitter<string> = new EventEmitter<string>();
+				countRadioButtonSelectionChanged: EventEmitter<string> = new EventEmitter<string>();  // string-type value will be getting emitted
 			emit data when the desired event is processed
 				onRadioButtonSelectionChange() {
 					this.countRadioButtonSelectionChanged.emit(this.selectedRadioButtonValue);
@@ -364,10 +355,9 @@ INPUT PROPERTY CHANGE DETECTION
 				}
 			}
 		Property Setter
-			// Private backing field for the property
 			private _employee: Employee;
+			@Input()			
 			// This property setter is called anytime the input property changes
-			@Input()
 			set employee(val: Employee) {
 				console.log('Previous : ' + (this._employee ? this._employee.name : 'NULL'));
 				console.log('Current : ' + val.name);
@@ -431,7 +421,7 @@ INTERFACE
 		constructor(public name: string, public gender: string, public annualSalary: number) {}
 		constructor(private firstName: string, private lastName: string) {}  // We can also use it with private or protected class properties 
 		
-COMPONENT LIFE-CYCLE HOOKS
+COMPONENT LIFE-CYCLE HOOKS (startHERE)
 	A component has a life-cycle managed by Angular. Angular
 		Creates the component
 		Renders the component
