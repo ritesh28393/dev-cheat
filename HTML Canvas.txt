@@ -1,0 +1,196 @@
+Intro
+	<canvas> tag is used to draw graphics via JavaScript.
+	<canvas> element has no drawing abilities of its own. It is only a container for graphics
+	The getContext() method returns an object that provides methods and properties for drawing on the canvas.
+	
+Colors
+	fillStyle - Sets or returns the color, gradient, or pattern used to fill the drawing
+		JavaScript syntax: context.fillStyle=color|gradient|pattern;
+		Default value: #000000
+	strokeStyle - Sets or returns the color, gradient, or pattern used for strokes
+	shadowColor - Sets or returns the color to use for shadows
+		JavaScript syntax: context.shadowColor=color;
+	shadowBlur - Sets or returns the blur level for shadows
+		example
+			ctx.shadowBlur=20;
+			ctx.shadowColor="black";
+			ctx.fillStyle="red";
+			ctx.fillRect(20,20,100,80);
+	shadowOffsetX - Sets or returns the horizontal distance of the shadow from the shape
+		shadowOffsetX=0 indicates that the shadow is right behind the shape.
+		shadowOffsetX=20 indicates that the shadow starts 20 pixels to the right (from the shape's left position).
+		shadowOffsetX=-20 indicates that the shadow starts 20 pixels to the left (from the shape's left position).
+	shadowOffsetY - Sets or returns the vertical distance of the shadow from the shape	
+	addColorStop() - Specifies the colors and stop positions in a gradient object
+		JavaScript syntax: gradient.addColorStop(stop,color);
+			stop - between 0.0 and 1.0 that represents the position between start and end in a gradient	
+			color - CSS color value to display at the stop position
+	createLinearGradient() - Creates a linear gradient (to use on canvas content)
+		JavaScript syntax: context.createLinearGradient(x0,y0,x1,y1);
+		example
+			var my_gradient=ctx.createLinearGradient(0,0,170,0);  // Horizontal Gradient
+			my_gradient.addColorStop(0,"black");
+			my_gradient.addColorStop(0.5,"red");
+			my_gradient.addColorStop(1,"white");
+			ctx.fillStyle=my_gradient;
+			ctx.fillRect(20,20,150,100);
+	createPattern() - Repeats a specified element in the specified direction
+		JavaScript syntax: context.createPattern(image,"repeat|repeat-x|repeat-y|no-repeat");
+		example
+			var img = document.getElementById("lamp")
+			var pat = ctx.createPattern(img, 'repeat');
+			ctx.fillStyle = pat;
+			ctx.fillRect(0, 0, 150, 100);
+	createRadialGradient() - Creates a radial/circular gradient (to use on canvas content)
+		JavaScript syntax: context.createRadialGradient(x0,y0,r0,x1,y1,r1);
+		example
+			var grd = ctx.createRadialGradient(50, 50, 10, 50, 50, 50);
+			grd.addColorStop(0, "red");
+			grd.addColorStop(1, "white");
+			ctx.fillStyle = grd;
+			ctx.fillRect(0, 0, 100, 100);
+			
+Line Styles
+	lineCap - Sets or returns the style of the end caps for a line
+		JavaScript syntax: context.lineCap="butt|round|square";
+		Default value: butt
+		example
+			ctx.beginPath();
+			ctx.lineCap="round";
+			ctx.moveTo(20,20);
+			ctx.lineTo(200,20);
+			ctx.stroke();
+	lineJoin - Sets or returns the type of corner created, when two lines meet
+		JavaScript syntax: context.lineJoin="bevel|round|miter";
+		Default value: miter
+		example
+			ctx.beginPath();
+			ctx.lineWidth = 10;
+			ctx.lineJoin = "round";
+			ctx.moveTo(20, 20);
+			ctx.lineTo(100, 50);
+			ctx.lineTo(20, 100);
+			ctx.stroke();
+	lineWidth - Sets or returns the current line width
+	miterLimit - Sets or returns the maximum miter length
+		The miter length is the distance between the inner corner and the outer corner where two lines meet.
+		The miterLimit property works only if the lineJoin attribute is "miter".
+		The miter length grows bigger as the angle of the corner gets smaller.
+		If the miter length exceeds the miterLimit value, the corner will be displayed as lineJoin type "bevel"
+		
+Rectangles
+	rect() - Creates a rectangle
+		Use the stroke() or the fill() method to actually draw the rectangle on the canvas.
+		JavaScript syntax: context.rect(x,y,width,height);
+		example
+			ctx.beginPath();
+			ctx.lineWidth="6";
+			ctx.strokeStyle="red";
+			ctx.rect(5,5,290,140); 
+			ctx.stroke();
+	fillRect() - Draws a "filled" rectangle
+		Use the fillStyle property to set a color, gradient, or pattern used to fill the drawing.
+	strokeRect() - Draws a rectangle (no fill)
+		Use the strokeStyle property to set a color, gradient, or pattern to style the stroke.
+	clearRect() - Clears the specified pixels within a given rectangle
+	
+Paths
+	fill() - Fills the current drawing (path)
+		If the path is not closed, the fill() method will add a line from lastpoint to startpoint to close the path (like closePath()), and then fill the path.
+		example
+			ctx.beginPath();
+			ctx.rect(20, 20, 150, 100);
+			ctx.fillStyle = "red";
+			ctx.fill();
+	stroke() - Actually draws the path you have defined. Use the strokeStyle property to draw with a given color/gradient.
+	beginPath() - Begins a path, or resets the current path
+		Use moveTo(), lineTo(), quadricCurveTo(), bezierCurveTo(), arcTo(), and arc(), to create paths.
+		Use the stroke() method to actually draw the path on the canvas.
+	moveTo() - Moves the path to the specified point in the canvas, without creating a line
+	lineTo() - Adds a new point and creates a line to that point from the last specified point in the canvas
+	closePath() - Creates a path from the current point back to the starting point
+	clip() - Clips a region of any shape and size from the original canvas
+		Once a region is clipped, all future drawing will be limited to the clipped region (no access to other regions on the canvas). 
+		You can however save the current canvas region using save() before using the clip(), and restore it using restore() any time in the future.
+	quadraticCurveTo() - Creates a quadratic Bézier curve
+		explanation - https://www.w3schools.com/tags/canvas_quadraticcurveto.asp
+		JavaScript syntax: context.quadraticCurveTo(ControlPointX,ControlPointY,EndPointX,EndPointY);
+	bezierCurveTo() - Creates a cubic Bézier curve
+		explanation - https://www.w3schools.com/tags/canvas_beziercurveto.asp
+		JavaScript syntax: context.quadraticCurveTo(ControlPointX1,ControlPointY1,ControlPointX2,ControlPointY2,EndPointX,EndPointY);
+	arc() - Creates an arc/curve (used to create circles, or parts of circles)
+		Use the stroke() or the fill() method to actually draw the arc on the canvas.
+		JavaScript syntax:	context.arc(x,y,r,StartAngle,EndAngle,<Optional>counterclockwise);
+	arcTo() - Creates an arc/curve between two tangents
+		explanation - https://www.w3schools.com/tags/canvas_arcto.asp
+		JavaScript syntax: context.arcTo(x1,y1,x2,y2,r);
+	isPointInPath() - Returns true if the specified point is in the current path, otherwise false
+	
+Transformations
+	scale() - Scales the current drawing bigger or smaller
+		If you scale a drawing, all future drawings will also be scaled. The positioning will also be scaled. 
+		If you scale(2,2); drawings will be positioned twice as far from the left and top of the canvas as you specify.
+		JavaScript syntax: context.scale(scaleWidth,scaleHeight);
+		1=100%, 0.5=50%, 2=200%, etc.
+	rotate() - Rotates the current drawing
+		The rotation will only affect drawings made AFTER the rotation is done.
+		The rotation is made from (0,0) position or the translated origin position
+	translate() - Remaps the (0,0) position on the canvas
+		example
+			ctx.rect(10, 10, 100, 50);
+			ctx.translate(70, 70);
+			ctx.rect(10, 10, 100, 50);
+			ctx.fillStyle = 'red';
+			ctx.fill();
+			
+Text
+	font - Sets or returns the current font properties for text content
+		JavaScript syntax:	context.font="italic small-caps bold 12px arial";
+		Default value:	10px sans-serif
+	textAlign - Sets or returns the current alignment for text content
+		if you set textAlign="right" and place the text in position 150, it means that the text should END in position 150.
+		JavaScript syntax:	context.textAlign="center|end|left|right|start";
+		Default value:	start
+	textBaseline - Sets or returns the current text baseline used when drawing text
+	explanation - https://www.w3schools.com/tags/canvas_textbaseline.asp	
+	JavaScript syntax:	context.textBaseline="alphabetic|top|hanging|middle|ideographic|bottom";
+	Default value:	alphabetic
+	fillText() - Draws "filled" text on the canvas
+		JavaScript syntax:	context.fillText(text,x,y,<optional>maxWidth);
+	strokeText() - Draws text on the canvas (no fill)
+	
+Compositing
+	globalAlpha - Sets or returns the current alpha or transparency value of the drawing
+		The globalAlpha property value must be a number between 0.0 (fully transparent) and 1.0 (no transparancy).
+		example
+			ctx.fillStyle="red";
+			ctx.fillRect(20,20,75,50);
+			ctx.globalAlpha=0.2;  // Turn transparency on
+			ctx.fillStyle="blue"; 
+			ctx.fillRect(50,50,75,50); 
+			ctx.fillStyle="green"; 
+			ctx.fillRect(80,80,75,50);
+	globalCompositeOperation - Sets or returns how a source (new) image are drawn onto a destination (existing) image.
+		explanation - https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_canvas_globalcompop_all
+
+Other
+	save() - Saves the state of the current context
+	restore() - Returns previously saved path state and attributes
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
