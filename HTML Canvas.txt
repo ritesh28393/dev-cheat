@@ -176,21 +176,17 @@ Compositing
 Other
 	save() - Saves the state of the current context
 	restore() - Returns previously saved path state and attributes ie undo the translation movement and rotation since save()
-
-
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	drawImage() - draws an image, canvas, or video onto the canvas.
+		You cannot call the drawImage() method before the image has loaded. 
+		To ensure that the image has been loaded, use window.onload() or document.getElementById("imageID").onload.
+		JavaScript syntax: context.drawImage(img,sx,sy,swidth,sheight,x,y,width,height);
+			var img = document.getElementById("scream");
+			sx<Optional> - The x coordinate where to start clipping	
+			sy<Optional> - The y coordinate where to start clipping	
+			swidth<Optional> - The width of the clipped image	
+			sheight<Optional> - The height of the clipped image	
+			x - The x coordinate where to place the image on the canvas	
+			y - The y coordinate where to place the image on the canvas	
+			width<Optional> - The width of the image to use (stretch or reduce the image)	
+			height<Optional> - The height of the image to use (stretch or reduce the image)
+			
