@@ -175,7 +175,7 @@ Compositing
 
 Other
 	save() - Saves the state of the current context
-	restore() - Returns previously saved path state and attributes
+	restore() - Returns previously saved path state and attributes ie undo the translation movement and rotation since save()
 
 
 
