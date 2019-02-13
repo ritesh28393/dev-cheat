@@ -1,0 +1,381 @@
+INTRO
+	The static Task.WhenAny and Task.WhenAll methods are used to run multiple asynchronous methods concurrently
+		await Task.WhenAny<bool>  //When the second task completes, the Task.WhenAny method call completes
+		(
+			image.RotateTo (360, 4000),
+			image.ScaleTo (2, 2000)
+		);
+		await image.ScaleTo (1, 2000);
+	40 units = 1/4 inch on mobile devices
+	Device class function 
+		StartTimer(TimeSpan interval, Func<bool> callback) - While the callback returns true, the timer will keep recurring.
+		OpenUri(Uri uri) - This often navigates out of the application
+	switch (Device.RuntimePlatform) - Executes differently depending on the platform
+	
+ANIMATION
+	There is no XAML interface for animation classes. However, animations can be encapsulated in behaviors and then referenced from XAML.
+	The ViewExtensions class provides extension methods that rotate, scale, translate, and fade VisualElement instances.
+	The ViewExtensions class also includes a CancelAnimations method that can be used to cancel any animations.
+	Easing class allows to specify how to control animations to speed up or to slow down as they're running
+	Simple Animations
+		TranslateTo animates the TranslationX and TranslationY properties of a VisualElement.
+		ScaleTo animates the Scale property of a VisualElement.
+		RelScaleTo applies an animated incremental increase or decrease to the Scale property of a VisualElement.
+		RotateTo animates the Rotation property of a VisualElement.
+		RelRotateTo applies an animated incremental increase or decrease to the Rotation property of a VisualElement.
+		RotateXTo animates the RotationX property of a VisualElement.
+		RotateYTo animates the RotationY property of a VisualElement.
+		FadeTo animates the Opacity property of a VisualElement.
+	Compound Animations
+		It is a sequential combination of animations, and can be created with the await operator
+		ex - Image is translated over 6 seconds. The subsequent animation methods execute after the previous method has completed.
+			await image.TranslateTo (-100, 0, 1000);    // Move image left
+			await image.TranslateTo (-100, -100, 1000); // Move image up
+			await image.TranslateTo (100, 100, 2000);   // Move image diagonally down and right
+			await image.TranslateTo (0, 100, 1000);     // Move image left
+			await image.TranslateTo (0, 0, 1000);       // Move image up
+	Composite Animations
+		A composite animation is a combination of animations where two or more animations run simultaneously. 
+		Composite animations can be created by mixing awaited and non-awaited animations
+		ex - Image is scaled and simultaneously rotated over 4 seconds
+			image.RotateTo (360, 4000);
+			await image.ScaleTo (2, 2000);
+			await image.ScaleTo (1, 2000);
+			
+BOXVIEW
+	BoxView renders a simple rectangle of a specified width, height, and color
+	Typically you'll set the following properties of BoxView:
+		Color to set its color.
+		CornerRadius to set its corner radius.
+		WidthRequest to set the width of the BoxView in device-independent units.
+		HeightRequest to set the height of the BoxView.
+	WidthRequest and HeightRequest only play role if BoxView is unconstrained in layout. This is the case when layout container needs to know child's size
+	WidthRequest and HeightRequest are ignored if BoxView is constrained in layout, in which case the layout container imposes its own size on BoxView.
+	
+BUTTON
+	Button implements the IFontElement interface, so it includes FontFamily, FontSize, and FontAttributes properties.
+	Using the command interface
+		It is possible for an application to respond to Button taps without handling the Clicked event. 
+		The Button implements an alternative notification mechanism called the command or commanding interface. This consists of two properties:
+			Command of type ICommand
+			CommandParameter property of type Object
+		
+BINDING CONTEXT
+	<ContentPage.BindingContext>
+		<local:CommandDemoViewModel />
+	</ContentPage.BindingContext>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+INTRO
+	Xamarin.Forms contains Pages, Layouts and Controls(Views and Cells)
+	
+APP CLASS
+	The Application class is the starting point for Xamarin.Forms
+	The Application class offers the following features, which are exposed in your projects default App subclass
+		A MainPage property, which is where to set the initial page for the app.
+		A persistent Properties dictionary to store simple values across lifecycle state changes.
+		Lifecycle methods OnStart, OnSleep, and OnResume.
+		Page navigation events PageAppearing, PageDisappearing.
+		Modal navigation events ModalPushing, ModalPushed, ModalPopping, and ModalPopped.
+	MainPage Property
+		The MainPage property on the Application class sets the root page of the application.
+	Properties Dictionary
+		This can be accessed from anywhere in your Xamarin.Forms code using Application.Current.Properties.
+		The Properties dictionary uses a string key and stores an object value.
+		Data added to the dictionary will be available when the application returns from the background or even after it is restarted.
+		Note - dictionary can only serialize primitive types for storage. Attempting to store other types (such as List<string>) can fail silently.
+	Lifecycle Methods
+		OnStart - Called when the application starts.
+		OnSleep - Called each time the application goes to the background.
+		OnResume - Called when the application is resumed, after being sent to the background.
+		There is no method for application termination
+		Normally (i.e. not a crash) application terminate from the OnSleep state, without any additional notifications to your code.
+	Page Navigation events
+		PageAppearing - raised when a page is about to appear on the screen.
+		PageDisappearing - raised when a page is about to disappear from the screen.
+	Modal Navigation Events - let you respond to modal pages being shown and dismissed
+		ModalPushing - ModalPushingEventArgs
+		ModalPushed - ModalPushedEventArgs
+		ModalPopping - the ModalPoppingEventArgs class contains a Cancel property. When Cancel is set to true the modal pop is cancelled.
+		ModalPopped - ModalPoppedEventArgs
+		
+BEHAVIORS
+	Behaviors enable you to implement code that you would normally have to write as code-behind
+	In the context of commanding, behaviors are a useful approach for connecting a control to a command
+	Every Xamarin.Forms control has a Behaviors collection, to which one or more behaviors can be added
+	Note - behaviors are not implicitly removed from controls when page disappears. Behaviors must be explicitly removed prior to pages going out of scope.
+	Xamarin.Forms supports two different styles of behaviors
+		Xamarin.Forms behaviors – 
+			classes that derive from the Behavior or Behavior<T> class, where T is the type of the control to which the behavior should apply.
+			Steps to define behaviors inside control in XAML -
+				Create a class that inherits from the Behavior or Behavior<T> class.
+				Override the OnAttachedTo method to perform any required setup.
+				Override the OnDetachingFrom method to perform any required cleanup.
+				Implement the core functionality of the behavior.
+			override void OnAttachedTo (View bindable)
+				It is fired immediately after the behavior is attached to a control
+				Receives a reference to the control to which it is attached
+				Can be used to register event handlers or perform other setup that's required to support the behavior functionality.
+			override void OnDetachingFrom (View bindable)
+				It is fired when the behavior is removed from the control
+				It is used to perform any required cleanup.ex - unsubscribing from an event on a control to prevent memory leaks.
+			ex - application which highlights the value entered by the user into an Entry control in red, if it's not a double.
+				C# Page -
+					//The core functionality of the behavior is provided by the OnEntryTextChanged method
+					public class NumericValidationBehavior : Behavior<Entry>
+					{
+						protected override void OnAttachedTo(Entry entry)  //registers an event handler for the TextChanged event
+						{
+							entry.TextChanged += OnEntryTextChanged;
+							base.OnAttachedTo(entry);
+						}
+						protected override void OnDetachingFrom(Entry entry)  //de-registering the TextChanged event to prevent memory leaks
+						{
+							entry.TextChanged -= OnEntryTextChanged;
+							base.OnDetachingFrom(entry);
+						}
+						void OnEntryTextChanged(object sender, TextChangedEventArgs args)
+						{
+							double result;
+							bool isValid = double.TryParse (args.NewTextValue, out result);
+							((Entry)sender).TextColor = isValid ? Color.Default : Color.Red;
+						}
+					}
+				XAML Page -
+					<Entry Placeholder="Enter a System.Double">
+						<Entry.Behaviors>
+							<local:NumericValidationBehavior />
+						</Entry.Behaviors>
+					</Entry>
+			Consuming a Xamarin.Forms Behavior with a Style
+				Creating a style that sets the Behaviors property of a control is not possible because the property is read-only. 
+				The solution is to add an attached property to the behavior class that controls adding and removing the behavior. 
+				Ensure that the attached property registers a propertyChanged delegate that will be executed when the value of the property changes.
+			ex - shows an attached property that controls adding and removing the NumericValidationBehavior
+				C# Page -
+					public class NumericValidationBehavior : Behavior<Entry>
+					{
+						public static readonly BindableProperty AttachBehaviorProperty =
+							BindableProperty.CreateAttached ("AttachBehavior", 
+								typeof(bool), 
+								typeof(NumericValidationBehavior), 
+								false, 
+								propertyChanged: OnAttachBehaviorChanged);
+						public static bool GetAttachBehavior (BindableObject view)
+						{
+							return (bool)view.GetValue (AttachBehaviorProperty);
+						}
+						public static void SetAttachBehavior (BindableObject view, bool value)
+						{
+							view.SetValue (AttachBehaviorProperty, value);
+						}
+						static void OnAttachBehaviorChanged (BindableObject view, object oldValue, object newValue)
+						{
+							var entry = view as Entry;
+							if (entry == null) { return; }
+							bool attachBehavior = (bool)newValue;
+							if (attachBehavior) {
+								entry.Behaviors.Add(new NumericValidationBehavior());
+							} 
+							else {
+								var toRemove = entry.Behaviors.FirstOrDefault (b => b is NumericValidationBehavior);
+								if (toRemove != null) {
+									entry.Behaviors.Remove(toRemove);
+								}
+							}
+						}
+						...  //override OnAttachedTo() and OnDetachingFrom() 
+					}
+				XAML File -
+					<Style x:Key="NumericValidationStyle" TargetType="Entry">
+						<Style.Setters>
+							<Setter Property="local:NumericValidationBehavior.AttachBehavior" Value="true" />
+						</Style.Setters>
+					</Style>
+					...
+					<Entry Placeholder="Enter a System.Double" Style="{StaticResource NumericValidationStyle}">
+		Attached behaviors
+			An issue with attached behaviors is that they are defined in a static class, with static properties and methods. 
+			This makes it difficult to create attached behaviors that have state. 
+			In addition, Xamarin.Forms behaviors have replaced attached behaviors as the preferred approach to behavior construction.
+			ex
+				C# Page -
+					public static class NumericValidationBehavior
+					{
+						public static readonly BindableProperty AttachBehaviorProperty =
+							BindableProperty.CreateAttached ("AttachBehavior",
+								typeof(bool),
+								typeof(NumericValidationBehavior),
+								false,
+								propertyChanged:OnAttachBehaviorChanged);
+						public static bool GetAttachBehavior (BindableObject view)
+						{
+							return (bool)view.GetValue (AttachBehaviorProperty);
+						}
+						public static void SetAttachBehavior (BindableObject view, bool value)
+						{
+							view.SetValue (AttachBehaviorProperty, value);
+						}
+						static void OnAttachBehaviorChanged (BindableObject view, object oldValue, object newValue)
+						{
+							var entry = view as Entry;
+							if (entry == null) { return; }
+							bool attachBehavior = (bool)newValue;
+							if (attachBehavior) {
+								entry.TextChanged += OnEntryTextChanged;
+							} 
+							else {
+								entry.TextChanged -= OnEntryTextChanged;
+							}
+						}
+						static void OnEntryTextChanged (object sender, TextChangedEventArgs args)
+						{
+							double result;
+							bool isValid = double.TryParse (args.NewTextValue, out result);
+							((Entry)sender).TextColor = isValid ? Color.Default : Color.Red;
+						}
+					}
+			XAML Page -
+				<Entry Placeholder="Enter a System.Double" local:NumericValidationBehavior.AttachBehavior="true" />
+				
+CUSTOM RENDERERS
+	Custom Renderers let developers customize the appearance and behavior of Xamarin.Forms controls on each platform.
+	Implementing custom renderer class is often heavy-weight response. Effects simplify this process, and are typically used for small styling changes.
+	For most Xamarin.Forms elements, it is optional to provide a custom renderer in each platform project.
+	However, custom renderers are required in each platform project when rendering a View or ViewCell element.
+	If a custom renderer isn't registered, then the default renderer for the control's base class will be used.
+	without using a custom renderer - 
+		C# Page - create a custom control through subclass
+			public class MyEntry : Entry  //the MyEntry control is an Entry control where the BackgroundColor is set to gray
+			{
+				public MyEntry ()
+				{
+					BackgroundColor = Color.Gray;
+				}
+			}
+		XAML Page - consume the custom control in place of the original control. 
+			<ContentPage
+				...
+				xmlns:local="clr-namespace:CustomRenderer;assembly=CustomRenderer"
+				...>
+				...
+				<local:MyEntry Text="In Shared Code" />
+				...
+			</ContentPage>
+	Renderer Base Classes and Native Controls
+		Every Xamarin.Forms control has an accompanying renderer for each platform that creates an instance of a native control
+		https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/custom-renderer/renderers
+	Steps to create custom renderer - 
+		Create an empty (no implementation) Xamarin.Forms custom control. Customization of the control will be carried out in the custom renderer
+		Consume the custom control in XAML in Xamarin.Forms.
+		Create the custom renderer for the control on each platform.
+			Create a subclass of the corresponding Renderer class that renders the native control.
+			Override OnElementChanged() and write logic to customize the control. It is called when the corresponding Xamarin.Forms control is created.
+			Add ExportRenderer attribute to the custom renderer class to register the custom renderer with Xamarin.Forms.
+	ex - implement an Entry control that has a different background color on each platform.
+		Xamarin.Forms C# Page -
+			public class MyEntry : Entry {}
+		Xamarin.Forms XAML Page -
+			<ContentPage ...
+				xmlns:local="clr-namespace:CustomRenderer;assembly=CustomRenderer"
+				...>
+				...
+				<local:MyEntry Text="In Shared Code" />
+				...
+			</ContentPage>
+		Creating the Custom Renderer on iOS
+			using Xamarin.Forms.Platform.iOS;
+			[assembly: ExportRenderer (typeof(MyEntry), typeof(MyEntryRenderer))]
+			namespace CustomRenderer.iOS
+			{
+				public class MyEntryRenderer : EntryRenderer
+				{
+					protected override void OnElementChanged (ElementChangedEventArgs<Entry> e)
+					{
+						base.OnElementChanged (e);  //instantiates an iOS UITextField control, whose reference is assigned to the Control property.
+						if (Control != null) {  //do whatever you want to the UITextField here!
+							Control.BackgroundColor = UIColor.FromRGB (204, 153, 255);
+							Control.BorderStyle = UITextBorderStyle.Line;
+						}
+					}
+				}
+			}
+		Creating the Custom Renderer on Android
+			using Xamarin.Forms.Platform.Android;
+			[assembly: ExportRenderer(typeof(MyEntry), typeof(MyEntryRenderer))]
+			namespace CustomRenderer.Android
+			{
+				class MyEntryRenderer : EntryRenderer
+				{
+					protected override void OnElementChanged(ElementChangedEventArgs<Entry> e)
+					{
+						base.OnElementChanged(e);  //instantiates an Android EditText control, whose reference is assigned to the Control property.
+						if (Control != null)
+						{
+							Control.SetBackgroundColor(global::Android.Graphics.Color.LightGreen);
+						}
+					}
+				}
+			}
+		Creating the Custom Renderer on UWP
+			[assembly: ExportRenderer(typeof(MyEntry), typeof(MyEntryRenderer))]
+			namespace CustomRenderer.UWP
+			{
+				public class MyEntryRenderer : EntryRenderer
+				{
+					protected override void OnElementChanged(ElementChangedEventArgs<Entry> e)
+					{
+						base.OnElementChanged(e);  //instantiates an UMP TextBox control, whose reference is assigned to the Control property.
+						if (Control != null)
+						{
+							Control.Background = new SolidColorBrush(Colors.Cyan);
+						}
+					}
+				}
+			}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
