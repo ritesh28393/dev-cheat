@@ -1,0 +1,140 @@
+STRING
+	Properties
+		char this[int index]
+		int Length { get; }
+	Methods
+		bool Contains(string value) - true if the value parameter occurs within this string, or if value is the empty string (""); otherwise, false.
+		bool EndsWith(string value) - true if value matches the end of this instance; otherwise, false.
+		bool StartsWith (string value)
+		bool Equals(string value) - true if the value of parameter is same as the value of this instance; otherwise, false. Returns false, if value is null.
+		int IndexOf(string value) - zero-based index position of value if that string is found, or -1 if it is not. If value is Empty, the return value is 0.
+		int IndexOf(string value, int startIndex) - The search starts at a specified character position.
+		int LastIndexOf(string value, int startIndex) - search starts at specified character position and proceeds backward toward the beginning of string.
+		string Insert(int startIndex, string value) - Returns a new string in which a specified string is inserted at a specified index position.
+		string Remove(int startIndex) - Returns a new string that is equivalent to this string except for the removed characters
+		string Remove(int startIndex, int count)
+		string Replace(string oldValue, string newValue)
+		string[] Split(params char[] separator)
+		string Substring int startIndex) - The substring starts at a specified character position and continues to the end of the string
+		string Substring(int startIndex, int length)
+		char[] ToCharArray()
+		string ToLower()
+		string ToUpper()
+		string Trim() - Removes all leading and trailing white-space characters
+		string Trim(params char[] trimChars) - Removes all leading and trailing occurrences of a set of characters specified in an array
+		bool String.IsNullOrWhiteSpace(string value) - Indicates whether a specified string is null, empty, or consists only of white-space characters.
+		
+ARRAY
+	Declare a single-dimensional array - int[] array1 = new int[5];
+	Declare and set array element values - int[] array2 = new int[] { 1, 3, 5, 7, 9 };
+	Alternative syntax - int[] array3 = { 1, 2, 3, 4, 5, 6 };
+	Declare a two dimensional array - int[,] multiDimensionalArray1 = new int[2, 3];
+	Declare and set array element values - int[,] multiDimensionalArray2 = { { 1, 2, 3 }, { 4, 5, 6 } };
+	Jagged Arrays
+		The elements of a jagged array can be of different dimensions and sizes. A jagged array is sometimes called an "array of arrays."
+		ex 1 -
+			int[][] jaggedArray = new int[3][];
+			jaggedArray[0] = new int[5];
+			jaggedArray[1] = new int[4];
+			jaggedArray[2] = new int[2];
+		ex 2 -
+			int[][] jaggedArray3 = 
+			{
+				new int[] { 1, 3, 5, 7, 9 },
+				new int[] { 0, 2, 4, 6 },
+				new int[] { 11, 22 }
+			};
+	Properties
+		int Length { get; } - Gets the total number of elements in all the dimensions of the Array
+		int Rank { get; } - a one-dimensional array returns 1, a two-dimensional array returns 2, and so on.
+	Methods
+		int Array.BinarySearch(Array array, object value) - index of the specified value in the specified array, if value is found; otherwise, a negative number
+		int Array.BinarySearch(Array array, int index, int length, object value)
+		int Array.IndexOf(Array array, object value)
+		int Array.LastIndexOf(Array array, object value)
+		T Array.Find<T> (T[] array, Predicate<T> match) - first element that matches, if found; otherwise, the default value for type T.
+		T Array.FindLast<T>(T[] array, Predicate<T> match)
+		T[] Array.FindAll<T> (T[] array, Predicate<T> match)
+		int Array.FindIndex<T>(T[] array, Predicate<T> match) - index of first occurrence of an element that matches, if found; otherwise, -1
+		int Array.FindIndex<T>(T[] array, int startIndex, Predicate<T> match)
+		int Array.FindLastIndex<T>(T[] array, Predicate<T> match)
+		void Array.Reverse(Array array)
+		void Array.Sort(Array array) - Sorts the elements in one-dimensional Array using the IComparable implementation of each element of the Array.
+		
+LIST
+	Properties
+		int Count { get; }
+		T this[int index] { get; set; }
+	Methods
+		void Add(T item) - Adds an object to the end of the List<T>.
+		void Insert(int index, T item)
+		bool Remove(T item) - true if item is successfully removed; otherwise, false. This method also returns false if item was not found in the List<T>.
+		int RemoveAll(Predicate<T> match)
+		void RemoveAt(int index)
+		int BinarySearch(T item) - Searches entire sorted List<T> for an element using the default comparer and returns the zero-based index of the element
+		int IndexOf(T item)
+		int LastIndexOf(T item)
+		int FindIndex(Predicate<T> match)
+		int FindLastIndex(Predicate<T> match)
+		bool Contains(T item)
+		bool Exists(Predicate<T> match)
+		T Find(Predicate<T> match)
+		System.Collections.Generic.List<T> FindAll(Predicate<T> match)
+		T FindLast(Predicate<T> match)
+		void Reverse()
+		void Sort() - Sorts the elements in the entire List<T> using the default comparer
+		
+QUEUE - first-in, first-out(FIFO)
+	Properties
+		int Count { get; }
+	Methods
+		bool Contains(T item)
+		void Enqueue(T item) - Adds an object to the end of the Queue<T>.
+		T Dequeue() - Removes and returns the object at the beginning 
+		T Peek() - Returns the object at the beginning of the Queue<T> without removing it.
+		T[] ToArray()
+		
+STACK - last-in-first-out (LIFO)
+	Properties
+		int Count { get; }
+	Methods
+		bool Contains(T item)
+		void Push(T item) - Inserts an object at the top of the Stack<T>.
+		public T Pop() - Removes and returns the object at the top of the Stack<T>.
+		T Peek() - Returns the object at the top of the Stack<T> without removing it.
+		T[] ToArray()		
+	
+DICTIONARY
+	Properties
+		int Count { get; }
+		TValue this[TKey key] { get; set; }
+		System.Collections.Generic.Dictionary<TKey,TValue>.KeyCollection Keys { get; }
+		System.Collections.Generic.Dictionary<TKey,TValue>.ValueCollection Values { get; }
+	Methods
+		void Add (TKey key, TValue value)
+		bool Remove (TKey key)
+		bool ContainsKey (TKey key)
+		bool ContainsValue (TValue value)
+		bool TryGetValue (TKey key, out TValue value)
+		
+	
+LINKED LIST
+	LinkedListNode
+		constructor - LinkedListNode<T>(T)
+		properties - Next, Previous, Value
+	Properties
+		int Count { get; }
+		System.Collections.Generic.LinkedListNode<T> First { get; }
+		System.Collections.Generic.LinkedListNode<T> Last { get; }
+	Methods
+		void AddAfter(System.Collections.Generic.LinkedListNode<T> node, System.Collections.Generic.LinkedListNode<T> newNode)
+		void AddBefore(System.Collections.Generic.LinkedListNode<T> node, System.Collections.Generic.LinkedListNode<T> newNode)
+		void AddFirst(System.Collections.Generic.LinkedListNode<T> node)
+		void AddLast(System.Collections.Generic.LinkedListNode<T> node)
+		bool Contains(T value)
+		System.Collections.Generic.LinkedListNode<T> Find(T value)
+		System.Collections.Generic.LinkedListNode<T> FindLast(T value)
+		void Remove(System.Collections.Generic.LinkedListNode<T> node)
+		bool Remove(T value) - Removes the first occurrence of the specified value from the LinkedList<T>
+		void RemoveFirst()
+		void RemoveLast()
