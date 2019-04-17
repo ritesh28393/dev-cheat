@@ -75,8 +75,46 @@ BINDING CONTEXT
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 INTRO
 	Xamarin.Forms contains Pages, Layouts and Controls(Views and Cells)
+	XAML extension -
+		StaticResourceExtension - Key
+		DynamicResourceExtension - Key
+		StaticExtension - Member
+		ArrayExtension - Items, Type
+		ReferenceExtension - Name
+		BindingExtension - Converter, ConverterParameter, FallbackValue, Mode, Path, Source, StringFormat
+		IMarkupExtension - Defines the interface for Xamarin.Forms XAML markup extensions
+			ex - shows declaration of a custom markup extension
+				C# code -
+					public class ColorMarkup : IMarkupExtension
+					{
+						public int R { get; set; }
+						public int G { get; set; }
+						public int B { get; set; }
+						public object ProvideValue (IServiceProvider serviceProvider)
+						{
+							return Color.FromRgb (R, G, B);
+						}
+					}   
+				XAML code -
+					<Label TextColor="{localns:ColorMarkup R=100, G=80, B=60}"/>
+		OnPlatformExtension - Android, iOS, UMP, Default, Converter, ConverterParameter
+		StyleSheetExtension - Source, Style	
+	Page Navigation
+		Calls to the OnDisappearing and OnAppearing overrides cannot be treated as guaranteed indications of page navigation. 
+		For example, on iOS, the OnDisappearing override is called on the active page when the application terminates.
 	
 APP CLASS
 	The Application class is the starting point for Xamarin.Forms
@@ -299,7 +337,7 @@ CUSTOM RENDERERS
 			{
 				public class MyEntryRenderer : EntryRenderer
 				{
-					protected override void OnElementChanged (ElementChangedEventArgs<Entry> e)
+					protected override void OnElementChanged (ElementChangedEventArgs<Entry> e)  //renders the native control
 					{
 						base.OnElementChanged (e);  //instantiates an iOS UITextField control, whose reference is assigned to the Control property.
 						if (Control != null) {  //do whatever you want to the UITextField here!
@@ -316,7 +354,7 @@ CUSTOM RENDERERS
 			{
 				class MyEntryRenderer : EntryRenderer
 				{
-					protected override void OnElementChanged(ElementChangedEventArgs<Entry> e)
+					protected override void OnElementChanged(ElementChangedEventArgs<Entry> e)  //renders the native control
 					{
 						base.OnElementChanged(e);  //instantiates an Android EditText control, whose reference is assigned to the Control property.
 						if (Control != null)
@@ -332,7 +370,7 @@ CUSTOM RENDERERS
 			{
 				public class MyEntryRenderer : EntryRenderer
 				{
-					protected override void OnElementChanged(ElementChangedEventArgs<Entry> e)
+					protected override void OnElementChanged(ElementChangedEventArgs<Entry> e)  //renders the native control
 					{
 						base.OnElementChanged(e);  //instantiates an UMP TextBox control, whose reference is assigned to the Control property.
 						if (Control != null)
@@ -342,40 +380,1265 @@ CUSTOM RENDERERS
 					}
 				}
 			}
+	More on Custom Renderer - https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/custom-renderer/
 	
+DATA BINDING
+	A Xamarin.Forms data binding links a pair of properties between two objects, at least one of which is usually a user-interface object
+	Note - target is always the object on which the data binding is set even if it's providing data rather than receiving data.
+	To set the data binding, use the following two members of the target class (target class should derive from BindableObject) -
+		The BindingContext property specifies the source object.
+		The SetBinding method specifies the target property and source property.
+	Bindings with a Binding Context
+		XAML -
+			<StackLayout Padding="10, 0">
+				<Label Text="TEXT" BindingContext="{x:Reference Name=slider}" Rotation="{Binding Path=Value}" />  // Name and Path can be skipped
+				<Slider x:Name="slider" />
+			</StackLayout>
+		Same can be achieved in C# code -
+			label.BindingContext = slider;  //BindingContext property indicates the binding source, which is the Slider.
+			label.SetBinding(Label.RotationProperty, "Value");  //specifies both the target property (BindableProperty) and the source property (string). 
+	Bindings without a Binding Context
+		The BindingContext property is an important component of data bindings, but it is not always necessary. 
+		The source object can instead be specified in the SetBinding call or the Binding markup extension.
+		XAML -
+			<StackLayout Padding="10, 0">
+				<Label Text="TEXT" Scale="{Binding Source={x:Reference Name=slider}, Path=Value}" />  // To skip Path, make it the first property
+				<Slider x:Name="slider" />
+			</StackLayout>
+		other uncommon way (but sometimes it's necessary when complex objects are involved.) -
+			<Label Text="TEXT">
+				<Label.Scale>
+					<Binding Path="Value">
+						<Binding.Source>
+							<x:Reference Name="slider" />
+						</Binding.Source>
+					</Binding>
+				</Label.Scale>
+			</Label>
+		Same can be achieved in C# code -
+			label.SetBinding(Label.ScaleProperty, new Binding("Value", source: slider));
+	Binding Context Inheritance
+		you can specify the source object using the BindingContext property or the Source property of the Binding object. 
+		If both are set, the Source property of the Binding takes precedence over the BindingContext.
+		The setting of the BindingContext property is inherited through the visual tree.
+		XAML -
+			<StackLayout Padding="10">
+				<StackLayout VerticalOptions="FillAndExpand" BindingContext="{x:Reference slider}">
+					<Label Text="TEXT" Rotation="{Binding Value}" />
+					<BoxView Color="BLUE" HorizontalOptions="Center" VerticalOptions="Center" Rotation="{Binding Value}" />
+				</StackLayout>
+				<Slider x:Name="slider" Maximum="360" />
+			</StackLayout>
+	binding mode for every bindable property -
+		Default
+		TwoWay – data goes both ways between source and target (Value property of Slider, Text property of Editor, Entry, SearchBar, and EntryCell)
+		OneWay – data goes from source to target. (Rotation, Scale, Opacity)
+		OneWayToSource – data goes from target to source (SelectedItem property of ListView)
+		OneTime – data goes from source to target, but only when the BindingContext changes (IsTextPredictionEnabled property of Entry)
+	ViewModels and Property-Change Notifications
+		ViewModel is the data-binding source.
+		It implements a notification mechanism that allows the binding infrastructure to be notified when the value of a property changes. 
+		This notification mechanism is the INotifyPropertyChanged interface, which defines a single property named PropertyChanged. 
+		INotifyPropertyChanged interface is also implemented by BindableObject and PropertyChanged event is fired whenever bindable property changes value
+		ex -
+			C# page -
+				//The HslColorViewModel class defines five properties: The Hue, Saturation, Luminosity, and Color properties are interrelated. 
+				//When any one of the three color components changes value, the Color property is recalculated, and PropertyChanged events are fired
+				public class HslColorViewModel : INotifyPropertyChanged
+				{
+					Color color;
+					string name;
+					public event PropertyChangedEventHandler PropertyChanged;
+					public double Hue
+					{
+						set
+						{
+							if (color.Hue != value){ Color = Color.FromHsla(value, color.Saturation, color.Luminosity); }
+						}
+						get{ return color.Hue; }
+					}
+					public double Saturation
+					{
+						set
+						{
+							if (color.Saturation != value){ Color = Color.FromHsla(color.Hue, value, color.Luminosity); }
+						}
+						get{ return color.Saturation; }
+					}
+					public double Luminosity
+					{
+						set
+						{
+							if (color.Luminosity != value){ Color = Color.FromHsla(color.Hue, color.Saturation, value); }
+						}
+						get{ return color.Luminosity; }
+					}
+					public Color Color
+					{
+						set
+						{
+							if (color != value)
+							{
+								color = value;
+								PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Hue"));
+								PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Saturation"));
+								PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Luminosity"));
+								PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Color"));
+								Name = NamedColor.GetNearestColorName(color);
+							}
+						}
+						get{ return color; }
+					}
+					public string Name
+					{
+						private set
+						{
+							if (name != value)
+							{
+								name = value;
+								PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Name"));
+							}
+						}
+						get{ return name; }
+					}
+				}
+			XAML page -
+				//When a ViewModel is set as a binding source, the binding infrastructure attaches a handler to the PropertyChanged event. 
+				//In this way, Binding Extension can be notified of changes to the properties, and can then set the target properties from the changed values.
+				//Value property of Slider is TwoWay. This allows each Slider to be set from ViewModel, and also for ViewModel to be set from each Slider.
+				//When the program is first run, the BoxView, Label, and three Slider elements are all set from the ViewModel based on the initial Color.
+				<ContentPage ... xmlns:local="clr-namespace:DataBindingDemos" x:Class="DataBindingDemos.SimpleColorSelectorPage">
+					<ContentPage.Resources>
+						<ResourceDictionary>
+							<local:HslColorViewModel x:Key="viewModel" Color="MediumTurquoise" />
+							<Style TargetType="Slider">
+								<Setter Property="VerticalOptions" Value="CenterAndExpand" />
+							</Style>
+						</ResourceDictionary>
+					</ContentPage.Resources>
+					<Grid BindingContext="{StaticResource viewModel}">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="*" />
+							<RowDefinition Height="*" />
+						</Grid.RowDefinitions>
+						<BoxView Color="{Binding Color}" Grid.Row="0" />
+						<StackLayout Grid.Row="1" Margin="10, 0">
+							<Label Text="{Binding Name}" HorizontalTextAlignment="Center" />
+							<Slider Value="{Binding Hue}" />
+							<Slider Value="{Binding Saturation}" />
+							<Slider Value="{Binding Luminosity}" />
+						</StackLayout>
+					</Grid>
+				</ContentPage>
+	Overriding the Binding Mode	
+		setting the Mode property to TwoWay doesn't always work as you might expect
+	String Formatting
+		Formating Types in .NET - https://docs.microsoft.com/en-us/dotnet/standard/base-types/formatting-types
+		XAML -
+			<Slider x:Name="slider" />
+			<Label Text="{Binding Source={x:Reference slider}, Path=Value, StringFormat='The slider value is {0:F2}'}" />
+	Binding Path
+		It's actually possible to set Path to a sub-property (a property of a property), or to a member of a collection.
+		If a property in the binding path does not implement INotifyPropertyChanged, any changes to that property will be ignored
+		XAML -
+			<ContentPage ... xmlns:globe="clr-namespace:System.Globalization;assembly=mscorlib" x:Name="page">
+				<StackLayout Margin="10, 0">
+					<TimePicker x:Name="timePicker" />
+					<Label Text="{Binding Source={x:Reference timePicker}, Path=Time.TotalSeconds, StringFormat='{0} total seconds'}" />
+					<Label Text="{Binding Source={x:Reference page}, Path=Content.Children.Count, StringFormat='There are {0} children in this StackLayout'}" />
+					<Label Text="{Binding 
+						Source={x:Static globe:CultureInfo.CurrentCulture}, 
+						Path=DateTimeFormat.DayNames[3], 
+						StringFormat='The middle day of the week is {0}'}" />
+					<Label>
+						<Label.Text>
+							<Binding Path="DateTimeFormat.DayNames[3]" StringFormat="The middle day of the week in France is {0}">
+								<Binding.Source>
+									<globe:CultureInfo>
+										<x:Arguments>
+											<x:String>fr-FR</x:String>
+										</x:Arguments>
+									</globe:CultureInfo>
+								</Binding.Source>
+							</Binding>
+						</Label.Text>
+					</Label>
+					<Label Text="{Binding 
+						Source={x:Reference page}, 
+						Path=Content.Children[1].Text.Length, 
+						StringFormat='The second Label has {0} characters'}" />
+				</StackLayout>
+			</ContentPage>
+	Binding Value Converters
+		For explicit types conversions, you need to implement the IValueConverter interface.
+		The Convert method is called when data moves from the source to the target in OneWay or TwoWay bindings.
+		The ConvertBack method is called when data moves from the target to the source in TwoWay or OneWayToSource bindings.
+		If the data binding also includes a StringFormat setting, the value converter is invoked before the result is formatted as a string.
+		example
+			C# file -
+				public class IntToBoolConverter : IValueConverter
+				{
+					public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+					{
+						return (int)value != 0;
+					}
+					public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+					{
+						return (bool)value ? 1 : 0;
+					}
+				}
+			XAML Snippet -
+				<ContentPage.Resources>
+					<ResourceDictionary>
+						<local:IntToBoolConverter x:Key="intToBool" />
+					</ResourceDictionary>
+				</ContentPage.Resources>
+				......
+				<Entry x:Name="entry" Text="" Placeholder="enter search term" VerticalOptions="CenterAndExpand" />
+				<Button Text="Search" IsEnabled="{Binding Source={x:Reference entry}, Path=Text.Length, Converter={StaticResource intToBool}}" />
+		Binding Converter Properties
+			Value converter classes can have properties and generic parameters
+			example - This particular value converter converts a bool from the source to an object of type T for the target:
+				C# file -
+					public class BoolToObjectConverter<T> : IValueConverter
+					{
+						public T TrueObject { set; get; }
+						public T FalseObject { set; get; }
+						public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+						{
+							return (bool)value ? TrueObject : FalseObject;
+						}
+						public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+						{
+							return ((T)value).Equals(TrueObject);
+						}
+					}
+				XAML file -
+					//Although it's common to instantiate value converters as resources in a resource dictionary
+					//this page demonstrates an alternative: Each value converter is instantiated between Binding.Converter property-element tags. 
+					//The x:TypeArguments indicates the generic argument, and TrueObject and FalseObject are both set to objects of that type
+					<Switch x:Name="switch1" />
+					<Label>
+						<Label.Text>
+							<Binding Source="{x:Reference switch1}" Path="IsToggled">
+								<Binding.Converter>
+									<local:BoolToObjectConverter x:TypeArguments="x:String" TrueObject="Of course!" FalseObject="No way!" />
+								</Binding.Converter>
+							</Binding>
+						</Label.Text>
+					</Label>
+					<Switch x:Name="switch2" />
+					<Label FontSize="18" VerticalOptions="Center">
+						<Label.Style>
+							<Binding Source="{x:Reference switch2}" Path="IsToggled">
+								<Binding.Converter>
+									<local:BoolToObjectConverter x:TypeArguments="Style">
+										<local:BoolToObjectConverter.TrueObject>
+											<Style TargetType="Label">
+												<Setter Property="Text" Value="Indubitably!" />
+												<Setter Property="FontAttributes" Value="Italic, Bold" />
+												<Setter Property="TextColor" Value="Green" />
+											</Style>                                    
+										</local:BoolToObjectConverter.TrueObject>
+										<local:BoolToObjectConverter.FalseObject>
+											<Style TargetType="Label">
+												<Setter Property="Text" Value="Maybe later" />
+												<Setter Property="FontAttributes" Value="None" />
+												<Setter Property="TextColor" Value="Red" />
+											</Style>
+										</local:BoolToObjectConverter.FalseObject>
+									</local:BoolToObjectConverter>
+								</Binding.Converter>
+							</Binding>
+						</Label.Style>
+					</Label>
+		Binding Converter Parameters
+			If ConverterParameter property is set, then the value is passed to the Convert and ConvertBack methods as the parameter argument
+			example
+				{Binding Red, Converter={StaticResource doubleToInt}, ConverterParameter=255, StringFormat='Red = {0:X2}'}
+				//or
+				<Binding.ConverterParameter>
+					<x:Double>255</x:Double>
+				</Binding.ConverterParameter>
+	Binding Fallbacks
+		Sometimes data bindings fail, because the binding source can't be resolved, or because the binding succeeds but returns a null value
+		Binding failure can be handled by defining the FallbackValue and TargetNullValue properties
+		The FallbackValue property allows a fallback value to be defined that will be used when the binding source can't be resolved.
+			<Label Text="{Binding Population, FallbackValue='Population size unknown'}"/>  //value is delimited by single-quote characters.
+			//or
+			<Label Text="{Binding Population, FallbackValue={StaticResource populationUnknown}}"/>  //recommended to define as resources in ResourceDictionary
+		The TargetNullValue property allows a replacement value to be defined that will be used when the binding source is resolved, but the value is null.
+	Compiled Bindings
+		Compiled bindings improve data binding performance by resolving binding expressions at compile-time rather than runtime
+		Process for using compiled bindings -
+			Enable XAML compilation.
+			Set an x:DataType attribute on a VisualElement to the type of the object that the VisualElement and its children will bind to.
+		
+ICOMMAND INTERFACE
+	In MVVM, data bindings are defined between ViewModel's properties (which implements INotifyPropertyChanged) and View's properties (XAML file)
+	The commanding interface provides an approach to implementing commands (user interaction) that is much better suited to the MVVM architecture
+	To allow a data binding between a Button and a ViewModel -
+		define a data binding that targets the Button's Command property and where the source is ViewModel's property of type ICommand
+		The ViewModel contains code associated with that ICommand property that is executed when the button is clicked
+		Set CommandParameter to arbitrary data to distinguish between multiple buttons if they are all bound to the same ICommand property
+	The Command and CommandParameter properties are also defined by the following classes:
+		MenuItem and hence, ToolbarItem, which derives from MenuItem
+		TextCell and hence, ImageCell, which derives from TextCell
+		TapGestureRecognizer
+		SearchBar defines a SearchCommand property of type ICommand and a SearchCommandParameter property. 
+		ListView defines a RefreshCommand property of type ICommand.
+	ICommand consists of two methods and one event - 
+		public void Execute (Object parameter);  //called when a command is performed. Ex - When a button is pressed
+		public bool CanExecute (Object parameter);  //firstly called when the binding is first defined. If this returns false, then Button disables itself.
+		public event EventHandler CanExecuteChanged;  //When that event is fired, the Button calls CanExecute again. THis is fired from within ViewModel
+	Using Command Parameters
+		When working with CommandParameter, use the generic Command<T> class to specify the type of the object set to CommandParameter. 
+		The execute and canExecute methods that you specify have parameters of that type.
+	Adding Commands to Existing Views
+		use a Xamarin.Forms behavior that converts an event into a command.
+	Asynchronous Commanding for Navigation Menus
+		it's possible to use a Xamarin.Forms behavior that converts an event into a command
 	
+DEPENDENCY SERVICE
+EFFECTS	
+FILE HANDLING
+	Saving and Loading Files
+		The System.IO classes can be used to access the file system on each platform. 
+		The File class lets you create, delete, and read files.
+		Directory class allows you to create, delete, or enumerate the contents of directories. 
+		You can also use Stream subclasses, which provide greater degree of control over file operations (such as compression or position search within file)
+		Path of the file can be determined using Environment.SpecialFolder enumeration as the first argument to the Environment.GetFolderPath method.
+	Loading Files Embedded as Resources
+		To embed a file into a .NET Standard assembly, create or add a file and ensure 'Build Action: EmbeddedResource' in properties context menu
+		GetManifestResourceStream is used to access the embedded file using its Resource ID (By default, resourceID=namespace+filename with ext.)
+		ex - shows an XML file being loaded and deserialized from a resource, then bound to a ListView for display
+			var assembly = IntrospectionExtensions.GetTypeInfo(typeof(LoadResourceText)).Assembly;
+			Stream stream = assembly.GetManifestResourceStream("WorkingWithFiles.PCLXmlResource.xml");
+			List<Monkey> monkeys;
+			using (var reader = new System.IO.StreamReader (stream)) 
+			{
+				var serializer = new XmlSerializer(typeof(List<Monkey>));
+				monkeys = (List<Monkey>)serializer.Deserialize(reader);
+			}
+			var listView = new ListView ();
+			listView.ItemsSource = monkeys;
+			
+GESTURES
+	Gesture recognizers can be used to detect user interaction with views in a Xamarin.Forms application.
+	GestureRecognizer class supports tap, pinch, pan, and swipe gestures on View instances.
+	Tap
+		The tap gesture is used for tap detection and is implemented with the TapGestureRecognizer class
+		ex -
+			var tapGestureRecognizer = new TapGestureRecognizer();  //create a TapGestureRecognizer instance
+			tapGestureRecognizer.Tapped += (sender, eventArgs) => {
+				//handle the Tapped event
+			};
+			tapGestureRecognizer.NumberOfTapsRequired = 2; //Set the NumberOfTapsRequired property to wait for a double-tap (or more taps if required)
+			image.GestureRecognizers.Add(tapGestureRecognizer);  //add the instance to the GestureRecognizers collection on the user interface element
+		A gesture recognizer can be added to a control in Xaml using attached properties.
+			<Image Source="tapped.jpg">
+				<Image.GestureRecognizers>
+					<TapGestureRecognizer Tapped="OnTapGestureRecognizerTapped" NumberOfTapsRequired="2" />
+				</Image.GestureRecognizers>
+			</Image>
+		Applications that use the Model-View-ViewModel (MVVM) pattern typically use ICommand rather than wiring up event handlers directly
+			C# snippet -
+				var tapGestureRecognizer = new TapGestureRecognizer();
+				tapGestureRecognizer.SetBinding (TapGestureRecognizer.CommandProperty, "TapCommand");
+				image.GestureRecognizers.Add(tapGestureRecognizer);
+			or XAML snippet -
+				<Image Source="tapped.jpg">
+					<Image.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding TapCommand}" CommandParameter="Image1" />
+					</Image.GestureRecognizers>
+				</Image>
+	Pinch
+		The pinch gesture is used for performing interactive zoom and is implemented with the PinchGestureRecognizer class. 
+		A common scenario for the pinch gesture is to perform interactive zoom of an image at the pinch location.
+	Pan
+		The pan gesture is used for detecting the movement of fingers around the screen and applying that movement to content
+		ex - horizontally and vertically pan an image (whose dimensions are greater than mobile viewPort), so that all of the image content can be viewed
+	Swipe
+		A swipe gesture occurs when a finger is moved across the screen in horizontal or vertical direction
+		It is often used to initiate navigation through content
+		SwipeGestureRecognizer class has Direction property which can be set to multiple SwipeDirection enumeration values (Left, Right, Up, or Down)
+		The SwipeGestureRecognizer class also includes a Threshold property
+			Optionally set to a uint value that represents the minimum swipe distance that must be achieved for a swipe to be recognized.
+			The default value of this property is 100, meaning that any swipes that are less than 100 device-independent units will be ignored.
+		The SwipeGestureRecognizer class also includes Command and CommandParameter properties
+			C# snippet -
+				var boxView = new BoxView { Color = Color.Teal, ... };
+				var leftSwipeGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Left, CommandParameter = "Left" };
+				leftSwipeGesture.SetBinding(SwipeGestureRecognizer.CommandProperty, "SwipeCommand");
+				boxView.GestureRecognizers.Add(leftSwipeGesture);
+			or XAML snippet -
+				<BoxView Color="Teal" ...>
+					<BoxView.GestureRecognizers>
+						<SwipeGestureRecognizer Direction="Left" Command="{Binding SwipeCommand}" CommandParameter="Left" />
+					</BoxView.GestureRecognizers>
+				</BoxView>
+				
+LOCAL DATABASES
+	Applications can use the sqlite-net-pcl NuGet package to incorporate database operations by referencing the SQLite classes
 	
+MESSAGING CENTER
+	MessagingCenter enables view models and other components to communicate with a mere knowledge of a simple Message contract.
+	There are two parts to MessagingCenter - 
+		Subscribe - Listen for messages with a certain signature and perform some action when they are received.
+		Send - Publish a message for listeners to act upon. If no listeners have subscribed then the message is ignored.
+	API for MessagingCenter is simple -
+		Subscribe<TSender> (object subscriber, string message, Action<TSender> callback, TSender source = null)
+		Send<TSender> (TSender sender, string message)
+		Unsubscribe<TSender> (object subscriber, string message)
+		Subscribe<TSender, TArgs> (object subscriber, string message, Action<TSender, TArgs> callback, TSender source = null)		
+		Send<TSender, TArgs> (TSender sender, string message, TArgs args)
+		Unsubscribe<TSender, TArgs> (object subscriber, string message)
+		
+NAVIGATION
+	Hierarchical Navigation
+		To move from one page to another, an application will push a new page onto the navigation stack, where it will become the active page
+		To return back to the previous page, application will pop the current page from the navigation stack, and the new topmost page becomes the active page
+		NavigationPage has a navigation bar which displays a title, an icon, and a Back button that returns to the previous page 
+		NOTE - It's recommended that a NavigationPage should be populated with ContentPage instances only.
+		The first page added to a navigation stack is referred to as the root page of the application
+			public App () { MainPage = new NavigationPage (new Page1Xaml()); }
+			This causes Page1Xaml to be pushed onto the navigation stack, where it becomes the active page and the root page of the application
+		Pushing Pages to the Navigation Stack - await Navigation.PushAsync(new Page2Xaml());
+		Popping Pages from the Navigation Stack - await Navigation.PopAsync();
+		Pops all but the root Page off the navigation stack - await Navigation.PopToRootAsync();
+		Passing Data when Navigating
+			passing data through a page constructor
+			setting the new page's BindingContext to the data - RECOMMENDED
+				async void OnNavigateButtonClicked (object sender, EventArgs e)
+				{
+					var contact = new Contact {Name = "Jane Doe",Age = 30,Occupation = "Developer",Country = "USA"};
+					var secondPage = new SecondPage ();
+					secondPage.BindingContext = contact;
+					await Navigation.PushAsync (secondPage);
+				}
+		Manipulating the Navigation Stack
+			InsertPageBefore (Xamarin.Forms.Page page, Xamarin.Forms.Page before) - Inserts a page in the navigation stack before an existing page in the stack
+				async void OnLoginButtonClicked (object sender, EventArgs e)
+				{
+					...
+					var isValid = AreCredentialsCorrect (user);
+					if (isValid) {
+						App.IsUserLoggedIn = true;
+						Navigation.InsertPageBefore (new MainPage (), this);  //MainPage instance is inserted into navigation stack before current page
+						await Navigation.PopAsync ();  //removes current page from navigation stack, with MainPage instance becoming the active page.
+					} else {// Login failed}
+				}
+			RemovePage (Xamarin.Forms.Page page) - Removes the specified page from the navigation stack
+		Displaying Views in the Navigation Bar
+			Any Xamarin.Forms View can be displayed in the navigation bar of a NavigationPage by setting the NavigationPage.TitleView attached property
+				<NavigationPage.TitleView>
+					<Slider HeightRequest="44" WidthRequest="300" />
+				</NavigationPage.TitleView>
+	Tabbed Page
+		NOTE - It's recommended that a TabbedPage should be populated with NavigationPage and ContentPageinstances only
+		ex - TabbedPage is populated with two child Page objects - ContentPage instance and NavigationPage containing a ContentPage instance.
+			<TabbedPage	xmlns:local="clr-namespace:TabbedPageWithNavigationPage" x:Class="TabbedPageWithNavigationPage.MainPage">
+				<local:TodayPage />
+				<NavigationPage Title="Schedule" Icon="schedule.png">
+					<x:Arguments>
+						<local:SchedulePage />
+					</x:Arguments>
+				</NavigationPage>
+			</TabbedPage>
+	Carousel Page
+		NOTE - A CarouselPage can only be populated with ContentPage instances, or ContentPage derivatives.
+		If CarouselPage is embedded into Detail page of MasterDetailPage, then have MasterDetailPage.IsGestureEnabled=false to prevent gesture conflicts
+	Master-Detail Page
+		It manages two related pages of information – a master page that presents items, and a detail page that presents details about items on the master page
+		MasterDetailPage is designed to be a root page, and using it as a child page in other page types could result in unexpected and inconsistent behavior.
+		NOTE - master page of a MasterDetailPage should always be a ContentPage instance
+		NOTE - detail page should only be populated with TabbedPage, NavigationPage, and ContentPage instances
+		The MasterDetailPage.Master page must have its Title property set, or an exception will occur.
+		The detail page is presented to the user by setting the MasterDetailPage.IsPresented property to false
+		MasterBehavior property determines how the detail page will be displayed -
+			Default – The pages are displayed using the platform default.
+			Popover – The detail page covers, or partially covers the master page.
+			Split – The master page is displayed on the left and the detail page is on the right.
+			SplitOnLandscape – A split screen is used when the device is in landscape orientation.
+			SplitOnPortrait – A split screen is used when the device is in portrait orientation.
+				
+	Modal Page
+		A modal page encourages users to complete a self-contained task that cannot be navigated away from until the task is completed or cancelled
+		A modal page can be any of the Page types supported by Xamarin.Forms
+		To display a modal page the application will push it onto the modal stack, where it will become the active page
+		To return to the previous page the application will pop the current page from the modal stack, and the new topmost page becomes the active page
+		There is no concept of performing modal stack manipulation because these operations are not universally supported
+		NOTE - A NavigationPage instance is not required for performing modal page navigation.
+		Pushing Pages to the Modal Stack - await Navigation.PushModalAsync (detailPage);
+		Application can disable the Back button for the modal page by overriding the Page.OnBackButtonPressed method on the modal page
+	Displaying Pop-ups
+		Xamarin.Forms provides two pop-up-like user interface elements – an alert and an action sheet
+		Displaying an Alert - 
+			DisplayAlert("Alert", "You have been alerted", "OK");
+			bool answer = await DisplayAlert("Question?", "Would you like to play a game", "Yes", "No");
+		Displaying an Action Sheet -
+			string action = DisplayActionSheet (string title, string cancel, string destruction, params string[] buttons);
+				cancel - Can be null to hide the cancel action
+				destruction - Can be null to hide the destructive option.
+				
+CONTROL TEMPLATES
+	Control templates provide a clean separation between the appearance of a page and its content
+	Themes provided by control templates aren't limited to changing the properties of controls. They can also change the controls used to implement the theme.
+	The page or view that consumes the ControlTemplate define content to be displayed by the ContentPresenter
+	A ControlTemplate can be applied to the following types by setting their ControlTemplate properties -
+		ContentPage
+		ContentView
+		TemplatedPage - It is the base class for ContentPage. Unlike ContentPage, TemplatedPage does not have a Content property.
+		TemplatedView - It is the base class for ContentView. Unlike ContentView, TemplatedView does not have a Content property.
+	Control templates can also be applied by using styles to further expand theme ability.
+	Creating a ControlTemplate in XAML - Control templates can be defined at the application level or page level
+		<Application ... x:Class="SimpleTheme.App">
+			<Application.Resources>
+				<ResourceDictionary>
+					<ControlTemplate x:Key="TealTemplate">
+						<Grid>
+							...
+							<BoxView ... />
+							<Label Text="Control Template Demo App" TextColor="White" VerticalOptions="Center" ... />
+							<ContentPresenter ... />
+							<BoxView Color="Teal" ... />
+							<Label Text="(c) Xamarin 2016" TextColor="White" VerticalOptions="Center" ... />
+						</Grid>
+					</ControlTemplate>
+					<ControlTemplate x:Key="AquaTemplate">
+					...
+					</ControlTemplate>
+				</ResourceDictionary>
+			</Application.Resources>
+		</Application>
+	The following code example shows a ContentPage applying the TealTemplate to the ContentView -
+		//The TealTemplate is assigned to the ContentView.ControlTemplate property by using the StaticResource markup extension
+		//The ContentView.Content property is set to a StackLayout that defines the content to be displayed on the ContentPage. 
+		//This content will be displayed by the ContentPresenter contained in the TealTemplate.
+		<ContentPage ... x:Class="SimpleTheme.HomePage">
+			<ContentView x:Name="contentView" Padding="0,20,0,0" ControlTemplate="{StaticResource TealTemplate}">
+				<StackLayout VerticalOptions="CenterAndExpand">
+					<Label Text="Welcome to the app!" HorizontalOptions="Center" />
+					<Button Text="Change Theme" Clicked="OnButtonClicked" />
+				</StackLayout>
+			</ContentView>
+		</ContentPage>
+	Setting a ControlTemplate with a Style
+		<Style TargetType="ContentView">
+			<Setter Property="ControlTemplate" Value="{StaticResource TealTemplate}" />
+		</Style>
+	Re-theming an Application at Runtime
+		void OnButtonClicked(object sender, EventArgs e) {
+			originalTemplate = !originalTemplate;
+			contentView.ControlTemplate = (originalTemplate) ? tealTemplate : aquaTemplate;
+		}
+	Creating a ControlTemplate in C#
+		class TealTemplate : Grid
+		{
+			public TealTemplate ()
+			{
+				...
+				var contentPresenter = new ContentPresenter ();
+				Children.Add (contentPresenter, 0, 1);
+				Grid.SetColumnSpan (contentPresenter, 2);
+				...
+			}
+		}
+	Applying the TealTemplate to the ContentView in C#
+		public class HomePageCS : ContentPage
+		{
+			ControlTemplate tealTemplate = new ControlTemplate (typeof(TealTemplate));
+			ControlTemplate aquaTemplate = new ControlTemplate (typeof(AquaTemplate));
+			public HomePageCS ()
+			{
+				var contentView = new ContentView {
+					Padding = new Thickness (0, 20, 0, 0),
+					Content = new StackLayout {
+						VerticalOptions = LayoutOptions.CenterAndExpand,
+						Children = {
+							new Label { Text = "Welcome to the app!", HorizontalOptions = LayoutOptions.Center },
+							new Button { Text = "Change Theme" }
+							}
+					},
+					ControlTemplate = tealTemplate
+				};
+				Content = contentView;
+			}
+		}
+	Template Binding
+		Allow controls in a control template to data bind to bindable properties of the parent of the target view that owns the ControlTemplate. 
+		TemplateBinding is only supported in the ControlTemplate
+		Creating a TemplateBinding in XAML
+			<ControlTemplate x:Key="TealTemplate">
+				<Grid>
+					...
+					<Label Text="{TemplateBinding Parent.HeaderText}" ... />
+					...
+					<Label Text="{TemplateBinding Parent.FooterText}" ... />
+				</Grid>
+			</ControlTemplate>
+		Here the bindable properties are defined on the grandparent(ContentPage) of the target view, rather than the parent(ContentView)
+			<ContentPage ...>
+				<ContentView ... ControlTemplate="{StaticResource TealTemplate}">
+					...
+				</ContentView>
+			</ContentPage>
+		Bindable properties that are defined on the ContentPage
+			public static readonly BindableProperty HeaderTextProperty =
+				BindableProperty.Create ("HeaderText", typeof(string), typeof(HomePage), "Control Template Demo App");
+			public static readonly BindableProperty FooterTextProperty =
+				BindableProperty.Create ("FooterText", typeof(string), typeof(HomePage), "(c) Xamarin 2016");
+			public string HeaderText {
+				get { return (string)GetValue(HeaderTextProperty); }
+			}
+			public string FooterText {
+				get { return (string)GetValue(FooterTextProperty); }
+			}
+		Binding a BindableProperty to a ViewModel Property
+			HomePageViewModel.cs
+				public class HomePageViewModel
+				{
+					public string HeaderText { get { return "Control Template Demo App"; } }
+					public string FooterText { get { return "(c) Xamarin 2016"; } }
+				}
+			XAML file
+				<ContentPage ... xmlns:local="clr-namespace:SimpleTheme" HeaderText="{Binding HeaderText}" FooterText="{Binding FooterText}">
+					<ContentPage.BindingContext>
+						<local:HomePageViewModel />
+					</ContentPage.BindingContext>
+					<ContentView ControlTemplate="{StaticResource TealTemplate}" ...>
+						...
+					</ContentView>
+				</ContentPage>
+				
+DATA TEMPLATES
+	A DataTemplate is used to specify the appearance of data, and typically uses data binding to display data
+	A DataTemplate can be used as a value for the following properties - 
+		ListView.HeaderTemplate
+		ListView.FooterTemplate
+		ListView.GroupHeaderTemplate
+		ItemsView.ItemTemplate, which is inherited by ListView.
+		MultiPage.ItemTemplate, which is inherited by CarouselPage, MasterDetailPage, and TabbedPage.
+	Although the TableView makes use of Cell objects, it does not use a DataTemplate. This is because data bindings are always set directly on Cell objects.
+	Appearance of the data for each cell in the ListView can be managed by setting the ListView.ItemTemplate property to a DataTemplate by -
+		Creating an Inline DataTemplate.
+		Creating a DataTemplate with a Type.
+		Creating a DataTemplate as a Resource.
+	Creating an Inline DataTemplate
+		<ListView Margin="0,20,0,0">
+			<ListView.ItemsSource>
+				<x:Array Type="{x:Type local:Person}">
+					<local:Person Name="Steve" Age="21" Location="USA" />
+					<local:Person Name="John" Age="37" Location="UK" />
+				</x:Array>
+			</ListView.ItemsSource>
+			<ListView.ItemTemplate>
+				<DataTemplate>  // child of DataTemplate must be of, or derive from, type Cell. This example uses a ViewCell, which derives from Cell
+					<ViewCell>
+						<Grid>
+							...
+							<Label Text="{Binding Name}" FontAttributes="Bold" />
+							<Label Grid.Column="1" Text="{Binding Age}" />
+							<Label Grid.Column="2" Text="{Binding Location}" HorizontalTextAlignment="End" />
+						</Grid>
+					</ViewCell>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	Creating a DataTemplate with a Type
+		The ListView.ItemTemplate property can also be set to a DataTemplate that's created from a cell type.
+			<ListView.ItemTemplate>
+                <DataTemplate>
+                    <local:PersonCell />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+		PersonCell definition
+			<ViewCell ... x:Class="DataTemplates.PersonCell">
+				<Grid>
+					...
+					<Label Text="{Binding Name}" FontAttributes="Bold" />
+					<Label Grid.Column="1" Text="{Binding Age}" />
+					<Label Grid.Column="2" Text="{Binding Location}" HorizontalTextAlignment="End" />
+				</Grid>
+			</ViewCell>
+	Creating a DataTemplate as a Resource
+		<ContentPage ...>
+			<ContentPage.Resources>
+				<ResourceDictionary>
+					<DataTemplate x:Key="personTemplate">
+						<ViewCell>
+							<Grid>
+								...
+							</Grid>
+						</ViewCell>
+					</DataTemplate>
+				</ResourceDictionary>
+			</ContentPage.Resources>
+			<StackLayout Margin="20">
+				...
+				<ListView ItemTemplate="{StaticResource personTemplate}" Margin="0,20,0,0">
+					<ListView.ItemsSource>
+						<x:Array Type="{x:Type local:Person}">
+							<local:Person Name="Steve" Age="21" Location="USA" />
+							...
+						</x:Array>
+					</ListView.ItemsSource>
+				</ListView>
+			</StackLayout>
+		</ContentPage>
+	Data Template Selector 
+		A DataTemplateSelector can be used to choose a DataTemplate at runtime based on the value of a data-bound property
+		It's implemented by creating a class that inherits from DataTemplateSelector. The OnSelectTemplate method is then overridden -
+			public class PersonDataTemplateSelector : DataTemplateSelector
+			{
+				public DataTemplate ValidTemplate { get; set; }
+				public DataTemplate InvalidTemplate { get; set; }
+				protected override DataTemplate OnSelectTemplate (object item, BindableObject container){
+					return ((Person)item).DateOfBirth.Year >= 1980 ? ValidTemplate : InvalidTemplate;
+				}
+			}
+		Consuming a DataTemplateSelector in XAML
+			In XAML, the PersonDataTemplateSelector can be instantiated by declaring it as a resource
+				<ContentPage ... xmlns:local="clr-namespace:Selector;assembly=Selector" x:Class="Selector.HomePage">
+					<ContentPage.Resources>
+						<ResourceDictionary>
+							<DataTemplate x:Key="validPersonTemplate">
+								<ViewCell>...</ViewCell>
+							</DataTemplate>
+							<DataTemplate x:Key="invalidPersonTemplate">
+								<ViewCell>...</ViewCell>
+							</DataTemplate>
+							<local:PersonDataTemplateSelector x:Key="personDataTemplateSelector"
+								ValidTemplate="{StaticResource validPersonTemplate}"
+								InvalidTemplate="{StaticResource invalidPersonTemplate}" />
+						</ResourceDictionary>
+					</ContentPage.Resources>
+					...
+				</ContentPage>
+			The PersonDataTemplateSelector instance is consumed by assigning it to the ListView.ItemTemplate property
+				<ListView x:Name="listView" ItemTemplate="{StaticResource personDataTemplateSelector}" />
+		
+TRIGGERS
+	There are four types of trigger -
+		Property Trigger - occurs when a property on a control is set to a particular value.
+			<Entry Placeholder="enter name">
+				<Entry.Triggers>
+					<Trigger TargetType="Entry" Property="IsFocused" Value="True">
+						<Setter Property="BackgroundColor" Value="Yellow" />
+					</Trigger>
+				</Entry.Triggers>
+			</Entry>
+		Data Trigger - uses data binding to trigger based on the properties of another control.
+			<Entry x:Name="entry" Text="" Placeholder="required field" />
+			<Button x:Name="button" Text="Save" FontSize="Large" HorizontalOptions="Center">
+				<Button.Triggers>
+					<DataTrigger TargetType="Button" Binding="{Binding Source={x:Reference entry}, Path=Text.Length}" Value="0">
+						<Setter Property="IsEnabled" Value="False" />
+					</DataTrigger>
+				</Button.Triggers>
+			</Button>
+		Event Trigger - occurs when an event occurs on the control.
+			XAML file -
+				<EventTrigger Event="Clicked"> 
+					<local:NumericValidationTriggerAction /> 
+				</EventTrigger>
+			C# file -
+				public class NumericValidationTriggerAction : TriggerAction<Entry>  //Implement the generic TriggerAction<T> class
+				{
+					protected override void Invoke (Entry entry)  //Override the Invoke method
+					{
+						double result;
+						bool isValid = Double.TryParse (entry.Text, out result);
+						entry.TextColor = isValid ? Color.Default : Color.Red;
+					}
+				}
+			Be careful when sharing triggers in a ResourceDictionary -
+				One instance will be shared among controls.
+				So any state that is configured once will apply to them all.
+		Multi Trigger - allows multiple trigger conditions to be set before an action occurs.
+			<MultiTrigger TargetType="Button">
+				<MultiTrigger.Conditions>
+					<BindingCondition Binding="{Binding Source={x:Reference email}, Path=Text.Length}" Value="0" />
+					<BindingCondition Binding="{Binding Source={x:Reference phone}, Path=Text.Length}" Value="0" />
+					<PropertyCondition Property="Text" Value="OK" />
+				</MultiTrigger.Conditions>
+				<Setter Property="IsEnabled" Value="False" />
+				<!-- multiple Setter elements are allowed -->
+			</MultiTrigger>
+	Applying a Trigger using a Style
+		<ContentPage.Resources>
+			<ResourceDictionary>
+				<Style TargetType="Entry">
+					<Style.Triggers>
+						<Trigger TargetType="Entry" Property="IsFocused" Value="True">
+							<Setter Property="BackgroundColor" Value="Yellow" />
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</ResourceDictionary>
+		</ContentPage.Resources>
+	If you want a condition "where Text.Length > 0" (which this can't be expressed in XAML),use a class extending IValueConverter
+		MultiTriggerConverter.cs
+			public class MultiTriggerConverter : IValueConverter
+			{
+				public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+				{
+					return (int)value > 0;
+				}
+			}
+		Add it to the page's resource dictionary (along with a custom xmlns:local namespace definition)
+			<ResourceDictionary>
+			   <local:MultiTriggerConverter x:Key="dataHasBeenEntered" />
+			</ResourceDictionary>
+		Use it in trigger
+			<Button.Triggers>
+				<MultiTrigger TargetType="Button">
+					<MultiTrigger.Conditions>
+						<BindingCondition Binding="{Binding Source=..., Path=..., Converter={StaticResource dataHasBeenEntered}}" Value="true" />
+					...
+					</MultiTrigger.Conditions>
+				<Setter Property="IsEnabled" Value="True" />
+				</MultiTrigger>
+			</Button.Triggers>
+	EnterActions and ExitActions
+		Another way to implement changes when a trigger occurs is by adding EnterActions and ExitActions collections and implementing TriggerAction<T>.
+		You can provide both EnterActions and ExitActions as well as Setters in a trigger
+		Be aware that the Setters are called immediately (they do not wait for the EnterAction or ExitAction to complete). 
+		NOTE - EnterActions and ExitActions are ignored on Event Triggers.
+		XAML file -
+			<Entry Placeholder="enter job title">
+				<Entry.Triggers>
+					<Trigger TargetType="Entry" Property="Entry.IsFocused" Value="True">
+					<Trigger.EnterActions>
+						<local:FadeTriggerAction StartsFrom="0"" />
+					</Trigger.EnterActions>
+					<Trigger.ExitActions>
+						<local:FadeTriggerAction StartsFrom="1" />
+					</Trigger.ExitActions>
+					</Trigger>
+				</Entry.Triggers>
+			</Entry>
+		C# file -
+			public class FadeTriggerAction : TriggerAction<VisualElement>
+			{
+				public int StartsFrom { set; get; }
+				protected override void Invoke (VisualElement visual)
+				{
+					visual.Animate("", 
+						new Animation( (d)=>{var val = StartsFrom==1 ? d : 1-d;visual.BackgroundColor = Color.FromRgb(1, val, 1);}),
+						length:1000,
+						easing: Easing.Linear);
+				}
+			}
+		
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+Xamarin Forms Build Native Cross-platform Apps with C#
+01 INTRO
+	ObservableCollection<T> -
+		implements INotifyPropertyChanged and INotifyCollectionChanged interfaces
+		Represents a dynamic data collection that provides notifications when items get added or removed, and not when a property of an item is updated.
+		INotifyPropertyChanged is applied to the properties of the list and not to the properties of the individual element
+	INotifyPropertyChanged -
+		PropertyChanged event(which is left for us to implement/raise/trigger), when raised, notifies subscribers that a property value has changed.
+		example -
+			public class TodoItem : INotifyPropertyChanged
+			{
+				private string _name;
+				public event PropertyChangedEventHandler PropertyChanged;  // Occurs when a property value changes.
+				public string Name
+				{
+					get { return _name; }
+					set
+					{
+						if (value!=_name)
+						{
+							_name = value;
+							NotifyPropertyChanged();
+						}
+					}
+				}
+				private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+				{
+					// CallerMemberName causes the property name of the caller to be substituted as an argument
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+				}
+			}
+	To disable back button press - override OnBackButtonPressed() in the intended page class
+	The task which takes time should be placed under OnPageAppearing() and not under page's construction
+	you can handle a page's control event in another page by making that control public like - public ListView ContactMethods{get{return listview;}}
+02 XAML ESSENTIALS
+	ContentPage class is decorated with ContentProperty("Content") attribute which means it has only one public property 'Content' of type View (single view).
+	Since ContentPage has Content property, we can't have multiple controls/views as children. We can have only one control/view inside ContentPage.
+	StackLayout is derived from Layout<View> which is decorated with ContentProperty("Children") attribute allowing it to have multiple controls/views.
+	BindingContext - Source object to which binding is done
+	Property Element Syntax - 
+		Using XAML element instead of using XAML attribute. 
+		For example '<ContentPage.Padding>...</ContentPage.Padding>'
+		Used to represent complex value instead of string value
+	Dealing With Device Differences - 
+		C# code -
+			switch (Device.RuntimePlatform)
+            {
+                case Device.iOS:
+                    Padding = new Thickness(0, 20, 0, 0);
+                    break;
+                case Device.Android:
+                    //...
+                    break;
+                default:
+                    break;
+            }
+		XAML -
+			<ContentPage.Padding>
+				<OnPlatform x:DataType="Thickness" iOS="0,20,0,0" Android="..."/>
+			</ContentPage.Padding>
+	Bindable properties -
+		Declaration -
+			C# - 
+				public partial class DateCell : ViewCell
+				{
+					public static readonly BindableProperty TitleProperty = BindableProperty.Create("Title", typeof(string), typeof(DateCell));
+					public string Title
+					{
+						get { return (string)GetValue(TitleProperty); }
+						set { SetValue(TitleProperty, value); }
+					}
+					public DateCell ()
+					{
+						InitializeComponent ();
+						BindingContext = this;
+					}
+				}
+			XAML -
+				<ViewCell ... x:Class="App1.DateCell">
+					<StackLayout Orientation="Horizontal" Padding="15,0">
+						<Label Text="{Binding Title}" VerticalOptions="Center"/>
+						<DatePicker Date="8 Apr 2019" HorizontalOptions="EndAndExpand"/>
+					</StackLayout>
+				</ViewCell>
+		Usage XAML - <local:DateCell Title="Start"/>		
+			
+03 LAYOUTS
+	StackLayout - 
+		By default, VerticalOptions and HorizontalOptions is set to Fill (stretches to fill its parent container)
+		Orientation has the value of Horizontal and Vertical(by default)
+		Spacing is the space between the children while padding it the space between the layout and its children
+	Grid - Use to position controls in row and column
+		Grid stretches to fill its parent container
+		properties - RowSpacing, ColumnSpacing, RowDefinitions, ColumnDefinitions
+		attached bindable properties - Row, RowSpan, Column, ColumnSpan
+		height/width of row/column can be absolute or proportional(*)(default) or Auto(enough to fill all its children)
+	AbsoluteLayout - position the controls relative to the screen
+		attached bindable properties - LayoutBounds(="anchorX,anchorY,width,height"), LayoutFlags(tells LayoutBounds's value is absolute or proportional)
+		LayoutBounds value can be absolute(by default) or proportional(0-1 will means 0% to 100% of screen's width/height)
+	RelativeLayout - position the controls relative to other control
+		attached bindable properties - XConstraint,YConstraint,WidthConstraint,HeightConstraint,BoundsConstraint
+		value of Constraint is XAML markup expression - {ConstraintExpression 
+			Type=RelativeToParent/RelativeToView, 
+			Property=...,  //generally Width or Height
+			Factor=...,  // Property's Value multiplied by the Factor's Value
+			Constant=...,  // Can be negative or positive
+			ElementName=...}  // Needed only when Type is RelativeToView
+		
+04 IMAGES
+	Image Sources
+		Platform Independent (like background images)
+			Download using URI
+				var imageSource = (UriImageSource)ImageSource.FromUri(new Uri("http://lorempixel.com/1920/1080/sports/7/"));
+				//or var imageSource = new UriImageSource() { Uri = new Uri("http://lorempixel.com/1920/1080/sports/7/") };
+				imageSource.CachingEnabled = false;  //indicates whether caching is enabled on imageSource object. By default, it is true
+				imageSource.CacheValidity = TimeSpan.FromHours(1);  //indicates the length of time after which image cache becomes invalid. Default - 1 Hour
+			Embedded image
+				Load image in the form project and set buildAction to EmbeddedResource in the image's properties
+				In C# -
+					image.Source = ImageSource.FromResource("<project namespace>.<folder>.<name of image>.<image extension>");
+				In XAML - 
+					create a MARKUP EXTENSION - EmbeddedImage.cs
+						[ContentProperty("ResourceID")]
+						class EmbeddedImage : IMarkupExtension
+						{
+							public string ResourceID { get; set; }
+							public object ProvideValue(IServiceProvider serviceProvider)
+							{
+								return string.IsNullOrWhiteSpace(ResourceID) ? null : ImageSource.FromResource(ResourceID);
+							}
+						}
+					in xaml file -
+						<ContentPage ... xmlns:local="clr-namespace:App1.MarkupExtention" x:Class="App1.MainPage">
+							<Image Source="{local:EmbeddedImage ResourceID=App1.Images.background.jpg}" Aspect="AspectFill" />
+							//since class is decorated with ContentProperty, we can skip writing ResourceID and can directly pass string value
+						</ContentPage>
+		Platform Specific (like icons, splash screen)
+			Add to each application project
+				Each project has its own rules of naming and storing different pixel-density images in the specified folders.
+				The platform picks the right dimension image based on the device's pixel resolution
+				example -
+					<Image>
+						<Image.Source>
+							<OnPlatform x:DataType="FileImageSource" iOS="clock.png" Android="clock.png" UWP="Images/clock.png"/>
+						</Image.Source>
+					</Image>
+	<Image Source="http://..."/> - Source is of type ImageSource(Abstract Class). 
+		If the string value of Source starts with 'http', then it is implicitly converted into UriImageSource object.
+		Otherwise, the string value is implicitly converted into FileImageSource object.
+	Aspect - Scaling Mode of the image. Possible values - 
+		AspectFill - Scale the image to fit the view. Some parts may be left empty (letter boxing).
+		AspectFit(default) - Scale the image to fill the view. Some parts may be clipped in order to fill the view.
+		Fill - Scale the image so it exactly fills the view. Scaling may not be uniform in X and Y.
+	Use of ActivityIndicator with image -
+		<ActivityIndicator IsRunning="{Binding Source={x:Reference image},Path=IsLoading}"/>
+        <Image Source="http://lorempixel.com/1920/1080/sports/7/" x:Name="image"/>
+		
+05 LISTS
+	data template
+		<ListView x:Name="listview" HasUnevenRows="True">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<!--<TextCell Text="{Binding Name}" Detail="{Binding Description}"/>--> <!--inbulid data template-->
+					<!--<ImageCell Text="{Binding Name}" Detail="{Binding Description}" ImageSource="{Binding ImageUrl}"/>-->  <!--inbulid data template-->
+					<ViewCell>  <!--custom data template-->
+						<StackLayout Orientation="Horizontal" Padding="5">
+							<Image Source="{Binding ImageUrl}"/>
+							<StackLayout HorizontalOptions="StartAndExpand">
+								<Label Text="{Binding Name}"/>
+								<Label Text="{Binding Description}"/>
+							</StackLayout>
+							<Button Text="Follow"/>
+						</StackLayout>
+					</ViewCell>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	grouping items
+		C# -
+			public class Contact
+			{
+				public string Name { get; set; }
+				public string Description { get; set; }
+				public string ImageUrl { get; set; }
+			}
+			public class GroupContacts : List<Contact>
+			{
+				public string Title { get; set; }
+				public string ShortTitle { get; set; }
+				public GroupContacts(string title,string shortTitle)
+				{
+					Title = title;
+					ShortTitle = shortTitle;
+				}
+			}
+		XAML -
+			<ListView x:Name="listview" HasUnevenRows="True" 
+				IsGroupingEnabled="True"   <!--set IsGroupingEnabled to True-->
+				GroupDisplayBinding="{Binding Title}" 
+				GroupShortNameBinding="{Binding ShortTitle}">
+				<ListView.ItemTemplate>
+					<DataTemplate>...</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+	context actions
+		XAML -
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<ViewCell>
+						...
+						<ViewCell.ContextActions>
+							<MenuItem Text="Call" Clicked="MenuItem_Call_Clicked" CommandParameter="{Binding .}"/>
+							<MenuItem Text="Delete" Clicked="MenuItem_Delete_Clicked" IsDestructive="True" CommandParameter="{Binding .}"/>
+						</ViewCell.ContextActions>
+					</ViewCell>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		C# -
+			private void MenuItem_Call_Clicked(object sender, EventArgs e)
+			{
+				MenuItem menuItem = sender as MenuItem;
+				Contact contact = menuItem.CommandParameter as Contact;
+				DisplayAlert("Call", string.Format("Call {0}", contact.Name), "OK");
+			}
+	pull to refresh
+		XAML - <ListView x:Name="listview" IsPullToRefreshEnabled="True" Refreshing="Listview_Refreshing">...</ListView>
+		C# -
+			private void Listview_Refreshing(object sender, EventArgs e)
+			{
+				_contacts.Add(new Contact() { Name = "Mohan", ImageUrl = "http://lorempixel.com/100/100/people/5" });
+				listview.ItemsSource = _contacts;
+				listview.EndRefresh();  // Exits the refreshing state by setting the ListView.IsRefreshing property to false.
+			}
+	search bar
+		XAML -
+			<SearchBar Placeholder="Search..." TextChanged="SearchBar_TextChanged"/>
+			<ListView x:Name="listview">...</ListView>
+		C# -
+			private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
+			{
+				if (string.IsNullOrWhiteSpace(e.NewTextValue))
+					listview.ItemsSource = _contacts;
+				else
+					listview.ItemsSource = _contacts.Where(c => c.Name.ToLower().Contains(e.NewTextValue.ToLower()));
+			}
+		
+06 NAVIGATION
+	Hierarchical Navigation
+		Has a concept of Root page and Active page.
+		Have to instantiate NavigationPage by passing Root Page - MainPage = new NavigationPage(new MainPage());
+		While instantiating NavigationPage, you can set BarBackgroundColor and BarTextColor
+		Push Page on another page - await Navigation.PushAsync(new Page1());
+		Pop the top active page - await Navigation.PopAsync();
+		NavigationPage has few attached properties - BackButtonTitle, HasBackButton, HasNavigationBar, TitleIcon, etc
+	Modal Page Navigation
+		Xamarin has a stack for Modal pages. Has no navigation bar
+		Push modal page on another page - await Navigation.PushModalAsync(new Page1());
+		Pop the top modal page - await Navigation.PopModalAsync();
+	MasterDetailPage
+		Has two Master and Detail properties of type Page
+		If you want to hide the Master Page, set IsPresented to false
+	TabbedPage
+		Type of the Children property is IList<Page>
+	CarouselPage
+		Type of the Children property is IList<ContentPage>
+	displaying Popup
+		string response = await DisplayActionSheet("Title", "Cancel", "Delete", "Btn1", "Btn2");
+		bool response = await DisplayAlert("Title", "Message", "OK", "Cancel");
+		await DisplayAlert("Title", "Message", "OK");
+	Toolbar item
+		toolbar is only visible in NavigationPage
+		Declaring ToolbarItems -
+			<ContentPage.ToolbarItems>
+				<ToolbarItem Name="Alert" Icon="<image_source>" Activated="Button_Clicked" Order="Primary" IsDestructive="True"/>
+			</ContentPage.ToolbarItems>
+		
+07 FORMS AND SETTING PAGES
+	Switch - <Switch IsToggled="True" Toggled="Switch_Toggled"/>
+	Slider -
+		<Slider Maximum="200" Minimum="10" Value="50" ValueChanged="Slider_ValueChanged"/>
+		The order in which the properties are set is important. If Minimum is first, then app fails as Max(1,by default) is less than Min(10)
+	Stepper - <Stepper Maximum="200" Minimum="10" Value="50" Increment="5" ValueChanged="Stepper_ValueChanged"/>
+	Entry(single line) - <Entry Placeholder="Phone" Keyboard="Numeric" Completed="Entry_Completed" TextChanged="Entry_TextChanged"/>
+	Editor(multi line) - <Editor AutoSize="TextChanges" IsSpellCheckEnabled="True"/>
+	Picker -
+		Picker is only useful when the list is small. When list gets big, navigate user to next page to choose an item
+		ex - 
+			XAML -
+				<Picker x:Name="picker" Title="Pick Method" SelectedIndexChanged="Picker_SelectedIndexChanged">
+					<Picker.Items>
+						<x:String>SMS</x:String>
+						<x:String>Phone</x:String>
+					</Picker.Items>
+				</Picker>
+			C# -
+				private void Picker_SelectedIndexChanged(object sender, EventArgs e)
+				{
+					string value = picker.SelectedItem.ToString();
+					DisplayAlert("Selection", value, "OK");
+				}
+	DatePicker and timePicker -
+		<ContentPage ... xmlns:sys="clr-namespace:System;assembly=netstandard" x:Class="App1.TabPage1" Title="My Page">
+			<StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+				<DatePicker Date="{x:Static sys:DateTime.Today}" Format="d MMM yyyy" MinimumDate="1 Jan 2019" DateSelected="DatePicker_DateSelected"/>
+			</StackLayout>   
+		</ContentPage>
+	Table View -
+		It is group of Sections where each Section got list of Cells
+		example - 
+			<TableView Intent="Form"> <!--Intent provides hints to the renderer about how a table will be used-->
+				<TableRoot> <!--As TableView is decorated with [ContentProperty("Root")] and Root is of type TableRoot-->
+					<TableSection Title="Basics">
+						<TextCell Text="Name" Detail="Ritesh Raj"/>
+						<ImageCell Text="Name" Detail="Ritesh Raj" ImageSource="http://lorempixel.com/100/100/people/1/"/>
+						<EntryCell Placeholder="(eg Ritesh Raj)" Label="Name"/>
+						<SwitchCell Text="Notifications" On="True"/>
+					</TableSection>
+					<TableSection Title="ViewCell Demo">
+						<ViewCell> <!--Custom Cell-->
+							<StackLayout Orientation="Horizontal" Padding="15,0">
+								<Label Text="Date" VerticalOptions="Center"/>
+								<DatePicker Date="8 Apr 2019" HorizontalOptions="EndAndExpand"/>
+							</StackLayout>
+						</ViewCell>
+					</TableSection>
+				</TableRoot>
+			</TableView>
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+08 DATA ACCESS
+	Ways to store data - Application Properties, File System, SQLite, and Cloud(API)
+	Application.Current.Properties -
+		It of type IDictionary<string,object>
+		Used to store persistent application state, in the device's permanent storage, across all application code when the application is paused or shut down.
+		Values saved in the properties dictionary must be primitive types, such as integers or strings. 
+		Attempting to save reference types, or collections in particular, can fail silently.
+		SavePropertiesAsync() - store data immediately, rather than waiting for a life cycle event to trigger the data to be saved.
+		You can override OnDisappearing() of the Page to store persistent application state
+	File System -
+		********* getting UnauthorizedAccessException when reading file******** I have to cover this topic
+		https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/files?tabs=windows
+		AS per Video, use PCLStorage
+	SQLite
+		Xamarin.Forms supports database-driven applications using the SQLite database engine, which makes it possible to load and save objects in shared code
+		steps
+			add sqlite-net-pcl by Frank A. Krueger NuGet package
+			create database class -
+				public class TodoItemDatabase
+				{
+					readonly SQLiteAsyncConnection database;
+					public TodoItemDatabase(string dbPath)
+					{
+						database = new SQLiteAsyncConnection(dbPath);  // a local file path for storing the database
+						database.CreateTableAsync<TodoItem>().Wait();
+					}
+					public Task<List<TodoItem>> GetItemsAsync()
+					{
+						return database.Table<TodoItem>().ToListAsync();
+					}
+					// some more useful methods of querying table
+					// GetItemsNotDoneAsync() - database.QueryAsync<TodoItem>("SELECT * FROM [TodoItem] WHERE [Done] = 0");
+					// GetItemAsync(int id) - database.Table<TodoItem>().Where(i => i.ID == id).FirstOrDefaultAsync();
+					// InsertItemAsync(TodoItem item) - database.InsertAsync(item);
+					// UpdateItemAsync(TodoItem item) - database.UpdateAsync(item);
+					// DeleteItemAsync(TodoItem item) - database.DeleteAsync(item);
+				}
+			add a property to the App class that returns the reference to the database class
+				static TodoItemDatabase _database;
+				public static TodoItemDatabase Database
+				{
+					get
+					{
+						if (_database == null)
+						{
+							_database = new TodoItemDatabase(
+							  System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TodoSQLite.db3"));
+						}
+						return _database;
+					}
+				}
+			Use the database property defined in the App class to perform operation on SQLite table
+				var todoItems = await App.Database.GetItemsAsync();
+				await App.Database.InsertItemAsync(todoItem);
+				await App.Database.DeleteItemAsync(todoItem);
+				await App.Database.UpdateItemAsync(todoItem);
+		Advantage of exposing the database as a singleton -
+			A single database connection is created that's kept open while the application runs
+			Therefore avoiding the expense of opening and closing the database file each time a database operation is performed.
+		The advantage of using the asynchronous SQLite.Net API is that database operations are moved to background threads
+	Restful service -
+		Include Newtonsoft.Json and System.Net.Http packages in your solution
+		Get All Content
+			var content = await _client.GetStringAsync(URL);
+            var posts = JsonConvert.DeserializeObject<List<Post>>(content);
+		Post Content
+			var content = JsonConvert.SerializeObject(post);
+            await _client.PostAsync(URL, new StringContent(content));
+		Update - await _client.PutAsync(URL, new StringContent(content));
+		Delete - await _client.DeleteAsync(URL + "/" + post.Id);
+09 MODEL-VIEW-VIEWMODEL ARCHITECTURAL PATTERN
+	ViewModel - Contains the state and behavior of the View
