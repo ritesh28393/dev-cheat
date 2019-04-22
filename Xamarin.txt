@@ -678,7 +678,7 @@ ICOMMAND INTERFACE
 	In MVVM, data bindings are defined between ViewModel's properties (which implements INotifyPropertyChanged) and View's properties (XAML file)
 	The commanding interface provides an approach to implementing commands (user interaction) that is much better suited to the MVVM architecture
 	To allow a data binding between a Button and a ViewModel -
-		define a data binding that targets the Button's Command property and where the source is ViewModel's property of type ICommand
+		define a data binding where the source is ViewModel's property of type ICommand and the target is the Button's Command property
 		The ViewModel contains code associated with that ICommand property that is executed when the button is clicked
 		Set CommandParameter to arbitrary data to distinguish between multiple buttons if they are all bound to the same ICommand property
 	The Command and CommandParameter properties are also defined by the following classes:
@@ -1641,4 +1641,110 @@ Xamarin Forms Build Native Cross-platform Apps with C#
 		Update - await _client.PutAsync(URL, new StringContent(content));
 		Delete - await _client.DeleteAsync(URL + "/" + post.Id);
 09 MODEL-VIEW-VIEWMODEL ARCHITECTURAL PATTERN
-	ViewModel - Contains the state and behavior of the View
+	ViewModel - Contains the state(properties) and behavior(methods) of the View
+	Extracting a View Model - 
+		Replace any reference to UI objects with data-binding. For example, this.Title = ...(C#) should be replaced with <...Title={Binding...}../>(XAML)
+		Move Event Handlers(like click, itemSelect events) to view model 
+	Dealing With Xamarin Dependencies
+		Create interface - 
+			interface IPageService
+			{
+				Task PushAsync(Page page);
+			}
+		Implement the interface
+			class PageService : IPageService
+			{
+				public async Task PushAsync(Page page)
+				{
+					await Application.Current.MainPage.Navigation.PushAsync(page);
+				}
+			}
+		Use the class in the ViewModel
+			....
+			private PageService _pageService;
+			public PlaylistsPageViewModel()
+			{
+				_pageService = new PageService();
+			}
+			...
+			//await Navigation.PushAsync (new PlaylistDetailPage(playlist));
+            await _pageService.PushAsync (new PlaylistDetailPage(playlist));
+	ICommand Interface
+		The value for the Command bindable property is of ICommand type
+		Constructor of Command Class -
+			Command<T>(Action<T> execute);
+			Command(Action execute);
+			Command<T>(Action<T> execute, Func<T, bool> canExecute);
+			Command(Action execute, Func<bool> canExecute);
+		Example -
+			XAML -
+				<ToolbarItem Text="Add" Command="{Binding AddPlaylistCommand}" />
+				...
+				<ListView ItemsSource="{Binding Playlists}" SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}" ItemSelected="OnPlaylistSelected">...
+			Behind-Code -
+				void OnPlaylistSelected(object sender, SelectedItemChangedEventArgs e)
+				{
+					(BindingContext as PlaylistsPageViewModel).SelectPlaylistCommand.Execute(e.SelectedItem);
+				}
+			PlaylistsPageViewModel.cs -
+				public ICommand AddPlaylistCommand { get; private set; }
+				public ICommand SelectPlaylistCommand { get; private set; }
+				public PlaylistsPageViewModel()
+				{
+					AddPlaylistCommand = new Command(AddPlaylist); // without parameter
+					SelectPlaylistCommand = new Command<PlaylistViewModel>(async vm => await SelectPlaylist(vm));  // with parameter
+				}
+				public void AddPlaylist(){...}
+				public async Task SelectPlaylist(PlaylistViewModel playlist){...}
+				
+BEYOND THE BASICS
+	Resource Dictionary
+		It is used when multiple elements have same value for a property. Used to make the XAML file clean and modularized
+		Can be initialized at application, page or element level
+		Use resource dictionary carefully as it degrades the performance.
+		declaring at page level -
+			<ContentPage.Resources>
+				<ResourceDictionary>  // initializing the dictionary
+					<x:Int32 x:Key="borderRadius">20</x:Int32>
+					<Color x:Key="buttonBackgroundcolor">Yellow</Color>
+				</ResourceDictionary>
+			</ContentPage.Resources>
+			<Button BackgroundColor="{StaticResource buttonBackgroundcolor}" BorderWidth="{StaticResource borderWidth}"/>
+	Dynamic Resources
+		StaticResource uses a resource only once during initialization. If you try to change the resource during runtime, the element won't be aware of it.
+		Use DynamicResource if you want to change the resource value at the runtime -
+			XAML -
+				<Button BackgroundColor="{DynamicResource buttonBackgroundcolor}" Clicked="Button_Clicked"/>
+			C# -
+				private void Button_Clicked(object sender, EventArgs e)
+				{
+					this.Resources["buttonBackgroundcolor"] = Color.Green;
+				}
+	Styles
+		Style is defined under ResourceDictionary. Style is the collection of setter elements
+		example -
+			<Style x:Key="buttonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Pink"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="15"/>
+                <Setter Property="FontFamily" Value="Bold"/>                
+            </Style>
+		TargetType is mandatory. If you skip x:Key, then all buttons at that level will have same style
+		Style element act as a object. If you have style at App and page level, then only page level's setter will be applied.
+		For inheritance to work, use 'BasedOn' attribute of style 
+		You can also overwrite setter property by setting that property directly at he element level
+	Messaging Center
+		MainPage.xaml.cs -
+			private async void Button_Clicked(object sender, EventArgs e)
+			{
+				MessagingCenter.Subscribe<NextPage, double>(this, "sliderValueChanged", (nextpage, val) => { label.Text = val.ToString(); });
+				await Navigation.PushAsync(new NextPage());
+				MessagingCenter.Unsubscribe<NextPage>(this, "sliderValueChanged");
+			}
+		NextPage.xaml.cs - 
+			private void Slider_ValueChanged(object sender, ValueChangedEventArgs e)
+			{
+				MessagingCenter.Send<NextPage, double>(this, "sliderValueChanged", e.NewValue);
+			}
+	Accessing Common Device Functionality
+		https://github.com/xamarin/XamarinComponents
