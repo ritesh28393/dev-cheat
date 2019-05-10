@@ -1,0 +1,103 @@
+Intro
+    It is a visual language that synthesizes the classic principles of good design with the innovation of technology and science.
+    Adaptable system of guidelines, components, and tools that support the best practices of user interface design
+    Theme colors should include -
+        Basic (primary, secondary, and primary color variants)
+        Surfaces (backgrounds and components)
+        States (such as error states)
+        Content (typography and iconography)
+    Baseline Material color theme - https://storage.googleapis.com/spec-host-backup/mio-design%2Fassets%2F1PZrjuQLwNHJ1ZyWVEI7Kp_z6_fAOSR33%2Fdarktheme-adjustedcolor-baselines-color-scheme-comparison.png
+        1. The Material Design baseline default theme
+        2. The Material Design baseline dark theme 
+
+Foundation
+    Material Design defines the qualities that can be expressed by UI regions, surfaces, and components.
+    components has Surface
+    Material Design has three-dimensional qualities that are reflected in its use of surfaces, depth, and shadows.
+    In the physical world, objects can be stacked or attached to one another, but cannot pass through each other. They cast shadows and reflect light.
+    Material has varying x & y dimensions (measured in dp) and a uniform thickness (1dp).
+    Environment
+        Surfaces
+            The basic Material surface is opaque white, with 1dp thickness, and casts a shadow. All UI elements in Material Design result from modifications to this surface.
+            Material surfaces can behave in certain ways:
+                Rigid surfaces remain the same size through all interactions.
+                Stretchable surfaces can grow or shrink along one or more edges up to a size limit to accommodate additional content, then behave as rigid surfaces.  For example, tapping “more details” can cause a card to grow vertically and display additional content.
+                Pannable surfaces remain the same size throughout interactions, but content can scroll or pan across the surface.
+            Composite Surface
+                A card can stretch to display a region that scrolls independently of other card content.
+                A single surface can contain multiple pannable surfaces, such as an embedded map that pans independently of a scrollable list
+            Material surfaces at different elevations cast shadows. Don’t express shadows without changing a surface’s elevation.
+            Content is displayed in any shape and color on Material. Content does not add thickness to Material. Content is expressed without being a separate layer.
+            Material can display any shape and color. Content can behave independent of Material, but is limited within the bounds of Material.
+            Content behavior can be independent or dependent of surface behavior.
+            Material is solid. User input and interaction cannot pass through material.
+            Input events only affect the surface of Material. Input events cannot pass through Material.
+            Multiple Material elements cannot occupy the same point in space simultaneously.
+            Prevent multiple Material elements from simultaneously occupying the same point in space, such as by separating elements with elevation.
+            Material cannot pass through other Material. For example, one Material surface cannot pass through another Material surface when changing elevation.
+            Material does not behave like a gas. Material enters and exits through changes in opacity, size, or position.
+            Material is not fluid like a liquid or gel, though it may display content with these properties.
+            Material can change shape.
+            Material can change opacity.
+            Material grows and shrinks only along its plane.
+            Material bends or folds within the depth of the UI.
+            Material surfaces can join together to become a single Material surface.
+            When split, Material can rejoin. For example, if you remove a portion of Material from a surface, the surface will become whole again.
+            Material can be spontaneously generated or dismissed anywhere in the environment.
+            Material can move along any axis.
+            Material surfaces can coordinate their motion.
+            Material motion along the z-axis is typically a result of user interaction.
+            Surfaces can remain in a fixed position. The top app bar remains in a fixed position while the card collection scrolls only vertically behind it.
+            Surface movement can be confined to a single axis, allow movement along a single axis at a time, or allow movement along both axes simultaneously.
+            Surfaces can move independently of each other, or their movement can affect or be dependent upon the movement of other surfaces. A dependency can be based on a variety of mechanics, such as nearby surfaces moving when another surface expands, or the proportion of movement between surfaces moving in parallax.
+            Material surfaces can be transparent, semi-transparent, or opaque. Text on transparent and semi-transparent surfaces may require background treatment to preserve legibility.
+            Scrim
+                Scrims are temporary treatments that can be applied to Material surfaces for the purpose of making content on a surface less prominent. 
+                They help direct user attention to other parts of the screen, away from the surface receiving a scrim.
+                Scrims can be applied in a variety of ways, including -
+                    Darkening or lightening the surface and its content
+                    Reducing the opacity of the surface and its content
+        Elevation 
+            Elevation in Material Design is measured as the distance between Material surfaces. The distance from the front of one Material surface to the front of another is measured along the z-axis in density-independent pixels (dps) and depicted using shadows(by default) or other visual cues, such as surface fills or opacities.
+            Shadows show surface edges, surface overlap, and the degree of elevation.
+            Different surface colors show surface edges and overlap, but not the degree of elevation.
+            Opacity shows surface edges and overlap, but not the degree of elevation.
+            A scrimmed background can indicate surface overlap, but not the degree of elevation.
+            Don’t use shadows for style only.
+            Surfaces at the same elevation can appear differently when other surfaces are behind them.
+            Surfaces at different elevations do the following -
+                Allow surfaces to move in front of and behind other surfaces, such as content scrolling behind app bars
+                Reflect spatial relationships, such as how a floating action button’s shadow indicates it is separate from a card collection
+                Focus attention on the highest elevation, such as a dialog temporarily appearing in front of other surfaces
+            Resting elevation
+                Resting elevations are starting elevation values given to components by default. 
+                Components move from resting elevations in response to the user or a system event. 
+                All Material components have resting elevations that are the same for each type of component. 
+                For example, all cards have the same resting elevations as each other, and a dialog has the same resting elevation as other dialogs.
+                Resting elevations vary based on the environment, platform, or app
+            Changing elevation
+                Components can change elevation in response to user input or system events. When this happens, components move to preset dynamic elevation offsets, which are the default elevations components move to when not resting.
+                Dynamic elevation offsets are the same across each type of component. For example, all cards use the same offset as other cards, and all floating action buttons use the same offset as other floating action buttons.
+                Once the user input (or system event) is completed or cancelled, the component swiftly returns to its resting elevation.
+            Elevation interference
+                When a component moves between its resting elevation and dynamic elevation offset, it shouldn’t collide with other components.
+                To avoid these kinds of collisions, components can move out of the way. For example, if increasing a card’s elevation positions it to pass through a floating action button, that button can disappear or move off-screen before the collision occurs.
+                You can also design your app’s layout to avoid collisions, such as placing a floating action button beside cards, instead of directly above them.
+                Design your app to minimize opportunities for elevation-based interference.
+            To successfully depict elevation, a surface must show - 
+                Surface edges, contrasting the surface from its surroundings
+                Overlap with other surfaces, either at rest or in motion
+                Distance from other surfaces
+            Motion can emphasize elevation using the following methods -
+                Changes in shadows - Changes in shadow size and softness emphasize changes in elevation. The shadow grows to emphasize the card is rising.
+                Displaying overlap - A surface may overlap another upon animation, either partially or completely, showing which surface is in front of the other. As a component expands, a surface may show elevation by overlapping nearby surfaces.
+                Pushing - Surfaces that share the same elevation can move surfaces in their path. A selected list item expands, pushing surrounding items away.
+                Scaling - Scaling the size of a surface up or down can emphasize elevation changes. Foreground and background surfaces scale up and down to emphasize elevation changes.
+                Parallax - Multiple surfaces at different elevations that move at different speeds can create a sense of depth and place focus on foreground content.
+            Elevation hierarchy 
+                Content relates to other content depending on whether they are at similar or different elevations.
+                Surfaces in front of other surfaces typically - 
+                    Contain more important content
+                    Focus attention, such as a dialog
+                    Control the surfaces behind it, such as actions in an app bar
+                https://material.io/design/environment/elevation.html#default-elevations
