@@ -202,3 +202,204 @@ Foundation
                 The higher the density of components, the larger their margins and gutter widths should be.
                 Don’t use both a dense layout grid and dense components, as this will make it difficult to differentiate content groups
             Touch and click targets
+                touch targets should be at least 48 x 48 dp, with at least 8dp of space between each target.
+                There are some edge cases when touch target sizes must be smaller than the recommended minimum 48dp -
+                    Smaller touch targets for links within a paragraph.
+                    Smaller touch targets for a date selection in picker.
+                On non-touch UIs, click targets should be at least 24 x 24 dp, with at least 8dp of space between each target.
+            Typographic density 
+                Line height is the space between lines of text. Line height can be used as a way to create density in typographic layouts. When tightening line height be sure to still use the 4dp baseline grid.
+    Navigation
+        Navigational directions
+            Lateral navigation refers to moving between screens at the same level of hierarchy. An app’s primary navigation component should provide access to all destinations at the top level of its hierarchy.
+                Navigation drawers are appropriate for five or more top-level destinations, and can be used across device sizes for a consistent navigation experience.
+                Bottom navigation bars provide access to 2-5 top-level destinations on mobile devices. Their location, visibility, and persistence across screens allow quick pivoting between destinations.
+                Tabs can be used at any level of an app’s hierarchy to present two or more peer sets of data across screen sizes.
+            Forward navigation refers to moving between screens at consecutive levels of hierarchy, steps in a flow, or across an app. Forward navigation embeds navigation behavior into containers (such as cards, lists, or images), buttons, links, or by using search.
+            Reverse navigation refers to moving backwards through screens either chronologically (within one app or across different apps) or hierarchically (within an app). Platform conventions determine the exact behavior of reverse navigation within an app.
+        Navigation Transition
+            Navigation transitions use motion to guide users between two screens in your app. They help users orient themselves by expressing your app’s hierarchy, using movement to indicate how elements are related to one another.
+            For example, when an element expands to fill the entire screen, the act of expansion expresses that the new screen is a child element. The screen from which it expanded is its parent element.
+            Hierarchical transitions move users one level upwards or downwards through an app’s hierarchy, while peer transitions move users between siblings (screens of equal hierarchy).
+    Color
+        The color system 
+            Helps you create a color theme that reflects your brand or style.
+            Principles        
+            Hierarchical - Color indicates which elements are interactive, how they relate to other elements, and their level of prominence. Important elements should stand out the most.
+            Legible - Text and important elements, like icons, should meet legibility standards when appearing on colored backgrounds, across all screen and device types.
+            Expressive - Reinforce your brand by showing brand colors at memorable moments that reinforce your brand’s style.
+            Baseline Material color theme
+                This includes default colors for primary, secondary, and their variants. 
+                This baseline theme also includes additional colors that define your UI, such as the colors for backgrounds, surfaces, errors, typography, and iconography. 
+                All of these colors can be customized for your app.
+            primary color
+                A primary color is the color displayed most frequently across your app’s screens and components.
+                If you don’t have a secondary color, your primary color can also be used to accent elements.
+                Distinguish UI elements
+                    To create contrast between UI elements, such as distinguishing a top app bar from a system bar, you can use light or dark variants of your primary color on each elements. 
+                    You can also use variants to distinguish elements within a component, such different variants used on a floating action button container, and the icon within it.
+            secondary color
+                A secondary color provides more ways to accent and distinguish your product. 
+                Having a secondary color is optional, and should be applied sparingly to accent select parts of your UI.
+                Secondary colors are best for -
+                    Floating action buttons
+                    Selection controls, like sliders and switches
+                    Highlighting selected text
+                    Progress bars
+                    Links and headlines
+                Just like the primary color, your secondary color can have dark and light variants.
+            Surface, background, and error colors typically don’t represent brand -
+                Surface colors affect surfaces of components, such as cards, sheets, and menus.
+                The background color appears behind scrollable content. The baseline background and surface color is #FFFFFF.
+                Error color indicates errors in components, such as invalid text in a text field. The baseline error color is #B00020.
+            Typography and iconography colors
+                Elements, such as text and icons, should use colors specifically designed to appear clearly and legibly against the colors,such as primary color, secondary color, surface color, background color, or error color, behind them.
+                The defaults for these colors are #FFFFFF and #000000.
+            Alternative colors
+                The Material Design color system supports alternative colors, which are colors used as alternatives to your brand’s primary and secondary colors (they constitute additional colors to your theme).
+                Alternative colors are best for - 
+                    Apps with light and dark themes
+                    Apps with different themes in different sections
+                    Apps that exist as part of a suite of products
+            Tools for picking colors 
+                search google like 'color theme stock market'
+                https://www.websitebuilderexpert.com/designing-websites/how-to-choose-color-for-your-website/
+                https://material.io/tools/color
+                https://material-ui.com/style/color/
+                https://materialpalette.com/
+                https://material.io/inline-tools/color/
+                https://color.adobe.com/create
+        Applying color to UI 
+            guidelines
+                Consistent - Color should be applied throughout a UI consistently and be compatible with the brand it represents.
+                Distinct - Color should create distinction between elements, with sufficient contrast between them.
+                Intentional - Color should be applied purposefully as it can convey meaning in multiple ways, such as relationships between elements and degrees of hierarchy.
+            Identifying app bars
+                The primary color (blue 700) is used on this bottom app bar, and the secondary color (orange 500) is used on the floating action button.
+                If the bottom app bar and floating action button are the same color, use shadow or alternate means to create enough distinction between them.
+            Blending an app bar with the background
+                When an app’s top or bottom app bar color is the same color as the background color, they blend together, placing emphasis on an app’s content instead of its structure.
+                Both this app’s top app bar color and background color is the primary color: white. However, on scroll the top app bar gains a shadow, showing it has an elevation higher than the content that scrolls behind it.
+            Sheets and surfaces
+                The baseline color for sheets and surfaces, such as bottom sheets, navigation drawers, menus, dialogs, and cards is generally white. 
+                These components can incorporate color to create contrast between other surfaces. Contrast can make surface edges apparent,indicating elevation differences when surfaces overlap.
+                The baseline color for cards is white. This color can be customized to express brand or improve legibility. Card text and icons can also use the color theme to improve legibility.
+            Buttons, chips and selection controls 
+                The baseline color for contained, text and outlined buttons is your primary color.
+                The baseline color for floating action buttons and extended floating action buttons is your secondary color.
+                The baseline color for selection controls is your secondary color.
+                Selection controls can inherit your app’s secondary color.
+                Don’t use one of your brand colors for coloring alerts. This will help it stand out.
+            Floating action button (FAB)
+                The floating action button (FAB) should be one of the most recognizable items on your screen.
+                Use color to create contrast between the FAB and surrounding elements, such as the app bar. 
+                Your secondary color is the baseline color for use on the FAB. 
+                If your canvas uses many colors, your FAB can use monochromatic coloring instead, to stand out from the content.
+            Typography and iconography 
+                Color can express whether text has greater, or lesser, importance relative to other text. Color also ensures text remains legible when placed above imagery or backgrounds, which can make it difficult to read the text in front of them.
+                Important text, like tabs and headlines, can use your primary or secondary color.
+                Icons help identify actions and provide information. Their color should contrast against the background to ensure that they are legible and identifiable.
+        Color Usage
+            Color helps express hierarchy, establish brand presence, give meaning, and indicate element states.
+            Hierarchy 
+                When an element’s color contrasts with its surroundings, that element stands out, so users can tell it’s important. Because color themes vary – from bold and bright, to monochromatic or muted – there are different ways to indicate which elements have greater importance.
+                For example, black icons stand out when they are placed against a white background. Multicolored cards draw attention to themselves when placed next to monochromatic colors.
+            Brand 
+                Your brand can use color to emphasize its presence. Brand colors can be used in key moments, in ways that associate those colors with specific actions and information. 
+            Meaning 
+                Color can communicate the meaning of different UI elements. For example, a weather app may display colors indicating current weather conditions, and a navigation app may display color showing traffic conditions, with roads colored red or green
+                If red is a brand color, don’t also use it to convey an error state. Choose alternative alert colors that don’t use brand coloring like yellow
+            State 
+                Color should be noticeable when indicating state changes, as subtle differences in color may be missed. It’s best to indicate a change of state in more than one way, such as by displaying an icon or moving the location of an element.
+        Text legibility 
+            Black text is recommended for use on light backgrounds, and white text on dark backgrounds. If your app has both light and dark themes, make sure the text is available in a contrasting color against each theme.
+            Instead of using gray text and icons on top of colored backgrounds, create better contrast by displaying white or black text with reduced opacity. For example, black text displayed at 75% opacity on a green background gives the text an appearance of black, with a hint of green.
+            Alternatively, you can calculate the color of text by doing the following -
+                Place the color black at reduced opacity in front of a green background
+                Identify the hex value of the resulting darkened green color
+                Use that hex value of that color for your text
+            Dark text on light backgrounds (shown here as #000000 on #FFFFFF) applies the following opacity levels -
+                High-emphasis text has an opacity of 87%
+                Medium-emphasis text and hint text have opacities of 60%
+                Disabled text has an opacity of 38%
+            Colored text should be used sparingly to draw attention and apply selective emphasis. Ideally colored text should be reserved for text elements such as headlines, buttons, and links.
+            helper text on light backgrounds could apply the following opacity levels and default hexes -
+                High emphasis helper: This text uses a hex value #000000 at 87% opacity
+                Default color helper text: This text uses a hex value of #000000 at 60% opacity
+                Default error helper text: This text uses a hex value of #B00020 at 100% opacity
+            To reflect brand, text selection can use an accent of your primary or secondary color. Selected text should be legible against the selection color, and the selection color should contrast the background color
+        Dark Theme
+            A dark theme is a low-light UI that displays mostly dark surfaces.
+            Dark themes reduce the luminance emitted by device screens, while still meeting minimum color contrast ratios
+            principles
+                Darken with grey - Use dark grey, rather than black, to express elevation and space in an environment with a wider range of depth. The recommended dark theme surface color is #121212.
+                Color with accents - Apply limited color accents in dark theme UIs, so the majority of space is dedicated to dark surfaces.
+            Material Design dark themes are defined by the following properties - 
+                Contrast - Dark surfaces and 100% white body text have a contrast level of at least 15.8:1
+                Depth - At higher levels of elevation, components express depth by displaying lighter surface colors
+                Desaturation - Primary colors are desaturated so they pass the Web Content Accessibility Guidelines’ (WCAG) AA standard of at least 4.5:1 (when used with body text) at all elevation levels
+                Limited color - Large surfaces use a dark surface color, with limited color accents (light, desaturated colors)
+            In a dark theme, components retain the same default elevation levels and shadows as components in lighter themes. However, in a dark theme, The higher a surface’s elevation (raising it closer to an implied light source), the lighter that surface becomes. That lightness is expressed through the application of a semi-transparent white overlay. These surface overlay values are designed to maximize legibility, while ensuring the different elevation levels are discernible from one another -
+                Elevation level (White overlay opacity)
+                00dp (0%)
+                01dp (5%)
+                02dp (7%)
+                03dp (8%)
+                04dp (9%)
+                06dp (11%)
+                08dp (12%)
+                12dp (14%)
+                16dp (15%)
+                24dp (16%)
+            The elevation overlays are not applied to component surfaces that use primary or secondary colors. In a dark theme, shadows remain dark to accurately represent a cast shadow.
+            Dark theme surfaces must be dark enough to display white text. They should use a contrast level of at least 15.8:1 between text and the background. This ensures that body text passes WCAG’s AA standard of at least 4.5:1 when applied to surfaces at the highest (and lightest) elevation.
+            To create branded dark surfaces, overlay the primary brand color at a low opacity over the recommended dark theme surface color (#121212). The color #1F1B24 is the result of combining the dark theme surface color #121212 and the 8% Primary color.
+            A primary color is the color displayed most frequently across your app’s screens and components. The baseline Material Design dark theme uses the 200 tone of the primary color (passing the WCAG’s AA standard of at least 4.5:1 for normal text, at all elevation surfaces).
+            In a dark theme, dark surfaces occupy the majority of the UI. Accent colors are typically light (desaturated pastels) or bright (saturated, vivid color) to help accented elements stand out. They should be used sparingly to accent key elements, such as text or buttons.
+            To provide more flexibility and usability in a dark theme, it’s recommended to use lighter tones (200-50) in dark theme, rather than your default color theme (saturated tones ranging from 900-500). 
+            To retain brand identity, brand colors can be used at full saturation in a dark theme, although application should be limited to one or two branded elements, such as a logo or a branded button. By using branded colors sparingly, the elements remain prominent in the hierarchy.
+            This dark theme color for the Error was created by taking the light theme error color (#B00020) and lightening it with a 40% white overlay, to pass AA-Level contrast standards.
+            When light text appears on dark backgrounds (like white on black) it should use the following opacity levels -
+                High-emphasis text has an opacity of 87%
+                Medium-emphasis text and hint text have opacities of 60%
+                Disabled text has an opacity of 38%
+            When a light surface is needed in a dark theme, light coloring can be used on select component surfaces to preserve hierarchy. For example, a dark theme snackbar can display a light surface to help it stand out. To do so, it can apply the light theme’s Surface and On Surface colors.
+            State
+                States visually communicate the status of a component or interactive element through the use of overlays. In a dark theme, states should use the same overlay values as their default (or light) theme, and they can be adjusted to pass AA-level contrast standards.
+                Surface containers that use the color called “Surface” should apply an overlay that matches the color of their icon or text label (if no icon is present).
+                For surface containers that use the “Primary” color, their state overlay is white.
+                overlay for various state
+                    Hovered - 4% overlay
+                    Focused - 12% overlay and for stroke, 100% overlay
+                    Pressed - 10% overlay
+                    Dragged - 8% overlay and 8dp shadow
+                All disabled components are displayed using 12% White for container outlines and fills and 38% White for content such as labels or icons.
+            Tutorial - https://codelabs.developers.google.com/codelabs/design-material-darktheme/#0
+    Typography
+        Category of typography - https://storage.googleapis.com/spec-host-backup/mio-design%2Fassets%2F1W8kyGVruuG_O8psvyiOaCf1lLFIMzB-N%2Ftypesystem-typescale.png
+        The following units are used to express font size on Android, iOS, and the web -
+            Platform - Android - iOS - Web
+            Font size unit - sp - pt - rem
+            Conversion ratio - 1.0 - 1.0 - 0.0625
+        Headlines are the largest text on the screen, reserved for short, important text or numerals.
+        Subtitles are smaller than headlines. They are typically reserved for medium-emphasis text that is shorter in length
+        Caption and overline text (text with a line above it) are the smallest font sizes. They are used sparingly to annotate imagery or to introduce a headline.
+        Button text is a call to action used different types of buttons (such as text, outlined and contained buttons) and in tabs, dialogs, and cards. Button text is typically an all caps 
+        Regardless of pt / sp size, a text’s baseline must sit on the 4dp grid. Line-height must be a value divisible by 4 to maintain the grid.
+        Weight - order of thickness - Light, Regular, Medium, Bold
+        Larger type sizes, such as headlines, use tighter letter-spacing to improve readability and reduce space between letters. For smaller type sizes, looser letter spacing can improve readability as more space between letters increases contrast between each letter shape. Text in all caps, even at small type sizes, has improved readability because of its added letter spacing.
+        Use tabular figures (also known as monospaced numbers), rather than proportional digits, in tables or places where values may change often.
+        Line lengths for body text are usually between 40 to 60 characters. In areas with wider line lengths, such as desktop, longer lines that contain up to 120 characters will need an increased line height from 20sp to 24sp.
+        A text’s line height is proportional to its type size. Type size 14, Line-height 20dp. Type size 20, Line-height 28dp
+        Keep paragraph spacing in the range between .75x and 1.25x of the type size. Type size 20sp, line-height 30dp, paragraph spacing 28dp
+        
+guidelines
+    Overview
+        Create custom Material Themes to make your product unique. Implement your design vision with Material Theming, which simplifies the process of customizing your product and using components, which are the building blocks that make a product usable and functional.
+        Usability and platform guidance describe how to make sure your app is usable for all users. Platform guidance helps you make detailed decisions about what conventions are proper for each platform.
+        Material Theming is the ability to systematically customize Material Design to better reflect your product’s brand. Material Theming consists of three main actions: customizing your theme, applying it across your design mocks, and using it in code. Material Design comes designed with a built-in, baseline theme that can be used as-is, straight out of the proverbial box. You can then customize it as little, or as much, as you like to make Material work for your product.
+    Implementing your theme 
+
+    Usability
+    Components
+    Communication
