@@ -101,3 +101,104 @@ Foundation
                     Focus attention, such as a dialog
                     Control the surfaces behind it, such as actions in an app bar
                 https://material.io/design/environment/elevation.html#default-elevations
+        Light and shadows
+            Shadows in the Material environment are cast by a key light(create sharper, directional shadows) and ambient light(create diffused, soft shadows)
+            Shadow size reflects elevation. Surfaces at higher elevations have larger shadows, while those at lower elevations have smaller shadows.
+            If your product doesn’t use shadows, convey elevation in other ways, such as through parallax motion.
+            The appearance of a shadow indicates the list item has been picked up and can move in front of its peers during this reorder interaction.
+    Layout
+        Principles
+            Predictable - UIs should use intuitive and predictable layouts, with consistent UI regions and spatial organization.
+            Consistent - Layouts should use a consistent grid, keylines, and padding.
+            Responsive - Layouts are adaptive and react to input from the user, device, and screen elements.
+        Structure
+            Material Design layouts are visually balanced. Most measurements align to an 8dp grid applied, which aligns both spacing and the overall layout.
+            Smaller components, such as iconography and typography, can align to a 4dp grid.
+        Density & resolution
+            Pixel density - The number of pixels that fit into an inch is referred to as pixel density.    
+            High-density screens have more pixels per inch than low-density ones. As a result, UI elements of the same pixel dimensions appear larger on low-density screens, and smaller on high-density screens.
+            Screen density = Screen width (or height) in pixels / Screen width (or height) in inches
+            Density-independent pixels, written as dp (pronounced “dips”), are flexible units that scale to have uniform dimensions on any screen. They provide a flexible way to accommodate a design across platforms.
+            dp = (width in pixels * 160) / screen density
+            Material UIs use density-independent pixels to display elements consistently on screens with different densities.  
+            Units for the web - When designing for the web, replace dp with px (for pixel).    
+        Responsive layout grid 
+            The Material Design layout grid is made up of three elements: columns, gutters, and margins.
+            A breakpoint is the range of predetermined screen sizes that have specific layout requirements. At a given breakpoint range, the layout adjusts to suit the screen size and orientation.
+            On mobile, at a breakpoint of 360dp, this layout grid uses 4 columns, 16dp gutters and 16dp margins
+            On tablet, at a breakpoint of 600dp, this layout grid uses 8 columns, 24dp gutters and 16dp margins
+            The layout grid can be adjusted to meet the needs of both your product and various device sizes. 
+            The tighter spacing may suggest the images are closely related to one another, so that they are perceived as part of a collection. The extra space helps each album to be perceived as an individual entity within a collection.
+            Don’t make gutters too large, such as the same width as the columns. Too much space doesn’t leave enough room for content and prevents it from appearing unified.
+            The Material Design layout grid can be customized for touch UIs that scroll horizontally. Horizontal grids can be positioned to accommodate different heights, allowing space for app bars or other UI regions at the top.
+            Whiteframes - Whiteframes are structured layouts that provide a consistent approach to layout, layering, and shadows. They are a starting point, meant to be modified to meet the specific needs of a product.
+        Spacing methods
+            All components align to an 8dp square baseline grid for mobile, tablet, and desktop.
+            Iconography, typography, and some elements within components can align to a 4dp grid.
+            Typography can be placed outside of the 4dp grid when it’s centered within a component, such as a button or list item.
+            keylines
+                They are vertical lines that show where elements are placed in a design that doesn’t align to the grid. 
+                Keylines are determined by each element’s distance from the edge of the screen, measured in increments of 8dp.
+                Keylines should be used in combination with the responsive layout grid to place elements consistently across a design.
+            Padding
+                Padding refers to the space between UI elements. It’s an alternative spacing method to keylines, measured in increments of 8dp or 4dp.
+                Padding should be used in combination with the responsive layout grid to place elements consistently across a design.
+                Padding can be measured both vertically and horizontally. Unlike keylines, padding does not need to span the whole height of a layout.
+            Vertical spacing
+                Vertical spacing refers to the height of a standard element, such as an app bar or list item. The heights of these elements should align to the 8dp grid.
+            Increment
+                An increment is a measurement used to measure the size and placement of elements in your app.
+                It has equal height and width. It can be any number, but it’s recommended to use the height of a standard element (such as the app bar) as your increment.
+                This increment is defined using the height of the app bar. If an app bar is 64dp tall, the increment would be 64 x 64dp.
+            Containers and aspect ratios 
+                A container is a shape used to represent an enclosed area. Containers can hold various UI elements such as an image, icon, or surface.
+                Containers can be rigid and restrict the size or cropping of elements within them. Alternatively, they can be flexible and grow to support the size of the content they hold.
+                An aspect ratio is the proportion of an element’s width to its height. Aspect ratio is written as width:height.
+                To maintain consistency in your layout, use a consistent aspect ratio on elements like images, surfaces, and screen size
+                The following aspect ratios are recommended for use across your UI - 16:9, 3:2, 4:3, 1:1, 3:4, and 2:3
+                Flexible ratios sizing is determined by the layout grid -
+                    Container width is determined by the screen layout, and grows to fill the maximum space available
+                    Container height is determined by the height of the image in that container
+            Touch targets should be at least 48 x 48 dp with at least 8dp of space between them.
+            On non-touch-UIs, click targets should be at least 24 x 24 dp with at least 8dp of space between them
+        Component behavior 
+            Component width can remain the same across screen sizes, or it can change depending on the layout. Component width can be either - Fixed or Fluid
+            Because fixed width elements retain their width during layout changes, their placement can change to accommodate new layouts. Their placement can be either - Pushed or Overlaid
+            As screen space increases, the following responsive patterns may be applied -
+                Reveal - Parts of the UI hidden by smaller screens can be revealed when additional space becomes available at a designated breakpoint.
+                    Elements, such as side navigation, can become visible when screen size increases.
+                    A simple UI may reveal more robust or complex options.
+                    Content that only appears after tapping on a small screen can be revealed by default when more space is available.
+                Transform - A component can transform from one format to another at a designated breakpoint.
+                    Side navigation can transform into tabs on a larger screen.
+                    A list can transform into an image list on a larger screen.
+                    Menu items can transform into icons in a toolbar on a larger screen.
+                Divide - UIs with multiple layers can display all of those layers at once when more screen space is available. UI elements are divided across this newly available space.
+                    Side navigation, list content, and detailed content divide to fill a single view on a larger screen.
+                    Tabbed sibling content is divided within the same view on a larger screen.
+                Reflow - A UI may change its layout to reflow across newly available space.
+                    Elements from a single-column format can reflow to fill the content area in various combinations on a larger screen.
+                    Horizontal tabs can reflow into a vertical list on a larger screen.
+                    Elements can reflow within a component based on a new screen ratio or device orientation.
+                Expand - The UI can expand across more space.
+                    Cards can expand to fill a new and larger space
+                    Dialogs can expand proportionally with content or in specific increments.
+                Position - The position of UI components can change to more appropriate locations.
+                    A bottom sheet on a small screen can reposition itself as a menu on a larger screen.
+                    A floating action button (FAB) can move to a more visible location relative to other UI elements on a larger screen.
+        Density
+            Density principles
+                Scannable - Dense UIs improve browsing and interaction with large amounts of content.
+                Prioritized - Dense UIs help users focus by reducing space between actions.
+                Available - Density exposes more content and actions on a single screen.
+            When to apply density
+                Components with high density enable users to process and take action against large amounts of information in a more manageable way. 
+                List, tables, and long forms are components that benefit from increased density.
+            When not to apply density
+                Don’t apply density to components that involve focused tasks, such as interacting with a dropdown menu or picker. Increasing density on these components reduces their usability.
+                Don’t apply density to components that alert the user of changes, such as snackbars or dialogs. Applying high density to alerts reduces their ability to command attention.
+            Layout
+                To create more scannable groups of content, use a less-dense grid layout with high-density components. 
+                The higher the density of components, the larger their margins and gutter widths should be.
+                Don’t use both a dense layout grid and dense components, as this will make it difficult to differentiate content groups
+            Touch and click targets
