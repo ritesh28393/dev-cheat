@@ -1,0 +1,21 @@
+assign administrator permissions
+	To make a user an administrator of an Azure subscription, assign them the Owner role (an RBAC role) at the subscription scope. The Owner role gives the user full access to all resources in the subscription, including the right to delegate access to others
+configure cost center quotas and tagging
+	Microsoft Azure limits are also sometimes called quotas
+	Following things you can do to get a better idea of your spending. 
+		The pricing calculator can provide an estimate of costs before you create an Azure resource. 
+		The Azure portal provides you with the current cost breakdown and forecast for your subscription. 
+		If you want to group and understand costs for different projects or teams, you can use resource tagging. 
+		If your organization has a reporting system that you prefer to use, check out the billing APIs.
+	If your subscription is a free trial offer, your subscription is automatically disabled when all your credits are used.
+	If spending limit is on and you reach your spending limit, then your services get disabled. That means your VMs are deallocated
+	You can create budgets to manage costs and create alerts that automatically notify stakeholders of spending anomalies and overspending risks
+	You can monitor costs when using Azure services with
+		Tags
+		Cost breakdown and burn rate
+		Cost analysis - Wait 24 hours after you add a service for the data to appear. You can filter by different properties like tags, resource type, resource group, and timespan. Additionally, you can click a resource to see your daily spend history and how much the resource costs each day.
+	In the Azure portal, you can also optimize and reduce Azure costs with Auto shutdown for VMs and Advisor recommendations. Auto shutdown isn't the same as when you shut down within the VM with power options. Auto shutdown stops and deallocates your VMs to stop additional usage charges
+	Only the Account Admin can access the Account Center, change billing information, and manage subscriptions. The Account Admin is the person who went through the sign-up process. If subscription role says something else like Owner, then you don't have full privileges.
+configure Azure subscription policies at Azure subscription level
+	
+	
